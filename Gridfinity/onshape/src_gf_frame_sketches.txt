@@ -1,0 +1,11 @@
+#2 Sketch 1   plane: Top   entities=4
+  L (   0.500,    0.500) -> ( 167.500,    0.500)  len 167.000   AdPHPMtEUUZK
+  L (   0.500,  125.500) -> ( 167.500,  125.500)  len 167.000   AdPHPMtEUUZK
+  L (   0.500,    0.500) -> (   0.500,  125.500)  len 125.000   AdPHPMtEUUZK
+  L ( 167.500,    0.500) -> ( 167.500,  125.500)  len 125.000   AdPHPMtEUUZK
+  dim DISTANCE             0.5 mm                       <external>, AdPHPMtEUUZK
+  dim DISTANCE             0.5 mm                       <external>, AdPHPMtEUUZK
+  dim LENGTH               (#y_count*42 -1) mm          AdPHPMtEUUZK
+  dim LENGTH               (#x_count*42 -1) mm          AdPHPMtEUUZK
+  png: Gridfinity/onshape/sketches/src_gf_frame\02_Sketch_1.png
+

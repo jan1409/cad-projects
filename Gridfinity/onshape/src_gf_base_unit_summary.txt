@@ -1,0 +1,33 @@
+features: 16   rollbackIndex: 16   types: {'newSketch': 5, 'extrude': 5, 'assignVariable': 1, 'cPlane': 1, 'fillet': 1, 'loft': 1, 'chamfer': 1, 'pointPattern': 1}
+  0 ###name = #value             assignVariable    
+      variableType=LENGTH; name=layer_t; lengthValue=0.2 mm; angleValue=0 deg; numberValue=0; anyValue=0; value=0.2 mm; asVersion=V1758_SWEPT_ANGLE_FIX
+  1 Sketch 1                     newSketch         
+      sketchPlane=<query x1>; asVersion=V1758_SWEPT_ANGLE_FIX; entities=4 constraints=12 dims=['37.2 mm', '2.4 mm', '2.4 mm']
+  2 Extrude 1                    extrude           
+      domain=MODEL; bodyType=SOLID; operationType=NEW; surfaceOperationType=NEW; flatOperationType=REMOVE; entities=<query x1>; endBound=BLIND; depth=2.6 mm; offsetDistance=25 mm; draftAngle=3 deg; secondDirectionBound=BLIND; secondDirectionOppositeDirection=True; secondDirectionDepth=25 mm; secondDirectionOffsetDistance=25 mm; secondDirectionDraftAngle=3 deg; booleanScope=<query x1>; defaultSurfaceScope=True; asVersion=V1758_SWEPT_ANGLE_FIX
+  3 Plane 1                      cPlane            
+      entities=<query x1>; cplaneType=OFFSET; offset=5 mm; angle=0 deg; width=150 mm; height=150 mm; asVersion=V1758_SWEPT_ANGLE_FIX
+  4 Sketch 2                     newSketch         
+      sketchPlane=<query x1>; asVersion=V1758_SWEPT_ANGLE_FIX; entities=12 constraints=35 dims=['42 mm', '4 mm', '42 mm']
+  5 Fillet 1                     fillet            
+      filletType=EDGE; entities=<query x4>; tangentPropagation=True; blendControlType=RADIUS; crossSection=CIRCULAR; radius=1.6 mm; width=2 mm; rho=0.5; magnitude=0.5; vertexSettings=<array x0>; pointOnEdgeSettings=<array x0>; allowEdgeOverflow=True; asVersion=V1758_SWEPT_ANGLE_FIX
+  6 Loft 1                       loft              
+      bodyType=SOLID; operationType=ADD; surfaceOperationType=NEW; sheetProfilesArray=<array x2>; wireProfilesArray=<array x0>; startCondition=DEFAULT; startMagnitude=1; endCondition=DEFAULT; endMagnitude=1; guidesArray=<array x0>; trimGuidesByProfiles=True; sectionCount=5; connections=<array x0>; curveCount=10; booleanScope=<query x1>; defaultSurfaceScope=True; asVersion=V1758_SWEPT_ANGLE_FIX
+  7 Chamfer 1                    chamfer           
+      entities=<query x1>; chamferType=EQUAL_OFFSETS; width=0.8 mm; width1=5 mm; width2=5 mm; angle=45 deg; tangentPropagation=True; asVersion=V1758_SWEPT_ANGLE_FIX
+  8 Sketch 6                     newSketch         
+      sketchPlane=<query x1>; asVersion=V1758_SWEPT_ANGLE_FIX; entities=7 constraints=17 dims=['26 mm', '3 mm', '6.5 mm']
+  9 Extrude 8                    extrude           
+      domain=MODEL; bodyType=SOLID; operationType=REMOVE; surfaceOperationType=NEW; flatOperationType=REMOVE; entities=<query x1>; endBound=BLIND; oppositeDirection=True; depth=5 mm; offsetDistance=25 mm; draftAngle=3 deg; secondDirectionBound=BLIND; secondDirectionOppositeDirection=True; secondDirectionDepth=25 mm; secondDirectionOffsetDistance=25 mm; secondDirectionDraftAngle=3 deg; booleanScope=<query x1>; defaultSurfaceScope=True; asVersion=V1758_SWEPT_ANGLE_FIX
+ 10 Extrude 9                    extrude           
+      domain=MODEL; bodyType=SOLID; operationType=REMOVE; surfaceOperationType=NEW; flatOperationType=REMOVE; entities=<query x1>; endBound=BLIND; oppositeDirection=True; depth=2.4 mm; offsetDistance=25 mm; draftAngle=3 deg; secondDirectionBound=BLIND; secondDirectionOppositeDirection=True; secondDirectionDepth=25 mm; secondDirectionOffsetDistance=25 mm; secondDirectionDraftAngle=3 deg; booleanScope=<query x1>; defaultSurfaceScope=True; asVersion=V1758_SWEPT_ANGLE_FIX
+ 11 Sketch 9                     newSketch         
+      sketchPlane=<query x1>; asVersion=V1758_SWEPT_ANGLE_FIX; entities=2 constraints=9 dims=[]
+ 12 Extrude 10                   extrude           
+      domain=MODEL; bodyType=SOLID; operationType=REMOVE; surfaceOperationType=NEW; flatOperationType=REMOVE; entities=<query x2>; endBound=BLIND; oppositeDirection=True; depth=#layer_t; offsetDistance=25 mm; draftAngle=3 deg; secondDirectionBound=BLIND; secondDirectionOppositeDirection=True; secondDirectionDepth=25 mm; secondDirectionOffsetDistance=25 mm; secondDirectionDraftAngle=3 deg; booleanScope=<query x1>; defaultSurfaceScope=True; asVersion=V1758_SWEPT_ANGLE_FIX
+ 13 Sketch 10                    newSketch         
+      sketchPlane=<query x1>; disableImprinting=True; asVersion=V1758_SWEPT_ANGLE_FIX; entities=4 constraints=12 dims=[]
+ 14 Extrude 11                   extrude           
+      domain=MODEL; bodyType=SOLID; operationType=REMOVE; surfaceOperationType=NEW; flatOperationType=REMOVE; entities=<query x1>; endBound=BLIND; oppositeDirection=True; depth=#layer_t; offsetDistance=25 mm; draftAngle=3 deg; secondDirectionBound=BLIND; secondDirectionOppositeDirection=True; secondDirectionDepth=25 mm; secondDirectionOffsetDistance=25 mm; secondDirectionDraftAngle=3 deg; booleanScope=<query x1>; defaultSurfaceScope=True; asVersion=V1758_SWEPT_ANGLE_FIX
+ 15 Point Pattern 1              pointPattern      
+      patternType=FEATURE; operationType=NEW; instanceFunction=<BTMParameterFeatureList-1749>; reference=<query x1>; locations=<query x3>; fullFeaturePattern=True

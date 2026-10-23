@@ -1,0 +1,355 @@
+{
+ "btType": "BTConfigurationResponse-2019",
+ "rejectMicroversionSkew": false,
+ "microversionSkew": false,
+ "configurationParameters": [
+  {
+   "btType": "BTMConfigurationParameterQuantity-1826",
+   "rangeAndDefault": {
+    "btType": "BTQuantityRange-181",
+    "minValue": 50.0,
+    "maxValue": 1000.0,
+    "defaultValue": 120.0,
+    "location": {
+     "btType": "BTLocationInfo-226",
+     "endLine": 0,
+     "character": 0,
+     "endColumn": 0,
+     "languageVersion": 0,
+     "parseNodeId": "",
+     "endCharacter": 0,
+     "moduleIds": {
+      "btType": "BTDocumentVersionElementIds-1897",
+      "documentId": "",
+      "elementId": "",
+      "versionId": ""
+     },
+     "version": "",
+     "document": "",
+     "elementMicroversion": "",
+     "line": 0,
+     "nodeId": "HiesgqLTrwMNRWeQ",
+     "topLevel": "",
+     "column": 0
+    },
+    "units": "millimeter"
+   },
+   "isCosmetic": false,
+   "nodeId": "M5jqKJEOt34wZq7Vt",
+   "parameterId": "length",
+   "quantityType": "LENGTH",
+   "parameterName": "length",
+   "visibilityCondition": null
+  },
+  {
+   "btType": "BTMConfigurationParameterQuantity-1826",
+   "rangeAndDefault": {
+    "btType": "BTQuantityRange-181",
+    "minValue": 50.0,
+    "maxValue": 1000.0,
+    "defaultValue": 70.0,
+    "location": {
+     "btType": "BTLocationInfo-226",
+     "endLine": 0,
+     "character": 0,
+     "endColumn": 0,
+     "languageVersion": 0,
+     "parseNodeId": "",
+     "endCharacter": 0,
+     "moduleIds": {
+      "btType": "BTDocumentVersionElementIds-1897",
+      "documentId": "",
+      "elementId": "",
+      "versionId": ""
+     },
+     "version": "",
+     "document": "",
+     "elementMicroversion": "",
+     "line": 0,
+     "nodeId": "aqPhJilQW7ouAkGO",
+     "topLevel": "",
+     "column": 0
+    },
+    "units": "millimeter"
+   },
+   "isCosmetic": false,
+   "nodeId": "MBbMSNY4u5O8h6C6o",
+   "parameterId": "width",
+   "quantityType": "LENGTH",
+   "parameterName": "width",
+   "visibilityCondition": null
+  },
+  {
+   "btType": "BTMConfigurationParameterQuantity-1826",
+   "rangeAndDefault": {
+    "btType": "BTQuantityRange-181",
+    "minValue": 20.0,
+    "maxValue": 1000.0,
+    "defaultValue": 50.0,
+    "location": {
+     "btType": "BTLocationInfo-226",
+     "endLine": 0,
+     "character": 0,
+     "endColumn": 0,
+     "languageVersion": 0,
+     "parseNodeId": "",
+     "endCharacter": 0,
+     "moduleIds": {
+      "btType": "BTDocumentVersionElementIds-1897",
+      "documentId": "",
+      "elementId": "",
+      "versionId": ""
+     },
+     "version": "",
+     "document": "",
+     "elementMicroversion": "",
+     "line": 0,
+     "nodeId": "a5zhzEvj2QWJZrrP",
+     "topLevel": "",
+     "column": 0
+    },
+    "units": "millimeter"
+   },
+   "isCosmetic": false,
+   "nodeId": "MIhJLwbnXf9zrEal9",
+   "parameterId": "depth",
+   "quantityType": "LENGTH",
+   "parameterName": "depth",
+   "visibilityCondition": null
+  },
+  {
+   "btType": "BTMConfigurationParameterQuantity-1826",
+   "rangeAndDefault": {
+    "btType": "BTQuantityRange-181",
+    "minValue": 5.0,
+    "maxValue": 1000.0,
+    "defaultValue": 30.0,
+    "location": {
+     "btType": "BTLocationInfo-226",
+     "endLine": 0,
+     "character": 0,
+     "endColumn": 0,
+     "languageVersion": 0,
+     "parseNodeId": "",
+     "endCharacter": 0,
+     "moduleIds": {
+      "btType": "BTDocumentVersionElementIds-1897",
+      "documentId": "",
+      "elementId": "",
+      "versionId": ""
+     },
+     "version": "",
+     "document": "",
+     "elementMicroversion": "",
+     "line": 0,
+     "nodeId": "3ydVFiukl1zNhm83",
+     "topLevel": "",
+     "column": 0
+    },
+    "units": "millimeter"
+   },
+   "isCosmetic": false,
+   "nodeId": "MdhRHg4ph6XAbqRYH",
+   "parameterId": "split_height",
+   "quantityType": "LENGTH",
+   "parameterName": "split_height",
+   "visibilityCondition": null
+  },
+  {
+   "btType": "BTMConfigurationParameterQuantity-1826",
+   "rangeAndDefault": {
+    "btType": "BTQuantityRange-181",
+    "minValue": 1.0,
+    "maxValue": 6.0,
+    "defaultValue": 2.4,
+    "location": {
+     "btType": "BTLocationInfo-226",
+     "endLine": 0,
+     "character": 0,
+     "endColumn": 0,
+     "languageVersion": 0,
+     "parseNodeId": "",
+     "endCharacter": 0,
+     "moduleIds": {
+      "btType": "BTDocumentVersionElementIds-1897",
+      "documentId": "",
+      "elementId": "",
+      "versionId": ""
+     },
+     "version": "",
+     "document": "",
+     "elementMicroversion": "",
+     "line": 0,
+     "nodeId": "0k4Zfa3nAX1AHPdx",
+     "topLevel": "",
+     "column": 0
+    },
+    "units": "millimeter"
+   },
+   "isCosmetic": false,
+   "nodeId": "MDdJp7YPD1qDTAANj",
+   "parameterId": "shell_t",
+   "quantityType": "LENGTH",
+   "parameterName": "shell_t",
+   "visibilityCondition": null
+  },
+  {
+   "btType": "BTMConfigurationParameterQuantity-1826",
+   "rangeAndDefault": {
+    "btType": "BTQuantityRange-181",
+    "minValue": 15.0,
+    "maxValue": 50.0,
+    "defaultValue": 30.0,
+    "location": {
+     "btType": "BTLocationInfo-226",
+     "endLine": 0,
+     "character": 0,
+     "endColumn": 0,
+     "languageVersion": 0,
+     "parseNodeId": "",
+     "endCharacter": 0,
+     "moduleIds": {
+      "btType": "BTDocumentVersionElementIds-1897",
+      "documentId": "",
+      "elementId": "",
+      "versionId": ""
+     },
+     "version": "",
+     "document": "",
+     "elementMicroversion": "",
+     "line": 0,
+     "nodeId": "tHYuj9Mm7vBHn6LY",
+     "topLevel": "",
+     "column": 0
+    },
+    "units": "millimeter"
+   },
+   "isCosmetic": false,
+   "nodeId": "MF7fcZyklbO1zzsv2",
+   "parameterId": "hinge_width",
+   "quantityType": "LENGTH",
+   "parameterName": "hinge_width",
+   "visibilityCondition": null
+  },
+  {
+   "btType": "BTMConfigurationParameterQuantity-1826",
+   "rangeAndDefault": {
+    "btType": "BTQuantityRange-181",
+    "minValue": 2.0,
+    "maxValue": 10.0,
+    "defaultValue": 5.0,
+    "location": {
+     "btType": "BTLocationInfo-226",
+     "endLine": 0,
+     "character": 0,
+     "endColumn": 0,
+     "languageVersion": 0,
+     "parseNodeId": "",
+     "endCharacter": 0,
+     "moduleIds": {
+      "btType": "BTDocumentVersionElementIds-1897",
+      "documentId": "",
+      "elementId": "",
+      "versionId": ""
+     },
+     "version": "",
+     "document": "",
+     "elementMicroversion": "",
+     "line": 0,
+     "nodeId": "cE5iKFRlETYfdnBj",
+     "topLevel": "",
+     "column": 0
+    },
+    "units": "millimeter"
+   },
+   "isCosmetic": false,
+   "nodeId": "MR7VxRP5Ly5YcQFg4",
+   "parameterId": "inner_fillet",
+   "quantityType": "LENGTH",
+   "parameterName": "inner_fillet",
+   "visibilityCondition": null
+  }
+ ],
+ "currentConfiguration": [
+  {
+   "btType": "BTMParameterQuantity-147",
+   "libraryRelationType": "DEFAULT",
+   "isInteger": false,
+   "value": 120.0,
+   "units": "millimeter",
+   "expression": "120 mm",
+   "nodeId": "MOy/X7JvdBzhDm8Cx",
+   "parameterId": "length",
+   "parameterName": ""
+  },
+  {
+   "btType": "BTMParameterQuantity-147",
+   "libraryRelationType": "DEFAULT",
+   "isInteger": false,
+   "value": 70.0,
+   "units": "millimeter",
+   "expression": "70 mm",
+   "nodeId": "MeWfsKMcVYkYY1eox",
+   "parameterId": "width",
+   "parameterName": ""
+  },
+  {
+   "btType": "BTMParameterQuantity-147",
+   "libraryRelationType": "DEFAULT",
+   "isInteger": false,
+   "value": 50.0,
+   "units": "millimeter",
+   "expression": "50 mm",
+   "nodeId": "Mfix0mCxFiH1Coz6P",
+   "parameterId": "depth",
+   "parameterName": ""
+  },
+  {
+   "btType": "BTMParameterQuantity-147",
+   "libraryRelationType": "DEFAULT",
+   "isInteger": false,
+   "value": 30.0,
+   "units": "millimeter",
+   "expression": "30 mm",
+   "nodeId": "M1C2dDKqd3CFR8W0Z",
+   "parameterId": "split_height",
+   "parameterName": ""
+  },
+  {
+   "btType": "BTMParameterQuantity-147",
+   "libraryRelationType": "DEFAULT",
+   "isInteger": false,
+   "value": 2.4,
+   "units": "millimeter",
+   "expression": "2.4 mm",
+   "nodeId": "M1AyN1OlWn0PYrKbP",
+   "parameterId": "shell_t",
+   "parameterName": ""
+  },
+  {
+   "btType": "BTMParameterQuantity-147",
+   "libraryRelationType": "DEFAULT",
+   "isInteger": false,
+   "value": 30.0,
+   "units": "millimeter",
+   "expression": "30 mm",
+   "nodeId": "M7Oz35+xSNKv1Nm6b",
+   "parameterId": "hinge_width",
+   "parameterName": ""
+  },
+  {
+   "btType": "BTMParameterQuantity-147",
+   "libraryRelationType": "DEFAULT",
+   "isInteger": false,
+   "value": 5.0,
+   "units": "millimeter",
+   "expression": "5 mm",
+   "nodeId": "Mjrxu5StJd3uIFf01",
+   "parameterId": "inner_fillet",
+   "parameterName": ""
+  }
+ ],
+ "libraryVersion": 1963,
+ "serializationVersion": "1.2.0",
+ "sourceMicroversion": "9bffc03060892988ca2ffca4"
+}

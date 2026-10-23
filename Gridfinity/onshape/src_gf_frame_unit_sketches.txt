@@ -1,0 +1,35 @@
+#0 Sketch 1   plane: Top   entities=13
+  L (  38.000,    0.000) -> (   4.000,   -0.000)  len  34.000   Ziwl0QTEBY3j
+  L (  38.000,   42.000) -> (   4.000,   42.000)  len  34.000   Ziwl0QTEBY3j
+  L (  42.000,    4.000) -> (  42.000,   38.000)  len  34.000   Ziwl0QTEBY3j
+  L (  -0.000,    4.000) -> (  -0.000,   38.000)  len  34.000   Ziwl0QTEBY3j
+  P (  21.000,   21.000)   Ziwl0QTEBY3j  (construction)
+  P (   0.000,   42.000)   1nWClyw24Gi6
+  A c=(   4.000,   38.000) r= 4.000  (   4.000,   42.000) -> (   0.000,   38.000)  sweep   90.0°   1nWClyw24Gi6
+  P (  42.000,   42.000)   1nWClyw24Gi6
+  A c=(  38.000,   38.000) r= 4.000  (  42.000,   38.000) -> (  38.000,   42.000)  sweep   90.0°   1nWClyw24Gi6
+  P (  42.000,    0.000)   1nWClyw24Gi6
+  A c=(  38.000,    4.000) r= 4.000  (  38.000,    0.000) -> (  42.000,    4.000)  sweep   90.0°   1nWClyw24Gi6
+  P (   0.000,    0.000)   1nWClyw24Gi6
+  A c=(   4.000,    4.000) r= 4.000  (  -0.000,    4.000) -> (   4.000,   -0.000)  sweep   90.0°   1nWClyw24Gi6
+  dim DISTANCE             42 mm                        1nWClyw24Gi6, 1nWClyw24Gi6
+  dim RADIUS               4 mm                         1nWClyw24Gi6
+  png: Gridfinity/onshape/sketches/src_gf_frame_unit\00_Sketch_1.png
+
+#2 Sketch 2   plane: face/plane of 'Plane 2'   entities=9
+  L (   0.000,    4.646) -> (   0.000,    0.000)  len   4.646   a1jkSYH9IuOG
+  L (   2.150,    2.496) -> (   0.000,    4.646)  len   3.041   p0pJqJPUnMHB
+  L (   2.150,    2.496) -> (   2.150,    0.696)  len   1.800   n1Q9BidUCqRh
+  L (   2.150,    0.696) -> (   2.846,    0.000)  len   0.985   JUDrCzRiLDvg
+  L (   2.846,    0.000) -> (   0.000,    0.000)  len   2.846   BUgIwKOkf0ck
+  L (  21.000,    0.000) -> (  21.000,   13.715)  len  13.715   MnEAw24beTPM  (construction)
+  L (   2.400,    0.800) -> (   3.200,   -0.000)  len   1.131   tGFDxoOgMzFI  (construction)
+  L (   2.400,    2.600) -> (   2.400,    0.800)  len   1.800   tGFDxoOgMzFI  (construction)
+  L (   2.400,    2.600) -> (   0.000,    5.000)  len   3.394   tGFDxoOgMzFI  (construction)
+  dim ANGLE                45 deg                       p0pJqJPUnMHB, a1jkSYH9IuOG
+  dim LENGTH               1.8 mm                       n1Q9BidUCqRh
+  dim CENTERLINE_DIMENSION 37.7 mm                      n1Q9BidUCqRh, MnEAw24beTPM
+  dim DISTANCE             0.25 mm                      p0pJqJPUnMHB, tGFDxoOgMzFI
+  dim DISTANCE             0.8 mm                       tGFDxoOgMzFI, tGFDxoOgMzFI
+  png: Gridfinity/onshape/sketches/src_gf_frame_unit\02_Sketch_2.png
+

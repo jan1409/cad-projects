@@ -1,0 +1,55 @@
+features: 27   rollbackIndex: 27   types: {'fillet': 5, 'newSketch': 4, 'extrude': 4, 'cPlane': 3, 'assignVariable': 2, 'importDerived': 1, 'linearPattern': 1, 'sweep': 1, 'moveFace': 1, 'offsetSurface': 1, 'extendSurface': 1, 'splitPart': 1, 'booleanBodies': 1, 'partName': 1}
+  0 ###name = #value             assignVariable    
+      variableType=LENGTH; measurementMode=DISTANCE; name=wall_t; lengthValue=1.7 mm; angleValue=0 deg; numberValue=0; anyValue=0; value=1.7 mm; minmax=MINIMUM; distance=0.0*mm; xOffset=0.0*mm; yOffset=0.0*mm; zOffset=0.0*mm; componentSelector=DISTANCE; customOffset=0.0*mm; asVersion=V1758_SWEPT_ANGLE_FIX; mode=ASSIGNED
+  1 ###name = #value             assignVariable    
+      variableType=LENGTH; name=layer_t; lengthValue=0.2 mm; angleValue=0 deg; numberValue=0; anyValue=0; value=0.2 mm; asVersion=V1758_SWEPT_ANGLE_FIX
+  2 Derived 1                    importDerived     
+      parts=<query x1>; buildFunction=<derived e988e42debe46332e9bd1b3b3::m2226ff1f7a74852cf1e3f29b | magnets=None>; asVersion=V1963_FIX_SM_EXTRUDE_UPGRADE_FAILURE
+  3 Plane 4                      cPlane            
+      entities=<query x1>; cplaneType=OFFSET; offset=0 mm; angle=0 deg; width=150 mm; height=150 mm; asVersion=V1963_FIX_SM_EXTRUDE_UPGRADE_FAILURE
+  4 Sketch 5                     newSketch         
+      sketchPlane=<query x1>; disableImprinting=True; asVersion=V1963_FIX_SM_EXTRUDE_UPGRADE_FAILURE; entities=4 constraints=11 dims=[]
+  5 Extrude 5                    extrude           
+      domain=MODEL; bodyType=SOLID; operationType=ADD; surfaceOperationType=NEW; flatOperationType=REMOVE; entities=<query x1>; endBound=BLIND; depth=1 mm; offsetDistance=25 mm; startOffsetBound=BLIND; startOffsetDistance=25 mm; draftAngle=3 deg; secondDirectionBound=BLIND; secondDirectionOppositeDirection=True; secondDirectionDepth=25 mm; secondDirectionOffsetDistance=25 mm; secondDirectionDraftAngle=3 deg; booleanScope=<query x1>; defaultSurfaceScope=True; asVersion=V1963_FIX_SM_EXTRUDE_UPGRADE_FAILURE
+  6 Linear pattern 1             linearPattern     
+      patternType=PART; operationType=NEW; entities=<query x1>; instanceFunction=<BTMParameterFeatureList-1749>; directionOne=<query x1>; distance=42 mm; instanceCount=#xcount; hasSecondDir=True; directionTwo=<query x1>; distanceTwo=42 mm; instanceCountTwo=#ycount; oppositeDirectionTwo=True; defaultScope=True; asVersion=V1758_SWEPT_ANGLE_FIX
+  7 Sketch 4                     newSketch         
+      sketchPlane=<query x1>; asVersion=V1758_SWEPT_ANGLE_FIX; entities=16 constraints=47 dims=['0.25 mm', '0.25 mm', '(42 * #ycount)mm - .5mm', '3.75 mm', '(42 * #xcount)mm - .5mm', '(42*#ycount) mm', '(#xcount*42) mm']
+  8 Extrude 4                    extrude           
+      domain=MODEL; bodyType=SOLID; operationType=REMOVE; surfaceOperationType=NEW; flatOperationType=REMOVE; entities=<query x1>; endBound=THROUGH_ALL; oppositeDirection=True; depth=25 mm; offsetDistance=25 mm; startOffsetBound=BLIND; startOffsetDistance=25.0*mm; symmetric=True; draftAngle=3 deg; secondDirectionBound=BLIND; secondDirectionOppositeDirection=True; secondDirectionDepth=25 mm; secondDirectionOffsetDistance=25 mm; secondDirectionDraftAngle=3 deg; defaultScope=True; booleanScope=<query x1>; defaultSurfaceScope=True; asVersion=V1758_SWEPT_ANGLE_FIX
+  9 Extrude 2                    extrude           
+      domain=MODEL; bodyType=SOLID; operationType=ADD; surfaceOperationType=NEW; flatOperationType=REMOVE; entities=<query x1>; endBound=BLIND; depth=#zcount > 1 ? 2.2 mm: 1.8mm; endBoundEntityFace=<query x1>; offsetDistance=25 mm; startOffsetBound=BLIND; startOffsetDistance=25.0*mm; draftAngle=3 deg; secondDirectionBound=BLIND; secondDirectionOppositeDirection=True; secondDirectionDepth=25 mm; secondDirectionOffsetDistance=25 mm; secondDirectionDraftAngle=3 deg; defaultScope=True; booleanScope=<query x1>; defaultSurfaceScope=True; asVersion=V1758_SWEPT_ANGLE_FIX
+ 10 Plane 3                      cPlane            
+      entities=<query x1>; cplaneType=OFFSET; offset=(42/2) mm; angle=0 deg; oppositeDirection=True; width=150 mm; height=150 mm; asVersion=V1758_SWEPT_ANGLE_FIX
+ 11 Sketch 12                    newSketch         
+      sketchPlane=<query x1>; asVersion=V1758_SWEPT_ANGLE_FIX; entities=14 constraints=41 dims=['0.25 mm', '1.2 mm', '45 deg', '#wall_t', '0.6 mm', '5 mm', '(#zcount) * 7mm', '44.999999999999645*deg', '21 mm', '41.5*mm', '37.199999999999996*mm', '1.8 mm', '35.6*mm', '6 mm']
+ 12 Sweep 1                      sweep             
+      bodyType=SOLID; operationType=ADD; profiles=<query x1>; surfaceOperationType=NEW; path=<query x8>; defaultScope=True; booleanScope=<query x1>; defaultSurfaceScope=True; asVersion=V1758_SWEPT_ANGLE_FIX
+ 13 Fillet 3                     fillet            
+      filletType=EDGE; entities=<query x5>; blendControlType=RADIUS; crossSection=CIRCULAR; radius=1.8 mm; width=8.7 mm; rho=0.5; magnitude=0.5; vertexSettings=<array x0>; pointOnEdgeSettings=<array x0>; allowEdgeOverflow=True; asVersion=V1758_SWEPT_ANGLE_FIX
+ 14 Move face 1                  moveFace          
+      outputType=MOVE; moveFaces=<query x1>; moveFaceType=OFFSET; limitType=UP_TO_ENTITY; translationDistance=5 mm; angle=0 deg; offsetDistance=5 mm; limitQuery=<query x1>; offset=0 mm; oppositeOffsetDirection=True; reFillet=True; asVersion=V1758_SWEPT_ANGLE_FIX
+ 15 Fillet 2                     fillet            
+      filletType=EDGE; entities=<query x1>; tangentPropagation=<BTMParameterConfigured-2222>; blendControlType=RADIUS; crossSection=CIRCULAR; radius=<BTMParameterConfigured-2222>; width=8.7 mm; rho=0.5; magnitude=0.5; vertexSettings=<array x0>; pointOnEdgeSettings=<array x0>; asVersion=V1758_SWEPT_ANGLE_FIX
+ 16 Plane 1                      cPlane            
+      entities=<query x1>; cplaneType=OFFSET; offset=0 mm; angle=0 deg; width=150 mm; height=150 mm; asVersion=V1963_FIX_SM_EXTRUDE_UPGRADE_FAILURE
+ 17 Sketch 1                     newSketch         
+      sketchPlane=<query x1>; asVersion=V1963_FIX_SM_EXTRUDE_UPGRADE_FAILURE; entities=4 constraints=14 dims=['36 deg', '0.6 mm', '#label_depth']
+ 18 Extrude 1                    extrude           
+      domain=MODEL; bodyType=SOLID; operationType=NEW; surfaceOperationType=NEW; flatOperationType=REMOVE; entities=<query x1>; endBound=BLIND; depth=#label_width + 0.6mm; offsetDistance=25 mm; startOffsetBound=BLIND; startOffsetDistance=25 mm; draftAngle=3 deg; hasSecondDirection=True; secondDirectionBound=BLIND; secondDirectionOppositeDirection=True; secondDirectionDepth=4 mm; secondDirectionOffsetDistance=25 mm; secondDirectionDraftAngle=3 deg; booleanScope=<query x1>; defaultSurfaceScope=True; asVersion=V1963_FIX_SM_EXTRUDE_UPGRADE_FAILURE
+ 19 Fillet 1                     fillet            
+      filletType=EDGE; entities=<query x1>; tangentPropagation=True; blendControlType=RADIUS; crossSection=CIRCULAR; radius=0.6 mm; width=2.8 mm; rho=0.5; magnitude=0.5; defaultsChanged=True; otherRadius=5 mm; partialFirstEdgeTotalParameter=0.01; partialOppositeParameter=True; partialSecondEdgeTotalParameter=0.99; vertexSettings=<array x0>; pointOnEdgeSettings=<array x0>; allowEdgeOverflow=True; asVersion=V1963_FIX_SM_EXTRUDE_UPGRADE_FAILURE
+ 20 Offset surface 1             offsetSurface     
+      surfacesAndFaces=<query x5>; offset=0 mm; asVersion=V1963_FIX_SM_EXTRUDE_UPGRADE_FAILURE
+ 21 Move boundary 1              extendSurface     
+      entities=<query x2>; tangentPropagation=True; endCondition=BLIND; extendDistance=25 mm; asVersion=V1963_FIX_SM_EXTRUDE_UPGRADE_FAILURE
+ 22 Split 1                      splitPart         
+      splitType=PART; targets=<query x1>; tool=<query x1>; keepFront=True; projectionType=DIRECTION; useSketchPlaneDirection=True; keepToolSurfaces=True; asVersion=V1963_FIX_SM_EXTRUDE_UPGRADE_FAILURE
+ 23 Boolean 1                    booleanBodies     
+      operationType=UNION; tools=<query x2>; offsetDistance=5 mm; asVersion=V1963_FIX_SM_EXTRUDE_UPGRADE_FAILURE
+ 24 Fillet 4                     fillet            
+      filletType=EDGE; entities=<query x1>; tangentPropagation=True; blendControlType=RADIUS; crossSection=CIRCULAR; radius=0.6 mm; width=2.8 mm; rho=0.5; magnitude=0.5; otherRadius=5 mm; partialFirstEdgeTotalParameter=0.01; partialOppositeParameter=True; partialSecondEdgeTotalParameter=0.99; vertexSettings=<array x0>; pointOnEdgeSettings=<array x0>; allowEdgeOverflow=True; asVersion=V1963_FIX_SM_EXTRUDE_UPGRADE_FAILURE
+ 25 Fillet 5                     fillet            
+      filletType=EDGE; entities=<query x1>; tangentPropagation=True; blendControlType=RADIUS; crossSection=CIRCULAR; radius=0.6 mm; width=2.8 mm; rho=0.5; magnitude=0.5; otherRadius=5 mm; partialFirstEdgeTotalParameter=0.01; partialOppositeParameter=True; partialSecondEdgeTotalParameter=0.99; vertexSettings=<array x0>; pointOnEdgeSettings=<array x0>; allowEdgeOverflow=True; asVersion=V1963_FIX_SM_EXTRUDE_UPGRADE_FAILURE
+ 26 Part Name                    partName          
+      part=<query x1>; segmentCount=FOUR; separator=_; round=True; precision=2; bool1=True; segment1string=Gridfinity_plain; segment1=0; segment2=#xcount; segment3=#ycount; segment4=#zcount; segment5=0; segment6=0; partNumberForm=0

@@ -1,0 +1,114 @@
+#13 Sketch 7   plane: ?   entities=13
+  L ( -59.000,   60.600) -> ( -25.000,   60.600)  len  34.000   iQFQG00R8Xp4
+  L ( -59.000,   23.400) -> ( -25.000,   23.400)  len  34.000   iQFQG00R8Xp4
+  L ( -60.600,   59.000) -> ( -60.600,   25.000)  len  34.000   iQFQG00R8Xp4
+  L ( -23.400,   59.000) -> ( -23.400,   25.000)  len  34.000   iQFQG00R8Xp4
+  P ( -42.000,   42.000)   iQFQG00R8Xp4  (construction)
+  P ( -23.400,   23.400)   PObWArCDu5PV
+  A c=( -25.000,   25.000) r= 1.600  ( -25.000,   23.400) -> ( -23.400,   25.000)  sweep   90.0°   PObWArCDu5PV
+  P ( -60.600,   23.400)   PObWArCDu5PV
+  A c=( -59.000,   25.000) r= 1.600  ( -60.600,   25.000) -> ( -59.000,   23.400)  sweep   90.0°   PObWArCDu5PV
+  P ( -60.600,   60.600)   PObWArCDu5PV
+  A c=( -59.000,   59.000) r= 1.600  ( -59.000,   60.600) -> ( -60.600,   59.000)  sweep   90.0°   PObWArCDu5PV
+  P ( -23.400,   60.600)   PObWArCDu5PV
+  A c=( -25.000,   59.000) r= 1.600  ( -23.400,   59.000) -> ( -25.000,   60.600)  sweep   90.0°   PObWArCDu5PV
+  dim DISTANCE             37.2 mm                      PObWArCDu5PV, PObWArCDu5PV
+  dim RADIUS               1.6 mm                       PObWArCDu5PV
+  dim DISTANCE             ((#y_count/2 * 42 ) - 21) mm <external>, iQFQG00R8Xp4
+  dim DISTANCE             ((#x_count/2 * 42 ) - 21) mm <external>, iQFQG00R8Xp4
+  png: Gridfinity/onshape/sketches/case\13_Sketch_7.png
+
+#18 Sketch 8   plane: face/plane of 'Plane 2'   entities=4
+  L (   3.200,   -3.200) -> (   0.000,   -0.000)  len   4.525   T54itefBpj15
+  L (   0.000,   -0.000) -> (   0.000,   -3.200)  len   3.200   oE8ZB0Up3dIK
+  L (   0.000,   -3.200) -> (   3.200,   -3.200)  len   3.200   P03n1en2bjBo
+  L (  21.000,   -3.200) -> (  21.000,  -15.585)  len  12.385   KlRIgAkTOy3j  (construction)
+  dim ANGLE                45 deg                       T54itefBpj15, oE8ZB0Up3dIK
+  dim CENTERLINE_DIMENSION 42 mm                        oE8ZB0Up3dIK, KlRIgAkTOy3j
+  png: Gridfinity/onshape/sketches/case\18_Sketch_8.png
+
+#23 Sketch 9   plane: face/plane of 'Sketch 7', face/plane of 'Sketch 8', face/plane of 'Sweep 1'   entities=8
+  L ( -63.000,   42.000) -> (  63.000,   42.000)  len 126.000   ncl7MpDx3ksS
+  L ( -63.000,  -42.000) -> (  63.000,  -42.000)  len 126.000   ncl7MpDx3ksS
+  L ( -63.000,   42.000) -> ( -63.000,  -42.000)  len  84.000   ncl7MpDx3ksS
+  L (  63.000,   42.000) -> (  63.000,  -42.000)  len  84.000   ncl7MpDx3ksS
+  L (  78.000,   57.000) -> (  78.000,  -57.000)  len 114.000   XGw1IQyFdVdA
+  L ( -78.000,  -57.000) -> (  78.000,  -57.000)  len 156.000   XGw1IQyFdVdA
+  L ( -78.000,   57.000) -> ( -78.000,  -57.000)  len 114.000   XGw1IQyFdVdA
+  L ( -78.000,   57.000) -> (  78.000,   57.000)  len 156.000   XGw1IQyFdVdA
+  dim LENGTH               (#y_count*42) mm             ncl7MpDx3ksS
+  dim LENGTH               (#x_count*42) mm             ncl7MpDx3ksS
+  dim DISTANCE             15 mm                        ncl7MpDx3ksS, XGw1IQyFdVdA
+  png: Gridfinity/onshape/sketches/case\23_Sketch_9.png
+
+#33 Sketch 1   plane: face/plane of 'Plane 1'   entities=22
+  L ( -25.000,   41.150) -> ( -59.000,   41.150)  len  34.000   KVq1Tf8WYY3z
+  L ( -25.000,    0.850) -> ( -59.000,    0.850)  len  34.000   KVq1Tf8WYY3z
+  L ( -21.850,   38.000) -> ( -21.850,    4.000)  len  34.000   KVq1Tf8WYY3z
+  L ( -62.150,   38.000) -> ( -62.150,    4.000)  len  34.000   KVq1Tf8WYY3z
+  P ( -42.000,   21.000)   KVq1Tf8WYY3z  (construction)
+  P ( -62.150,    0.850)   TRP8PfV4PQA1
+  A c=( -59.000,    4.000) r= 3.150  ( -62.150,    4.000) -> ( -59.000,    0.850)  sweep   90.0°   TRP8PfV4PQA1
+  P ( -21.850,    0.850)   TRP8PfV4PQA1
+  A c=( -25.000,    4.000) r= 3.150  ( -25.000,    0.850) -> ( -21.850,    4.000)  sweep   90.0°   TRP8PfV4PQA1
+  P ( -21.850,   41.150)   TRP8PfV4PQA1
+  A c=( -25.000,   38.000) r= 3.150  ( -21.850,   38.000) -> ( -25.000,   41.150)  sweep   90.0°   TRP8PfV4PQA1
+  P ( -62.150,   41.150)   TRP8PfV4PQA1
+  A c=( -59.000,   38.000) r= 3.150  ( -59.000,   41.150) -> ( -62.150,   38.000)  sweep   90.0°   TRP8PfV4PQA1
+  P ( -42.000,   21.000)   dFLySzxa0tVp  (construction)
+  A c=( -59.000,    4.000) r= 0.850  ( -59.850,    4.000) -> ( -59.000,    3.150)  sweep   90.0°   UOpvoqkRkf8x
+  L ( -59.850,   38.000) -> ( -59.850,    4.000)  len  34.000   UOpvoqkRkf8x
+  A c=( -59.000,   38.000) r= 0.850  ( -59.000,   38.850) -> ( -59.850,   38.000)  sweep   90.0°   UOpvoqkRkf8x
+  L ( -25.000,   38.850) -> ( -59.000,   38.850)  len  34.000   UOpvoqkRkf8x
+  A c=( -25.000,   38.000) r= 0.850  ( -24.150,   38.000) -> ( -25.000,   38.850)  sweep   90.0°   UOpvoqkRkf8x
+  L ( -24.150,   38.000) -> ( -24.150,    4.000)  len  34.000   UOpvoqkRkf8x
+  A c=( -25.000,    4.000) r= 0.850  ( -25.000,    3.150) -> ( -24.150,    4.000)  sweep   90.0°   UOpvoqkRkf8x
+  L ( -25.000,    3.150) -> ( -59.000,    3.150)  len  34.000   UOpvoqkRkf8x
+  dim DISTANCE             ((#x_count/2 * 42 ) - 21) mm <external>, KVq1Tf8WYY3z
+  dim DISTANCE             ((#y_count/2 * 42 ) - 21) mm <external>, KVq1Tf8WYY3z
+  dim DISTANCE             2.3 mm                       KVq1Tf8WYY3z, UOpvoqkRkf8x
+  dim DISTANCE             35.7 mm                      UOpvoqkRkf8x, UOpvoqkRkf8x
+  dim RADIUS               0.85 mm                      UOpvoqkRkf8x
+  png: Gridfinity/onshape/sketches/case\33_Sketch_1.png
+
+#40 Sketch 2   plane: face/plane of 'Plane 1'   entities=13
+  L ( -61.300,   40.500) -> (  61.300,   40.500)  len 122.600   x2vthErOe8jh
+  L ( -61.300,  -40.500) -> (  61.300,  -40.500)  len 122.600   x2vthErOe8jh
+  L ( -61.500,   40.300) -> ( -61.500,  -40.300)  len  80.600   x2vthErOe8jh
+  L (  61.500,   40.300) -> (  61.500,  -40.300)  len  80.600   x2vthErOe8jh
+  P (   0.000,    0.000)   x2vthErOe8jh  (construction)
+  P ( -61.500,  -40.500)   raTTI8DvobQg
+  A c=( -61.300,  -40.300) r= 0.200  ( -61.300,  -40.500) -> ( -61.500,  -40.300)  sweep  -90.0°   raTTI8DvobQg
+  P (  61.500,  -40.500)   raTTI8DvobQg
+  A c=(  61.300,  -40.300) r= 0.200  (  61.500,  -40.300) -> (  61.300,  -40.500)  sweep  -90.0°   raTTI8DvobQg
+  P (  61.500,   40.500)   raTTI8DvobQg
+  A c=(  61.300,   40.300) r= 0.200  (  61.300,   40.500) -> (  61.500,   40.300)  sweep  -90.0°   raTTI8DvobQg
+  P ( -61.500,   40.500)   raTTI8DvobQg
+  A c=( -61.300,   40.300) r= 0.200  ( -61.500,   40.300) -> ( -61.300,   40.500)  sweep  -90.0°   raTTI8DvobQg
+  dim DISTANCE             -1.5 mm                      <external>, x2vthErOe8jh
+  dim DISTANCE             -1.5 mm                      <external>, x2vthErOe8jh
+  dim RADIUS               0.2 mm                       raTTI8DvobQg
+  png: Gridfinity/onshape/sketches/case\40_Sketch_2.png
+
+#44 Sketch 3   plane: Right   entities=3
+  L ( -42.000,   29.000) -> ( -42.000,   31.000)  len   2.000   cOjg1rGe7uPS
+  L ( -42.000,   31.000) -> ( -42.500,   29.000)  len   2.062   xfKAoSntdQ3c
+  L ( -42.500,   29.000) -> ( -42.000,   29.000)  len   0.500   xrXVb84xG2RM
+  dim LENGTH               0.5 mm                       xrXVb84xG2RM
+  dim LENGTH               2 mm                         cOjg1rGe7uPS
+  png: Gridfinity/onshape/sketches/case\44_Sketch_3.png
+
+#46 Sketch 4   plane: face/plane of 'Sketch 3', face/plane of 'Extrude 4'   entities=3
+  L (  42.550,   28.800) -> (  41.800,   31.800)  len   3.092   712wgN0LaFOa
+  L (  41.800,   31.800) -> (  41.800,   28.800)  len   3.000   6JMOy4teVIpJ
+  L (  41.800,   28.800) -> (  42.550,   28.800)  len   0.750   wZ2x3UYUFFiz
+  dim DISTANCE             0.2 mm                       <external>, 6JMOy4teVIpJ
+  dim DISTANCE             0.2 mm                       <external>, wZ2x3UYUFFiz
+  png: Gridfinity/onshape/sketches/case\46_Sketch_4.png
+
+#48 Sketch 5   plane: face/plane of 'Sketch 3', face/plane of 'Extrude 4'   entities=3
+  L ( -42.513,   21.887) -> ( -41.840,   22.560)  len   0.951   sU4MBSmcO7cl
+  L ( -41.840,   22.560) -> ( -41.840,   21.887)  len   0.672   sU4MBSmcO7cl
+  L ( -41.840,   21.887) -> ( -42.513,   21.887)  len   0.672   sU4MBSmcO7cl
+  png: Gridfinity/onshape/sketches/case\48_Sketch_5.png
+

@@ -1,0 +1,5 @@
+# reference geometry must stay byte-exact (no line-ending conversion)
+*.step binary
+*.stl binary
+*.3mf binary
+*.png binary

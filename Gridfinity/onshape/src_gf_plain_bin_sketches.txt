@@ -1,0 +1,74 @@
+#4 Sketch 5   plane: face/plane of 'Plane 4'   entities=4
+  L (   0.000,    0.000) -> (  42.000,    0.000)  len  42.000   MYorpKCPsPfb
+  L (  -0.000,   42.000) -> (  42.000,   42.000)  len  42.000   MYorpKCPsPfb
+  L (   0.000,    0.000) -> (   0.000,   42.000)  len  42.000   MYorpKCPsPfb
+  L (  42.000,    0.000) -> (  42.000,   42.000)  len  42.000   MYorpKCPsPfb
+  png: Gridfinity/onshape/sketches/src_gf_plain_bin\04_Sketch_5.png
+
+#7 Sketch 4   plane: face/plane of 'Plane 4'   entities=16
+  L (   4.000,    0.250) -> ( 122.000,    0.250)  len 118.000   ndqwsGAZ0gmw
+  L (   4.000,  209.750) -> ( 122.000,  209.750)  len 118.000   ndqwsGAZ0gmw
+  L (   0.250,    4.000) -> (   0.250,  206.000)  len 202.000   ndqwsGAZ0gmw
+  L ( 125.750,    4.000) -> ( 125.750,  206.000)  len 202.000   ndqwsGAZ0gmw
+  P (   0.250,  209.750)   lt1h8XYdNE15
+  A c=(   4.000,  206.000) r= 3.750  (   4.000,  209.750) -> (   0.250,  206.000)  sweep   90.0°   lt1h8XYdNE15
+  P ( 125.750,  209.750)   lt1h8XYdNE15
+  A c=( 122.000,  206.000) r= 3.750  ( 125.750,  206.000) -> ( 122.000,  209.750)  sweep   90.0°   lt1h8XYdNE15
+  P ( 125.750,    0.250)   lt1h8XYdNE15
+  A c=( 122.000,    4.000) r= 3.750  ( 122.000,    0.250) -> ( 125.750,    4.000)  sweep   90.0°   lt1h8XYdNE15
+  P (   0.250,    0.250)   lt1h8XYdNE15
+  A c=(   4.000,    4.000) r= 3.750  (   0.250,    4.000) -> (   4.000,    0.250)  sweep   90.0°   lt1h8XYdNE15
+  L (   0.000,    0.000) -> ( 126.000,    0.000)  len 126.000   etgK0ta0GRBD
+  L (  -0.000,  210.000) -> ( 126.000,  210.000)  len 126.000   etgK0ta0GRBD
+  L (   0.000,    0.000) -> (   0.000,  210.000)  len 210.000   etgK0ta0GRBD
+  L ( 126.000,    0.000) -> ( 126.000,  210.000)  len 210.000   etgK0ta0GRBD
+  dim DISTANCE             0.25 mm                      <external>, ndqwsGAZ0gmw
+  dim DISTANCE             0.25 mm                      <external>, ndqwsGAZ0gmw
+  dim DISTANCE             (42 * #ycount)mm - .5mm      lt1h8XYdNE15, lt1h8XYdNE15
+  dim RADIUS               3.75 mm                      lt1h8XYdNE15
+  dim DISTANCE             (42 * #xcount)mm - .5mm      lt1h8XYdNE15, lt1h8XYdNE15
+  dim LENGTH               (42*#ycount) mm              etgK0ta0GRBD
+  dim LENGTH               (#xcount*42) mm              etgK0ta0GRBD
+  png: Gridfinity/onshape/sketches/src_gf_plain_bin\07_Sketch_4.png
+
+#11 Sketch 12   plane: face/plane of 'Plane 3'   entities=14
+  L (  -1.448,   41.448) -> (   2.400,   37.600)  len   5.442   Zf9ntXsPYDIG  (construction)
+  L (   2.400,   37.600) -> (   2.400,   35.800)  len   1.800   MshuIvGTR84B  (construction)
+  L (   2.400,   35.800) -> (   3.200,   35.000)  len   1.131   xoBYpDRdLeis  (construction)
+  L (   1.022,   38.624) -> (   2.150,   37.496)  len   1.595   CryhBnvCTTbr
+  L (   2.150,   37.496) -> (   2.150,   35.696)  len   1.800   CryhBnvCTTbr
+  L (   2.150,   35.696) -> (   2.846,   35.000)  len   0.985   CryhBnvCTTbr
+  L (   0.250,   38.689) -> (   0.250,    6.000)  len  32.689   90dVFX0kOxhq
+  L (   2.846,   35.000) -> (   2.846,   33.800)  len   1.200   v29sYIyVBny9
+  L (   2.846,   33.800) -> (   1.950,   32.904)  len   1.268   UKNv9UzWxklY
+  L (   1.950,   32.904) -> (   1.950,    6.000)  len  26.904   uCDRBMCGkwQe
+  L (   0.250,    6.000) -> (   1.950,    6.000)  len   1.700   vnXOhVXtBehA
+  A c=(   0.598,   38.200) r= 0.600  (   1.022,   38.624) -> (   0.250,   38.689)  sweep   80.4°   vr9ZD0q7yRFm
+  L (  -2.090,   38.800) -> (  21.000,   38.800)  len  23.090   Pap5RVGWoy4V  (construction)
+  L (  21.000,    0.000) -> (  21.000,   38.800)  len  38.800   Oqo9dziQ9TQH  (construction)
+  dim DISTANCE             0.25 mm                      MshuIvGTR84B, CryhBnvCTTbr
+  dim LENGTH               1.2 mm                       v29sYIyVBny9
+  dim ANGLE                45 deg                       v29sYIyVBny9, UKNv9UzWxklY
+  dim DISTANCE             #wall_t                      90dVFX0kOxhq, uCDRBMCGkwQe
+  dim RADIUS               0.6 mm                       vr9ZD0q7yRFm
+  dim DISTANCE             5 mm                         Pap5RVGWoy4V, v29sYIyVBny9
+  dim DISTANCE             (#zcount) * 7mm              <external>, xoBYpDRdLeis
+  dim ANGLE                44.999999999999645*deg       CryhBnvCTTbr, CryhBnvCTTbr
+  dim DISTANCE             21 mm                        <external>, Oqo9dziQ9TQH
+  dim CENTERLINE_DIMENSION 41.5*mm                      90dVFX0kOxhq, Oqo9dziQ9TQH
+  dim CENTERLINE_DIMENSION 37.199999999999996*mm        MshuIvGTR84B, Oqo9dziQ9TQH
+  dim LENGTH               1.8 mm                       CryhBnvCTTbr
+  dim CENTERLINE_DIMENSION 35.6*mm                      xoBYpDRdLeis, Oqo9dziQ9TQH
+  dim DISTANCE             6 mm                         <external>, vnXOhVXtBehA
+  png: Gridfinity/onshape/sketches/src_gf_plain_bin\11_Sketch_12.png
+
+#17 Sketch 1   plane: face/plane of 'Plane 1'   entities=4
+  L ( -25.307,   42.000) -> ( -40.800,   30.744)  len  19.150   lbJZ5Mqpp3Cd
+  L ( -40.800,   42.000) -> ( -40.800,   30.744)  len  11.256   P3vVpTqEhT83
+  L ( -40.800,   42.000) -> ( -25.307,   42.000)  len  15.493   twjEYwqPADSV
+  A c=( -27.154,   41.400) r= 0.600  ( -26.801,   40.915) -> ( -27.154,   42.000)  sweep  144.0°   8TiLLi1PZr39  (construction)
+  dim ANGLE                36 deg                       lbJZ5Mqpp3Cd, twjEYwqPADSV
+  dim RADIUS               0.6 mm                       8TiLLi1PZr39
+  dim DISTANCE             #label_depth                 <external>, 8TiLLi1PZr39
+  png: Gridfinity/onshape/sketches/src_gf_plain_bin\17_Sketch_1.png
+

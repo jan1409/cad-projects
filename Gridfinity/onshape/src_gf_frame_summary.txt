@@ -1,0 +1,15 @@
+features: 7   rollbackIndex: 7   types: {'importDerived': 1, 'linearPattern': 1, 'newSketch': 1, 'extrude': 1, 'fillet': 1, 'booleanBodies': 1, 'partName': 1}
+  0 Derived 1                    importDerived     
+      parts=<query x1>; buildFunction=<derived eeb59c86155cf511680aecb14::m318ad7d2fbd6fd783773628b>; asVersion=V1963_FIX_SM_EXTRUDE_UPGRADE_FAILURE
+  1 Linear pattern 1             linearPattern     
+      patternType=PART; operationType=ADD; entities=<query x1>; instanceFunction=<BTMParameterFeatureList-1749>; directionOne=<query x1>; distance=42 mm; instanceCount=#x_count; hasSecondDir=True; directionTwo=<query x1>; distanceTwo=42 mm; instanceCountTwo=#y_count; oppositeDirectionTwo=True; defaultScope=True; asVersion=V1963_FIX_SM_EXTRUDE_UPGRADE_FAILURE
+  2 Sketch 1                     newSketch         
+      sketchPlane=<query x1>; asVersion=V1963_FIX_SM_EXTRUDE_UPGRADE_FAILURE; entities=4 constraints=12 dims=['0.5 mm', '0.5 mm', '(#y_count*42 -1) mm', '(#x_count*42 -1) mm']
+  3 Extrude 1                    extrude           
+      domain=MODEL; bodyType=SOLID; operationType=NEW; surfaceOperationType=NEW; flatOperationType=REMOVE; entities=<query x1>; endBound=BLIND; depth=25 mm; offsetDistance=25 mm; startOffsetBound=BLIND; startOffsetDistance=25 mm; symmetric=True; draftAngle=3 deg; secondDirectionBound=BLIND; secondDirectionOppositeDirection=True; secondDirectionDepth=25 mm; secondDirectionOffsetDistance=25 mm; secondDirectionDraftAngle=3 deg; defaultSurfaceScope=True; asVersion=V1963_FIX_SM_EXTRUDE_UPGRADE_FAILURE
+  4 Fillet 1                     fillet            
+      filletType=EDGE; entities=<query x4>; tangentPropagation=True; blendControlType=RADIUS; crossSection=CIRCULAR; radius=3.4 mm; width=2.8 mm; rho=0.5; magnitude=0.5; defaultsChanged=True; otherRadius=5 mm; partialFirstEdgeTotalParameter=0.01; partialOppositeParameter=True; partialSecondEdgeTotalParameter=0.99; vertexSettings=<array x0>; pointOnEdgeSettings=<array x0>; allowEdgeOverflow=True; asVersion=V1963_FIX_SM_EXTRUDE_UPGRADE_FAILURE
+  5 Boolean 1                    booleanBodies     
+      operationType=INTERSECTION; tools=<query x2>; offsetDistance=5 mm; asVersion=V1963_FIX_SM_EXTRUDE_UPGRADE_FAILURE
+  6 Part Name 1                  partName          
+      part=<query x1>; segmentCount=THREE; isString1=True; segment1string=Gridfinity_frame_; expression1=0; displayUnit1=Millimeter; decimalPlaces1=3; expression2=#x_count~"x"; displayUnit2=Millimeter; decimalPlaces2=3; expression3=#y_count; displayUnit3=Millimeter; decimalPlaces3=3; isString4=True; expression4=0; displayUnit4=Millimeter; decimalPlaces4=3; isString5=True; expression5=0; displayUnit5=Millimeter; decimalPlaces5=3; isString6=True; expression6=0; displayUnit6=Millimeter; decimalPlaces6=3; setPartName=True

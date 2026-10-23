@@ -1,0 +1,174 @@
+#1 Sketch 1   plane: Top   entities=7
+  L (  60.000,  -35.000) -> ( -60.000,  -35.000)  len 120.000   QbPTkBdACvPu
+  L (  60.000,   35.000) -> ( -60.000,   35.000)  len 120.000   QbPTkBdACvPu
+  L (  60.000,  -35.000) -> (  60.000,   35.000)  len  70.000   QbPTkBdACvPu
+  L ( -60.000,  -35.000) -> ( -60.000,   35.000)  len  70.000   QbPTkBdACvPu
+  P (   0.000,    0.000)   QbPTkBdACvPu  (construction)
+  L (  60.000,   -0.000) -> (   0.000,    0.000)  len  60.000   ST9gJIHrthVR
+  L (   0.000,    0.000) -> (   0.000,  -35.000)  len  35.000   X3UVcZLCw4rQ
+  dim LENGTH               #length                      QbPTkBdACvPu
+  dim LENGTH               #width                       QbPTkBdACvPu
+  png: Gridfinity/onshape/sketches/src_rugged_box\01_Sketch_1.png
+
+#6 Sketch 2   plane: Front   entities=5
+  L (  64.260,   27.000) -> (  64.260,   33.000)  len   6.000   gEdkYptkwNjd
+  L (  64.260,   33.000) -> (  62.400,   37.400)  len   4.777   C6ZUXFVMtn7r
+  L (  64.260,   27.000) -> (  62.400,   22.600)  len   4.777   hGX7JBFJOO4y
+  P (  64.260,   30.000)   do7ouqOFfizC
+  L (  62.400,   37.400) -> (  62.400,   22.600)  len  14.800   aSr7cYxkU5cG
+  dim LENGTH               6 mm                         gEdkYptkwNjd
+  dim DISTANCE             4.4 mm                       gEdkYptkwNjd, hGX7JBFJOO4y
+  dim DISTANCE             1.86 mm                      gEdkYptkwNjd, hGX7JBFJOO4y
+  png: Gridfinity/onshape/sketches/src_rugged_box\06_Sketch_2.png
+
+#9 Sketch 3   plane: face/plane of 'Plane 1'   entities=7
+  L (  64.260,   52.400) -> (  58.994,   52.400)  len   5.266   MIoa0CoZFEQx
+  L (  64.260,   -2.400) -> (  58.994,   -2.400)  len   5.266   MIoa0CoZFEQx
+  L (  64.260,   52.400) -> (  64.260,   -2.400)  len  54.800   MIoa0CoZFEQx
+  L (  58.994,   52.400) -> (  58.994,   -2.400)  len  54.800   MIoa0CoZFEQx
+  L (  58.000,   50.000) -> (  60.000,   48.000)  len   2.828   3KivBKkJysiz
+  L (  60.000,   48.000) -> (  60.000,    2.000)  len  46.000   3KivBKkJysiz
+  L (  60.000,    2.000) -> (  58.000,   -0.000)  len   2.828   3KivBKkJysiz
+  png: Gridfinity/onshape/sketches/src_rugged_box\09_Sketch_3.png
+
+#15 Sketch 4   plane: face/plane of 'Hinge midplane'   entities=14
+  L ( -46.260,   48.000) -> ( -46.260,   21.000)  len  27.000   sSaQpG1bYODE
+  L ( -35.000,   59.260) -> ( -35.000,    9.740)  len  49.520   sSaQpG1bYODE
+  L ( -46.260,   21.000) -> ( -35.000,    9.740)  len  15.924   DaaHzUn7RQyE
+  L ( -46.260,   48.000) -> ( -35.000,   59.260)  len  15.924   tzTU2fAwxGPD
+  C c=( -41.760,   46.000) r= 1.700 (d=3.400)   mhJA6Lscjo0x
+  C c=( -41.760,   30.000) r= 1.700 (d=3.400)   HkRth1g4w08d
+  L ( -35.000,   52.400) -> ( -41.860,   52.400)  len   6.860   fxLLZumZCIPI
+  L ( -22.860,   -2.400) -> ( -35.000,   -2.400)  len  12.140   X44ndOPynBcR
+  L ( -40.558,   44.798) -> ( -41.056,   44.300)  len   0.704   MvuWrC8ivhfD
+  L ( -41.056,   44.300) -> ( -42.464,   44.300)  len   1.408   Xzl6kGxDptEI
+  L ( -42.464,   44.300) -> ( -42.962,   44.798)  len   0.704   uiRhzNm4LOFD
+  L ( -42.962,   31.202) -> ( -42.464,   31.700)  len   0.704   MB20mirCxMw7
+  L ( -42.464,   31.700) -> ( -41.056,   31.700)  len   1.408   snSMylKejtW4
+  L ( -41.056,   31.700) -> ( -40.558,   31.202)  len   0.704   EjCAdWBjYnVX
+  dim DISTANCE             10 mm                        <external>, tzTU2fAwxGPD
+  dim DISTANCE             16.999999999999996*mm        <external>, DaaHzUn7RQyE
+  dim DISTANCE             7.999999999855421*mm         <external>, mhJA6Lscjo0x
+  dim DISTANCE             4.5 mm                       mhJA6Lscjo0x, sSaQpG1bYODE
+  dim DIAMETER             3.4 mm                       mhJA6Lscjo0x
+  dim DISTANCE             8 mm                         <external>, HkRth1g4w08d
+  dim ANGLE                45 deg                       sSaQpG1bYODE, tzTU2fAwxGPD
+  dim ANGLE                45 deg                       DaaHzUn7RQyE, sSaQpG1bYODE
+  dim DISTANCE             2.499999999970019*mm         <external>, mhJA6Lscjo0x
+  dim ANGLE                45 deg                       Xzl6kGxDptEI, MvuWrC8ivhfD
+  dim ANGLE                45 deg                       MB20mirCxMw7, snSMylKejtW4
+  png: Gridfinity/onshape/sketches/src_rugged_box\15_Sketch_4.png
+
+#16 Sketch 8   plane: face/plane of 'Hinge midplane'   entities=9
+  L ( -39.260,   52.400) -> ( -33.994,   52.400)  len   5.266   lvz2VhaPh8hq
+  L ( -39.260,   -2.400) -> ( -33.994,   -2.400)  len   5.266   lvz2VhaPh8hq
+  L ( -39.260,   52.400) -> ( -39.260,   -2.400)  len  54.800   lvz2VhaPh8hq
+  L ( -33.994,   52.400) -> ( -33.994,   -2.400)  len  54.800   lvz2VhaPh8hq
+  L ( -35.000,   48.000) -> ( -33.000,   50.000)  len   2.828   Sgnvb1ujanAq
+  L ( -35.000,   48.000) -> ( -35.000,    2.000)  len  46.000   Sgnvb1ujanAq
+  L ( -33.000,   -0.000) -> ( -35.000,    2.000)  len   2.828   Sgnvb1ujanAq
+  L ( -39.260,   49.765) -> ( -36.625,   52.400)  len   3.727   53lWMMBcOLHM
+  L ( -39.260,    0.235) -> ( -36.625,   -2.400)  len   3.727   BGIKJaOcLIt0
+  dim ANGLE                45 deg                       lvz2VhaPh8hq, 53lWMMBcOLHM
+  dim ANGLE                45 deg                       BGIKJaOcLIt0, lvz2VhaPh8hq
+  dim DISTANCE             2.6354502244850324*mm        53lWMMBcOLHM, lvz2VhaPh8hq
+  png: Gridfinity/onshape/sketches/src_rugged_box\16_Sketch_8.png
+
+#19 Sketch 5   plane: face/plane of 'Hinge midplane'   entities=17
+  L (  35.000,   54.260) -> (  35.000,   21.740)  len  32.520   btWx66WOnXbw
+  L (  46.260,   43.000) -> (  46.260,   33.000)  len  10.000   btWx66WOnXbw
+  L (  35.000,   54.260) -> (  46.260,   43.000)  len  15.924   zccN5Ieoyn4e
+  L (  46.260,   33.000) -> (  35.000,   21.740)  len  15.924   PfXxxtzlkfEV
+  C c=(  42.860,   38.000) r= 3.400 (d=6.800)   QKrpKA9g6hye
+  L (  46.260,   38.000) -> (  35.000,   38.000)  len  11.260   P2AqL4mby86e
+  L (  45.264,   35.596) -> (  35.000,   25.332)  len  14.516   51xlwjJNCuzX
+  L (  45.264,   40.404) -> (  35.000,   50.668)  len  14.516   6fo4bXDorpba
+  C c=(  42.860,   38.000) r= 1.700 (d=3.400)   lp1bdHIwA3BE
+  L (  35.000,   52.400) -> (  36.860,   52.400)  len   1.860   XffAs0Qq8iYL
+  L (  35.000,   -2.400) -> (  10.860,   -2.400)  len  24.140   3xG5uWZqgZgT
+  L (  41.658,   39.202) -> (  42.156,   39.700)  len   0.704   MNhneijfHUO3
+  L (  42.156,   39.700) -> (  43.564,   39.700)  len   1.408   wDCJdonmKQcj
+  L (  43.564,   39.700) -> (  44.062,   39.202)  len   0.704   IQpUu4rw9WsI
+  L (  41.658,   36.798) -> (  42.156,   36.300)  len   0.704   0JyVHpNZDbtC
+  L (  42.156,   36.300) -> (  43.564,   36.300)  len   1.408   5nc3I3CHzdEu
+  L (  43.564,   36.300) -> (  44.062,   36.798)  len   0.704   S6N8LCZpwwTF
+  dim ANGLE                45 deg                       PfXxxtzlkfEV, btWx66WOnXbw
+  dim DISTANCE             5 mm                         <external>, zccN5Ieoyn4e
+  dim DISTANCE             5 mm                         <external>, PfXxxtzlkfEV
+  dim DIAMETER             6.8 mm                       QKrpKA9g6hye
+  dim DIAMETER             3.4 mm                       lp1bdHIwA3BE
+  dim DISTANCE             3.6 mm                       <external>, QKrpKA9g6hye
+  dim ANGLE                45 deg                       zccN5Ieoyn4e, btWx66WOnXbw
+  dim ANGLE                45 deg                       MNhneijfHUO3, wDCJdonmKQcj
+  png: Gridfinity/onshape/sketches/src_rugged_box\19_Sketch_5.png
+
+#20 Sketch 9   plane: face/plane of 'Hinge midplane'   entities=10
+  L (  39.260,   52.400) -> (  33.994,   52.400)  len   5.266   NmoXlwpXkAKT
+  L (  39.260,   -2.400) -> (  33.994,   -2.400)  len   5.266   NmoXlwpXkAKT
+  L (  39.260,   52.400) -> (  39.260,   -2.400)  len  54.800   NmoXlwpXkAKT
+  L (  33.994,   52.400) -> (  33.994,   -2.400)  len  54.800   NmoXlwpXkAKT
+  L (  35.000,   48.000) -> (  33.000,   50.000)  len   2.828   Dng77r3V1XhA
+  L (  35.000,   48.000) -> (  35.000,    2.000)  len  46.000   Dng77r3V1XhA
+  L (  33.000,   -0.000) -> (  35.000,    2.000)  len   2.828   Dng77r3V1XhA
+  L (  39.260,   30.000) -> (  35.000,   30.000)  len   4.260   EFF1zVgv6RGt
+  L (  36.625,   52.400) -> (  39.260,   49.765)  len   3.727   B4AoKuWHfeqp
+  L (  36.625,   -2.400) -> (  39.260,    0.235)  len   3.727   PDJgW4S79C9C
+  dim ANGLE                45 deg                       B4AoKuWHfeqp, NmoXlwpXkAKT
+  dim ANGLE                45 deg                       PDJgW4S79C9C, NmoXlwpXkAKT
+  png: Gridfinity/onshape/sketches/src_rugged_box\20_Sketch_9.png
+
+#31 Sketch 10   plane: face/plane of 'Hinge midplane'   entities=13
+  C c=( -41.760,   38.000) r= 4.000 (d=8.000)   wxIQc58UeqGS
+  C c=( -41.760,   22.000) r= 4.000 (d=8.000)   YoinH6Bomalj
+  A c=( -23.131,   30.000) r=21.874  ( -44.423,   35.015) -> ( -44.423,   24.985)  sweep   26.5°   Z0LUuPAQi0mr
+  A c=( -23.131,   30.000) r=18.674  ( -41.367,   34.019) -> ( -41.367,   25.981)  sweep   24.9°   3CXICMgexsBX
+  L ( -44.441,   19.031) -> ( -46.450,   13.024)  len   6.334   NPes5RUMig7B
+  L ( -43.416,   12.009) -> ( -41.406,   18.016)  len   6.334   r7FWWBmSrcHA
+  A c=( -44.933,   12.517) r= 1.600  ( -46.450,   13.024) -> ( -43.416,   12.009)  sweep  180.0°   GaNsqjY3wydf
+  L ( -41.367,   25.981) -> ( -41.749,   23.600)  len   2.411   uABQy27I6S9e
+  C c=( -41.760,   22.000) r= 1.600 (d=3.200)   aD5OBHVWf8T5
+  C c=( -41.760,   38.000) r= 1.600 (d=3.200)   cuuAFXaiUesR
+  L ( -41.760,   22.000) -> ( -41.760,   38.000)  len  16.000   L01Pr5EaYDMu  (construction)
+  L ( -41.760,   22.000) -> ( -44.933,   12.517)  len  10.000   Ks6wXnyVWe3k  (construction)
+  L ( -37.960,   20.750) -> ( -40.761,   20.750)  len   2.801   7u0NdKUgRkRM
+  dim DIAMETER             8 mm                         wxIQc58UeqGS
+  dim DISTANCE             3.2 mm                       Z0LUuPAQi0mr, 3CXICMgexsBX
+  dim DISTANCE             3.2 mm                       NPes5RUMig7B, r7FWWBmSrcHA
+  dim DIAMETER             3.2 mm                       aD5OBHVWf8T5
+  dim DIAMETER             3.2 mm                       cuuAFXaiUesR
+  dim ANGLE                18.5 deg                     L01Pr5EaYDMu, Ks6wXnyVWe3k
+  dim DISTANCE             10 mm                        L01Pr5EaYDMu, Ks6wXnyVWe3k
+  dim ANGLE                9.1 deg                      L01Pr5EaYDMu, uABQy27I6S9e
+  dim DISTANCE             1.25 mm                      7u0NdKUgRkRM, L01Pr5EaYDMu
+  dim RADIUS               21.8738441277478*mm          Z0LUuPAQi0mr
+  dim DISTANCE             18.62870783804664*mm         L01Pr5EaYDMu, Z0LUuPAQi0mr
+  png: Gridfinity/onshape/sketches/src_rugged_box\31_Sketch_10.png
+
+#37 Sketch 6   plane: Right   entities=7
+  L ( -36.230,   30.000) -> ( -38.030,   30.000)  len   1.800   NJ4jIBe9nwAb
+  L ( -36.230,   28.000) -> ( -38.030,   28.000)  len   1.800   NJ4jIBe9nwAb
+  L ( -36.230,   30.000) -> ( -36.230,   28.000)  len   2.000   NJ4jIBe9nwAb
+  L ( -38.030,   30.000) -> ( -38.030,   28.000)  len   2.000   NJ4jIBe9nwAb
+  L ( -36.230,   28.000) -> ( -35.000,   28.000)  len   1.230   LG1SHiTu0kXo  (construction)
+  L ( -38.030,   28.000) -> ( -39.260,   28.000)  len   1.230   b3DIcoRSGZ6z  (construction)
+  L ( -36.230,   29.400) -> ( -38.030,   29.400)  len   1.800   yEsLS5wXNecG
+  dim LENGTH               1.8 mm                       NJ4jIBe9nwAb
+  dim LENGTH               2 mm                         NJ4jIBe9nwAb
+  dim DISTANCE             1.4 mm                       yEsLS5wXNecG, NJ4jIBe9nwAb
+  png: Gridfinity/onshape/sketches/src_rugged_box\37_Sketch_6.png
+
+#40 Sketch 7   plane: Right   entities=8
+  L ( -36.380,   30.000) -> ( -36.930,   29.345)  len   0.856   E1jKhIxGmysd
+  L ( -36.930,   29.345) -> ( -36.930,   29.100)  len   0.245   hNk6rDddqgX8
+  L ( -36.930,   29.100) -> ( -37.330,   29.100)  len   0.400   cZllq7zPvGm2
+  L ( -37.330,   29.100) -> ( -37.330,   29.345)  len   0.245   X3FMycjCEq2d
+  L ( -37.330,   29.345) -> ( -37.880,   30.000)  len   0.856   ej7KRVdXCYsu
+  L ( -36.380,   30.000) -> ( -37.880,   30.000)  len   1.500   s0rrd6lcoZoT
+  L ( -37.880,   30.000) -> ( -39.260,   30.000)  len   1.380   YlDDlqft3JxL  (construction)
+  L ( -36.380,   30.000) -> ( -35.000,   30.000)  len   1.380   c3aHvd9Zm1lI  (construction)
+  dim ANGLE                40 deg                       X3FMycjCEq2d, ej7KRVdXCYsu
+  dim LENGTH               0.4 mm                       cZllq7zPvGm2
+  dim DISTANCE             0.9 mm                       cZllq7zPvGm2, YlDDlqft3JxL
+  dim LENGTH               1.5 mm                       s0rrd6lcoZoT
+  png: Gridfinity/onshape/sketches/src_rugged_box\40_Sketch_7.png
+

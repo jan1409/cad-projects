@@ -1,0 +1,95 @@
+features: 47   rollbackIndex: 47   types: {'newSketch': 10, 'extrude': 10, 'fillet': 6, 'mirror': 6, 'sweep': 4, 'cPlane': 3, 'chamfer': 3, 'booleanBodies': 2, 'shell': 1, 'moveFace': 1, 'splitPart': 1}
+  0 Lid split plane              cPlane            
+      entities=<query x1>; cplaneType=OFFSET; offset=#split_height; angle=0 deg; width=150 mm; height=150 mm
+  1 Sketch 1                     newSketch         
+      sketchPlane=<query x1>; entities=7 constraints=17 dims=['#length', '#width']
+  2 Extrude 1                    extrude           
+      domain=MODEL; bodyType=SOLID; operationType=NEW; surfaceOperationType=NEW; flatOperationType=REMOVE; entities=<query x1>; endBound=BLIND; depth=#depth; offsetDistance=25 mm; startOffsetBound=BLIND; startOffsetDistance=25 mm; draftAngle=3 deg; secondDirectionBound=BLIND; secondDirectionOppositeDirection=True; secondDirectionDepth=25 mm; secondDirectionOffsetDistance=25 mm; secondDirectionDraftAngle=3 deg; defaultSurfaceScope=True
+  3 Fillet 1                     fillet            
+      filletType=EDGE; entities=<query x1>; tangentPropagation=True; blendControlType=RADIUS; crossSection=CIRCULAR; radius=#inner_fillet; width=10 mm; rho=0.5; magnitude=0.5; otherRadius=5 mm; partialFirstEdgeTotalParameter=0.01; partialOppositeParameter=True; partialSecondEdgeTotalParameter=0.99; vertexSettings=<array x0>; pointOnEdgeSettings=<array x0>; allowEdgeOverflow=True
+  4 Chamfer 1                    chamfer           
+      entities=<query x2>; chamferType=EQUAL_OFFSETS; width=2 mm; width1=5 mm; width2=5 mm; angle=45 deg; tangentPropagation=True
+  5 Shell 1                      shell             
+      entities=<query x2>; thickness=#shell_t; oppositeDirection=True
+  6 Sketch 2                     newSketch         
+      sketchPlane=<query x1>; entities=5 constraints=13 dims=['6 mm', '4.4 mm', '1.86 mm']
+  7 Sweep 1                      sweep             
+      bodyType=SOLID; operationType=ADD; profiles=<query x1>; surfaceOperationType=NEW; path=<query x3>; booleanScope=<query x1>; defaultSurfaceScope=True
+  8 Plane 1                      cPlane            
+      entities=<query x1>; cplaneType=OFFSET; offset=#width/2 - 23mm; angle=0 deg; width=150 mm; height=150 mm
+  9 Sketch 3                     newSketch         
+      sketchPlane=<query x1>; entities=7 constraints=21 dims=[]
+ 10 Extrude 2                    extrude           
+      domain=MODEL; bodyType=SOLID; operationType=NEW; surfaceOperationType=NEW; flatOperationType=REMOVE; entities=<query x1>; endBound=BLIND; depth=5 mm; offsetDistance=25 mm; startOffsetBound=BLIND; startOffsetDistance=25 mm; draftAngle=3 deg; secondDirectionBound=BLIND; secondDirectionOppositeDirection=True; secondDirectionDepth=25 mm; secondDirectionOffsetDistance=25 mm; secondDirectionDraftAngle=3 deg; booleanScope=<query x1>; defaultSurfaceScope=True
+ 11 Chamfer 3                    chamfer           
+      entities=<query x2>; chamferType=EQUAL_OFFSETS; width=2.635 mm; width1=5 mm; width2=5 mm; angle=45 deg; tangentPropagation=True
+ 12 Fillet 6                     fillet            
+      filletType=EDGE; entities=<query x2>; tangentPropagation=True; blendControlType=RADIUS; crossSection=CIRCULAR; radius=1 mm; width=10 mm; rho=0.5; magnitude=0.5; otherRadius=5 mm; partialFirstEdgeTotalParameter=0.01; partialOppositeParameter=True; partialSecondEdgeTotalParameter=0.99; vertexSettings=<array x0>; pointOnEdgeSettings=<array x0>; allowEdgeOverflow=True
+ 13 Mirror 1                     mirror            
+      patternType=PART; operationType=ADD; entities=<query x2>; instanceFunction=<BTMParameterFeatureList-1749>; mirrorPlane=<query x1>; booleanScope=<query x1>
+ 14 Hinge midplane               cPlane            
+      entities=<query x1>; cplaneType=OFFSET; offset=#length/2 - 27mm; angle=0 deg; width=150 mm; height=150 mm
+ 15 Sketch 4                     newSketch         
+      sketchPlane=<query x1>; entities=14 constraints=45 dims=['10 mm', '16.999999999999996*mm', '7.999999999855421*mm', '4.5 mm', '3.4 mm', '8 mm', '45 deg', '45 deg', '2.499999999970019*mm', '45 deg', '45 deg']
+ 16 Sketch 8                     newSketch         
+      sketchPlane=<query x1>; entities=9 constraints=28 dims=['45 deg', '45 deg', '2.6354502244850324*mm']
+ 17 Extrude 3                    extrude           
+      domain=MODEL; bodyType=SOLID; operationType=NEW; surfaceOperationType=NEW; flatOperationType=REMOVE; entities=<query x1>; endBound=BLIND; oppositeDirection=True; depth=3.2 mm; offsetDistance=25 mm; startOffset=True; startOffsetBound=BLIND; startOffsetDistance=#hinge_width/2; draftAngle=3 deg; secondDirectionBound=BLIND; secondDirectionOppositeDirection=True; secondDirectionDepth=25 mm; secondDirectionOffsetDistance=25 mm; secondDirectionDraftAngle=3 deg; booleanScope=<query x1>; defaultSurfaceScope=True
+ 18 Extrude 8                    extrude           
+      domain=MODEL; bodyType=SOLID; operationType=ADD; surfaceOperationType=NEW; flatOperationType=REMOVE; entities=<query x1>; endBound=UP_TO_SURFACE; depth=3.2 mm; endBoundEntityFace=<query x1>; offsetDistance=25 mm; startOffset=True; startOffsetBound=ENTITY; startOffsetDistance=#hinge_width/2; startOffsetEntity=<query x1>; draftAngle=3 deg; secondDirectionBound=BLIND; secondDirectionOppositeDirection=True; secondDirectionDepth=25 mm; secondDirectionOffsetDistance=25 mm; secondDirectionDraftAngle=3 deg; booleanScope=<query x1>; defaultSurfaceScope=True
+ 19 Sketch 5                     newSketch         
+      sketchPlane=<query x1>; entities=17 constraints=56 dims=['45 deg', '5 mm', '5 mm', '6.8 mm', '3.4 mm', '3.6 mm', '45 deg', '45 deg']
+ 20 Sketch 9                     newSketch         
+      sketchPlane=<query x1>; entities=10 constraints=32 dims=['45 deg', '45 deg']
+ 21 Extrude 4                    extrude           
+      domain=MODEL; bodyType=SOLID; operationType=NEW; surfaceOperationType=NEW; flatOperationType=REMOVE; entities=<query x6>; endBound=BLIND; oppositeDirection=True; depth=3.2 mm; offsetDistance=25 mm; startOffset=True; startOffsetBound=BLIND; startOffsetDistance=#hinge_width/2; draftAngle=3 deg; secondDirectionBound=BLIND; secondDirectionOppositeDirection=True; secondDirectionDepth=25 mm; secondDirectionOffsetDistance=25 mm; secondDirectionDraftAngle=3 deg; booleanScope=<query x1>; defaultSurfaceScope=True
+ 22 Extrude 9                    extrude           
+      domain=MODEL; bodyType=SOLID; operationType=ADD; surfaceOperationType=NEW; flatOperationType=REMOVE; entities=<query x1>; endBound=UP_TO_SURFACE; depth=25 mm; endBoundEntityFace=<query x1>; offsetDistance=25 mm; startOffset=True; startOffsetBound=ENTITY; startOffsetDistance=25 mm; startOffsetEntity=<query x1>; draftAngle=3 deg; secondDirectionBound=BLIND; secondDirectionOppositeDirection=True; secondDirectionDepth=25 mm; secondDirectionOffsetDistance=25 mm; secondDirectionDraftAngle=3 deg; booleanScope=<query x1>; defaultSurfaceScope=True
+ 23 Extrude 5                    extrude           
+      domain=MODEL; bodyType=SOLID; operationType=ADD; surfaceOperationType=NEW; flatOperationType=REMOVE; entities=<query x5>; endBound=BLIND; oppositeDirection=True; depth=6.2 mm; offsetDistance=25 mm; startOffset=True; startOffsetBound=BLIND; startOffsetDistance=#hinge_width/2; draftAngle=3 deg; secondDirectionBound=BLIND; secondDirectionOppositeDirection=True; secondDirectionDepth=25 mm; secondDirectionOffsetDistance=25 mm; secondDirectionDraftAngle=3 deg; booleanScope=<query x1>; defaultSurfaceScope=True
+ 24 Extrude 6                    extrude           
+      domain=MODEL; bodyType=SOLID; operationType=NEW; surfaceOperationType=NEW; flatOperationType=REMOVE; entities=<query x5>; endBound=UP_TO_SURFACE; depth=8.7 mm; endBoundEntityFace=<query x1>; hasOffset=True; offsetDistance=0.125 mm; startOffsetBound=BLIND; startOffsetDistance=25 mm; draftAngle=3 deg; secondDirectionBound=BLIND; secondDirectionOppositeDirection=True; secondDirectionDepth=25 mm; secondDirectionOffsetDistance=25 mm; secondDirectionDraftAngle=3 deg; booleanScope=<query x1>; defaultSurfaceScope=True
+ 25 Extrude 7                    extrude           
+      domain=MODEL; bodyType=SOLID; operationType=ADD; surfaceOperationType=NEW; flatOperationType=REMOVE; entities=<query x4>; endBound=BLIND; depth=1.6 mm; offsetDistance=25 mm; startOffsetBound=BLIND; startOffsetDistance=25 mm; draftAngle=3 deg; secondDirectionBound=BLIND; secondDirectionOppositeDirection=True; secondDirectionDepth=25 mm; secondDirectionOffsetDistance=25 mm; secondDirectionDraftAngle=3 deg; booleanScope=<query x1>; defaultSurfaceScope=True
+ 26 Fillet 2                     fillet            
+      filletType=EDGE; entities=<query x3>; tangentPropagation=True; blendControlType=RADIUS; crossSection=CIRCULAR; radius=3 mm; width=10 mm; rho=0.5; magnitude=0.5; otherRadius=5 mm; partialFirstEdgeTotalParameter=0.01; partialOppositeParameter=True; partialSecondEdgeTotalParameter=0.99; vertexSettings=<array x0>; pointOnEdgeSettings=<array x0>; allowEdgeOverflow=True
+ 27 Chamfer 2                    chamfer             [suppressed]
+      entities=<query x4>; chamferType=EQUAL_OFFSETS; width=2.635 mm; width1=5 mm; width2=5 mm; angle=45 deg; tangentPropagation=True
+ 28 Fillet 3                     fillet            
+      filletType=EDGE; entities=<query x5>; tangentPropagation=True; blendControlType=RADIUS; crossSection=CIRCULAR; radius=1 mm; width=10 mm; rho=0.5; magnitude=0.5; otherRadius=5 mm; partialFirstEdgeTotalParameter=0.01; partialOppositeParameter=True; partialSecondEdgeTotalParameter=0.99; vertexSettings=<array x0>; pointOnEdgeSettings=<array x0>; allowEdgeOverflow=True
+ 29 Mirror 4                     mirror            
+      patternType=PART; operationType=NEW; entities=<query x3>; instanceFunction=<BTMParameterFeatureList-1749>; mirrorPlane=<query x1>; booleanScope=<query x1>
+ 30 Shrink threaded bore         moveFace          
+      outputType=MOVE; moveFaces=<query x12>; moveFaceType=OFFSET; limitType=BLIND; translationDistance=5 mm; angle=0 deg; offsetDistance=0.275 mm; offset=0 mm; oppositeOffsetDirection=True; reFillet=True
+ 31 Sketch 10                    newSketch         
+      sketchPlane=<query x1>; entities=13 constraints=39 dims=['8 mm', '3.2 mm', '3.2 mm', '3.2 mm', '3.2 mm', '18.5 deg', '10 mm', '9.1 deg', '1.25 mm', '21.8738441277478*mm', '18.62870783804664*mm']
+ 32 Extrude 10                   extrude           
+      domain=MODEL; bodyType=SOLID; operationType=NEW; surfaceOperationType=NEW; flatOperationType=REMOVE; entities=<query x4>; endBound=BLIND; depth=#hinge_width - 6.8mm; offsetDistance=25 mm; startOffsetBound=BLIND; startOffsetDistance=25 mm; symmetric=True; draftAngle=3 deg; secondDirectionBound=BLIND; secondDirectionOppositeDirection=True; secondDirectionDepth=25 mm; secondDirectionOffsetDistance=25 mm; secondDirectionDraftAngle=3 deg; booleanScope=<query x1>; defaultSurfaceScope=True
+ 33 Split 1                      splitPart         
+      splitType=PART; targets=<query x3>; tool=<query x1>; keepTools=True; keepBothSides=True; keepFront=True; projectionType=DIRECTION; useSketchPlaneDirection=True; keepToolSurfaces=True
+ 34 Fillet 4                     fillet            
+      filletType=EDGE; entities=<query x4>; tangentPropagation=True; blendControlType=RADIUS; crossSection=CIRCULAR; radius=5 mm; width=10 mm; rho=0.5; magnitude=0.5; defaultsChanged=True; otherRadius=5 mm; partialFirstEdgeTotalParameter=0.01; partialOppositeParameter=True; partialSecondEdgeTotalParameter=0.99; vertexSettings=<array x0>; pointOnEdgeSettings=<array x0>; allowEdgeOverflow=True
+ 35 Assemble Lid                 booleanBodies     
+      operationType=UNION; tools=<query x5>; offsetDistance=5 mm
+ 36 Assemble Base                booleanBodies     
+      operationType=UNION; tools=<query x5>; offsetDistance=5 mm
+ 37 Sketch 6                     newSketch         
+      sketchPlane=<query x1>; entities=7 constraints=22 dims=['1.8 mm', '2 mm', '1.4 mm']
+ 38 Sweep 2                      sweep             
+      bodyType=SOLID; operationType=REMOVE; profiles=<query x2>; surfaceOperationType=NEW; path=<query x5>; booleanScope=<query x1>; defaultSurfaceScope=True
+ 39 Sweep 3                      sweep             
+      bodyType=SOLID; operationType=NEW; profiles=<query x1>; surfaceOperationType=NEW; path=<query x5>; booleanScope=<query x1>; defaultSurfaceScope=True
+ 40 Sketch 7                     newSketch         
+      sketchPlane=<query x1>; entities=8 constraints=23 dims=['40 deg', '0.4 mm', '0.9 mm', '1.5 mm']
+ 41 Sweep 4                      sweep             
+      bodyType=SOLID; operationType=ADD; profiles=<query x1>; surfaceOperationType=NEW; path=<query x5>; booleanScope=<query x1>; defaultSurfaceScope=True
+ 42 Mirror 2                     mirror            
+      patternType=PART; operationType=ADD; entities=<query x1>; instanceFunction=<BTMParameterFeatureList-1749>; mirrorPlane=<query x1>; booleanScope=<query x1>
+ 43 Mirror 3                     mirror            
+      patternType=PART; operationType=ADD; entities=<query x1>; instanceFunction=<BTMParameterFeatureList-1749>; mirrorPlane=<query x1>; booleanScope=<query x1>
+ 44 Mirror 5                     mirror            
+      patternType=PART; operationType=ADD; entities=<query x1>; instanceFunction=<BTMParameterFeatureList-1749>; mirrorPlane=<query x1>; booleanScope=<query x1>
+ 45 Fillet 5                     fillet            
+      filletType=EDGE; entities=<query x24>; tangentPropagation=True; blendControlType=RADIUS; crossSection=CIRCULAR; radius=1 mm; width=10 mm; rho=0.5; magnitude=0.5; otherRadius=5 mm; partialFirstEdgeTotalParameter=0.01; partialOppositeParameter=True; partialSecondEdgeTotalParameter=0.99; vertexSettings=<array x0>; pointOnEdgeSettings=<array x0>; allowEdgeOverflow=True
+ 46 Mirror 6                     mirror            
+      patternType=PART; operationType=NEW; entities=<query x1>; instanceFunction=<BTMParameterFeatureList-1749>; mirrorPlane=<query x1>

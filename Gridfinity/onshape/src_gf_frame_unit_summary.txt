@@ -1,0 +1,15 @@
+features: 7   rollbackIndex: 7   types: {'newSketch': 2, 'cPlane': 2, 'sweep': 1, 'deleteFace': 1, 'splitPart': 1}
+  0 Sketch 1                     newSketch         
+      sketchPlane=<query x1>; entities=13 constraints=38 dims=['42 mm', '4 mm']
+  1 Plane 2                      cPlane            
+      entities=<query x2>; cplaneType=PLANE_POINT; offset=25 mm; angle=0 deg; width=150 mm; height=150 mm
+  2 Sketch 2                     newSketch         
+      sketchPlane=<query x1>; entities=9 constraints=26 dims=['45 deg', '1.8 mm', '37.7 mm', '0.25 mm', '0.8 mm']
+  3 Sweep 1                      sweep             
+      bodyType=SOLID; operationType=NEW; profiles=<query x1>; surfaceOperationType=NEW; path=<query x8>; defaultSurfaceScope=True
+  4 Delete face 1                deleteFace        
+      deleteFaces=<query x4>; healType=HEAL; includeFillet=True
+  5 Plane 1                      cPlane            
+      entities=<query x2>; cplaneType=PLANE_POINT; offset=5 mm; angle=0 deg; width=150 mm; height=150 mm
+  6 Split 1                      splitPart         
+      splitType=PART; targets=<query x1>; tool=<query x1>; keepTools=True; projectionType=DIRECTION; useSketchPlaneDirection=True; keepToolSurfaces=True

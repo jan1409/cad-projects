@@ -1,0 +1,140 @@
+{
+  "_about": "Gridfinity Rugged Case - parametric spec shared by the Fusion port and the browser generator. Derived 2026-10-23 from the Onshape reference (see case_spec.md). All lengths mm. Expressions use the variables below and + - * / ( ) only.",
+  "parameters": {
+    "x_count":  {"type": "int",   "default": 5,   "min": 3,    "max": 8,   "doc": "grid units along X (length); max 8 = 344.5 mm outside (Prusa XL bed)"},
+    "y_count":  {"type": "int",   "default": 4,   "min": 3,    "max": 8,   "doc": "grid units along Y (width, latch side = -Y); max 8 = 358.5 mm outside"},
+    "z_count":  {"type": "int",   "default": 6,   "min": 4,    "max": 8,   "doc": "Gridfinity height units of the inner space"},
+    "window_t": {"type": "float", "default": 1.6, "min": 0.75, "max": 2.0, "doc": "plexiglass thickness"},
+    "window_gap": {"type": "float", "default": 0.2, "min": 0.0, "max": 0.5, "doc": "extra pocket depth above the plexiglass (print side) so the printer can bridge over it after the pause; 0 = Onshape original"},
+    "print_layout": {"type": "bool", "default": false, "doc": "arrange parts in print orientation instead of assembled"}
+  },
+  "derived": {
+    "Li": "42 * x_count",
+    "Wi": "42 * y_count",
+    "split": "7 * z_count - 6",
+    "top": "7 * z_count + 8.8",
+    "wt": "window_t",
+    "gap": "window_gap",
+    "seat": "top - 1.2 - wt - gap",
+    "bottom": "-3.2",
+    "hinge_x": "21 * x_count - 27",
+    "outer_x": "Li + 2 * 4.26",
+    "outer_y": "Wi + 2 * 11.26",
+    "base_height": "split + 3.4 + 3.2",
+    "lid_height": "top - split + 3.4"
+  },
+  "frame": "Origin = XY centre of the cavity, z = 0 = floor top (bin seating plane). Front (latches) = -Y, back (hinges) = +Y. Wall profiles use s = distance outward from the inner wall (cavity outline 42*x_count x 42*y_count, corner r 4); the perimeter path for a profile point at s has corner radius 4 + s.",
+  "cavity": {"size": ["Li", "Wi"], "corner_r": 4},
+  "profiles": {
+    "_note": "Closed polygons in (s, z). 'r' = fillet radius at that vertex. Built by sweeping along the perimeter offset path.",
+    "base_wall": [
+      {"s": "-2.546", "z": "0.3"},
+      {"s": "-2.15",  "z": "0.696"},
+      {"s": "-2.15",  "z": "2.496"},
+      {"s": "0",      "z": "4.646"},
+      {"s": "0",      "z": "split"},
+      {"s": "1.23",   "z": "split"},
+      {"s": "1.23",   "z": "split - 2"},
+      {"s": "3.03",   "z": "split - 2"},
+      {"s": "3.03",   "z": "split"},
+      {"s": "4.26",   "z": "split"},
+      {"s": "4.26",   "z": "split - 3"},
+      {"s": "2.4",    "z": "split - 7.4"},
+      {"s": "2.4",    "z": "2.4", "r": 1},
+      {"s": "0.3",    "z": "0.3"}
+    ],
+    "lid_wall": [
+      {"s": "0",      "z": "top - 4.4"},
+      {"s": "-0.4",   "z": "top - 4"},
+      {"s": "-3.15",  "z": "top - 4", "synthetic": true},
+      {"s": "-3.15",  "z": "seat"},
+      {"s": "-1.5",   "z": "seat"},
+      {"s": "-1.5",   "z": "top - 1.2"},
+      {"s": "-3.009", "z": "top - 1.2"},
+      {"s": "-1.809", "z": "top"},
+      {"s": "0.408",  "z": "top", "r": 1},
+      {"s": "2.4",    "z": "top - 1.992", "r": 1},
+      {"s": "2.4",    "z": "split + 7.4"},
+      {"s": "4.26",   "z": "split + 3"},
+      {"s": "4.26",   "z": "split"},
+      {"s": "2.88",   "z": "split"},
+      {"s": "2.33",   "z": "split - 0.655"},
+      {"s": "2.33",   "z": "split - 0.9"},
+      {"s": "1.93",   "z": "split - 0.9"},
+      {"s": "1.93",   "z": "split - 0.655"},
+      {"s": "1.38",   "z": "split"},
+      {"s": "0",      "z": "split"}
+    ],
+    "lid_wall_front_override": {
+      "_note": "Front (-Y) wall only: replace the last vertex (0, split) by these two -> 0.5 x 2 lead-in so the lid clears the base while closing.",
+      "points": [{"s": "0.5", "z": "split"}, {"s": "0", "z": "split + 2"}]
+    },
+    "seal": [
+      {"s": "1.23", "z": "split - 2"},
+      {"s": "3.03", "z": "split - 2"},
+      {"s": "3.03", "z": "split - 0.6"},
+      {"s": "1.23", "z": "split - 0.6"}
+    ]
+  },
+  "cells": {
+    "_note": "Per Gridfinity cell (42 x 42, outline corner r 4). t = distance inward from the cell outline. Internal boundaries get both neighbours' halves.",
+    "pitch": 42,
+    "outline_r": 4,
+    "floor_pocket": [
+      {"t": "0",     "z": "4.646"},
+      {"t": "2.15",  "z": "2.496"},
+      {"t": "2.15",  "z": "0.696"},
+      {"t": "2.846", "z": "0"}
+    ],
+    "foot_pad": {"_note": "underside: 45 deg taper from a 35.6 sq r 0.8 pad at z=-3.2 up to z=+0.3 (42.6 sq r 4.3, i.e. 0.3 beyond the cell outline). Everything else of the base ends at the underside plane z=0.3, so the V-notches between pads run out through the wall and leave a small star-shaped void under every grid crossing. Pockets are cut after the pads are joined.",
+                 "points": [{"t": "3.2", "z": "-3.2"}, {"t": "-0.3", "z": "0.3"}], "underside_z": 0.3},
+    "lid_frame_opening": {"_note": "under the window: through opening 35.7 sq r 0.85, from z = top-5.5 to the window seat",
+                          "size": 35.7, "r": 0.85, "z0": "top - 5.5", "z1": "seat"},
+    "lid_frame_groove": {"_note": "45 deg chamfer cut on the frame underside: 40.3 sq r 3.15 at z = top-4 widening downwards to 37.3 sq at top-5.5 (rib profile below). Built as per-cell skirts (37.3 r 1.65 at top-5.5 growing 45 deg to 40.3 r 3.15 at top-4) so the grooves run out into the wall; the lid wall sweep stops at top-4.",
+                         "rib_points": [{"t": "-3.15", "z": "top - 5.5"}, {"t": "-2.35", "z": "top - 5.5"}, {"t": "-0.85", "z": "top - 4"},
+                                        {"t": "0.85", "z": "top - 4"}, {"t": "2.35", "z": "top - 5.5"}, {"t": "3.15", "z": "top - 5.5"}]},
+    "lid_top_opening": {"_note": "above the window: concentric offset of the cell outline, 3.009 at z = top-1.2 (35.982 sq r 0.991) widening at 45 deg to 1.809 at the lid top (38.382 sq r 2.191); Onshape sketch said 37.2 r1.6 at top-0.6, measured 37.182",
+                        "offset_z0": 3.009, "z0": "top - 1.2", "z1": "top", "draft_deg": 45}
+  },
+  "window": {"size": ["Li - 4", "Wi - 4"], "corner_r": 0.2, "z0": "top - 1.2 - wt", "z1": "top - 1.2",
+             "pocket": {"size": ["Li - 3", "Wi - 3"], "corner_r": 0.2, "z0": "seat", "z1": "top - 1.2",
+                        "_note": "seat = top - 1.2 - wt - gap: the window rests against the top ribs (bed side when printing upside down); the gap is on the frame side, pause at 1.2 + wt + gap above the bed"}},
+  "end_ribs": {"_note": "on both X end walls, full height at s = 4.26, own 45 deg end chamfers (see case_spec.md)",
+               "y_ranges": [["Wi/2 - 23", "Wi/2 - 18"], ["-(Wi/2 - 18)", "-(Wi/2 - 23)"]], "s_out": 4.26},
+  "hardware": {
+    "_note": "Size-independent modules, mirrored to x = +hinge_x and -hinge_x. Exact outlines: ../onshape/hardware_sections.txt (5x4x6: hinge_x 78, Wi/2 84, split 36).",
+    "x_centres": ["hinge_x", "-hinge_x"],
+    "screw": "M3 x 30 (6 per case: 2 hinge pins, 2 latch pivots, 2 latch catches)",
+    "hole_clearance_d": 3.4,
+    "hole_tap_d": 2.85,
+    "ribs": {"x_ranges_rel": [[-15, -11.8], [11.8, 15]], "thickness": 3.2, "sides": ["front", "back"]},
+    "hinge_back": {
+      "pin_axis": {"s": 7.86, "z": "split"},
+      "knuckle_d": 6.8,
+      "base_knuckles_x_rel": [[-15, -8.8], [8.8, 15]],
+      "lid_knuckle_x_rel": [-8.675, 8.675],
+      "gusset": "45 deg from the outer wall (s 2.4) at split -/+ 10.268 to the knuckle tangent",
+      "holes": "lid knuckle 3.4; base knuckle towards the case centre 2.85 (tap); base knuckle at the case end 3.4 (screw head outside)"
+    },
+    "latch_front": {
+      "pivot_axis_lid": {"s": 6.76, "z": "split + 8"},
+      "catch_axis_base": {"s": 6.76, "z": "split - 8"},
+      "rib_end_r": 5,
+      "holes": "rib towards the case end 3.4, rib towards the centre 2.85 (tap), at both axes",
+      "latch_part": {"width": 23.2, "x_rel": [-11.6, 11.6], "boss_d": 8, "hole_d": 3.2, "boss_spacing": 16,
+                     "profile_source": "Rugged Box Sketch 10 (src_rugged_box_sketches.txt), mapped y_case = y_src - (Wi/2 - 35), z_case = z_src + split - 30"}
+    }
+  },
+  "parts": ["Base", "Lid", "Latch x2", "Seal", "Window (laser-cut plexiglass)"],
+  "validation": {
+    "reference_dir": "../reference",
+    "bbox": {
+      "Base":   ["Li + 8.52", "Wi + 22.52", "split + 6.6"],
+      "Lid":    ["Li + 8.52", "Wi + 22.52", "top - split + 3.4"],
+      "Latch":  [23.2, 8.773, 31.083],
+      "Seal":   ["Li + 6.06", "Wi + 6.06", 1.4],
+      "Window": ["Li - 4", "Wi - 4", "window_t"]
+    },
+    "volume_cm3_5x4x6": {"Base": 195.25, "Lid": 66.20, "Latch": 2.84, "Seal": 1.92, "Window": 54.05}
+  }
+}

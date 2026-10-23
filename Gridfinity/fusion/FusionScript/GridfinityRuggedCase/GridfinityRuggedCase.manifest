@@ -1,0 +1,10 @@
+{
+  "autodeskProduct": "Fusion360",
+  "type": "script",
+  "author": "CAD_Projects",
+  "description": {
+    "": "Builds the parametric Gridfinity Rugged Case (base, lid, latches, seal, window) into the active design."
+  },
+  "supportedOS": "windows|mac",
+  "editEnabled": true
+}

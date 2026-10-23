@@ -1,0 +1,43 @@
+features: 21   rollbackIndex: 21   types: {'newSketch': 4, 'cPlane': 3, 'deleteFace': 2, 'assignVariable': 2, 'transform': 1, 'deleteBodies': 1, 'extrude': 1, 'fillet': 1, 'loft': 1, 'chamfer': 1, 'sweep': 1, 'fill': 1, 'partName': 1, 'shell': 1}
+  0 Transform 1                  transform           [suppressed]
+      entities=<query x1>; transformType=TRANSLATION_3D; distance=25 mm; uniform=True; scale=1; scaleX=1; scaleY=1; scaleZ=1; secondaryAxisType=PLUS_X; angle=30 deg; dx=0 mm; dy=0 mm; dz=42 mm; makeCopy=True; asVersion=V1758_SWEPT_ANGLE_FIX
+  1 Delete face 1                deleteFace          [suppressed]
+      deleteFaces=<query x8>; healType=HEAL; includeFillet=True; asVersion=V1758_SWEPT_ANGLE_FIX
+  2 Plane 2                      cPlane              [suppressed]
+      entities=<query x1>; cplaneType=OFFSET; offset=(42/2) mm; angle=0 deg; width=150 mm; height=150 mm; asVersion=V1758_SWEPT_ANGLE_FIX
+  3 Sketch 11                    newSketch           [suppressed]
+      sketchPlane=<query x1>; asVersion=V1758_SWEPT_ANGLE_FIX; entities=34 constraints=109 dims=['0.6*mm', '5 mm']
+  4 Delete part 1                deleteBodies        [suppressed]
+      compositePartOption=DELETE; entities=<query x3>; nonCompositeEntities=<query x3>; asVersion=V1758_SWEPT_ANGLE_FIX
+  5 ###name = #value             assignVariable    
+      variableType=LENGTH; name=extrusion_w; lengthValue=<BTMParameterConfigured-2222>; angleValue=0 deg; numberValue=0; anyValue=0; value=0.9 mm; asVersion=V1758_SWEPT_ANGLE_FIX
+  6 ###name = #value             assignVariable    
+      variableType=LENGTH; name=layer_t; lengthValue=<BTMParameterConfigured-2222>; angleValue=0 deg; numberValue=0; anyValue=0; value=0.3 mm; asVersion=V1758_SWEPT_ANGLE_FIX
+  7 Sketch 1                     newSketch         
+      sketchPlane=<query x1>; asVersion=V1758_SWEPT_ANGLE_FIX; entities=4 constraints=12 dims=['37.2 mm', '2.4 mm', '2.4 mm']
+  8 Extrude 1                    extrude           
+      domain=MODEL; bodyType=SOLID; operationType=NEW; surfaceOperationType=NEW; flatOperationType=REMOVE; entities=<query x1>; endBound=BLIND; depth=2.6 mm; offsetDistance=25 mm; draftAngle=3 deg; secondDirectionBound=BLIND; secondDirectionOppositeDirection=True; secondDirectionDepth=25 mm; secondDirectionOffsetDistance=25 mm; secondDirectionDraftAngle=3 deg; booleanScope=<query x1>; defaultSurfaceScope=True; asVersion=V1758_SWEPT_ANGLE_FIX
+  9 Plane 1                      cPlane            
+      entities=<query x1>; cplaneType=OFFSET; offset=5 mm; angle=0 deg; width=150 mm; height=150 mm; asVersion=V1758_SWEPT_ANGLE_FIX
+ 10 Sketch 2                     newSketch         
+      sketchPlane=<query x1>; asVersion=V1758_SWEPT_ANGLE_FIX; entities=12 constraints=35 dims=['41.5 mm', '4 mm', '41.5 mm']
+ 11 Fillet 1                     fillet            
+      filletType=EDGE; entities=<query x4>; tangentPropagation=True; blendControlType=RADIUS; crossSection=CIRCULAR; radius=1.6 mm; width=2 mm; rho=0.5; magnitude=0.5; vertexSettings=<array x0>; pointOnEdgeSettings=<array x0>; allowEdgeOverflow=True; asVersion=V1758_SWEPT_ANGLE_FIX
+ 12 Loft 1                       loft              
+      bodyType=SOLID; operationType=ADD; surfaceOperationType=NEW; sheetProfilesArray=<array x2>; wireProfilesArray=<array x0>; startCondition=DEFAULT; startMagnitude=1; endCondition=DEFAULT; endMagnitude=1; guidesArray=<array x0>; trimGuidesByProfiles=True; sectionCount=5; connections=<array x0>; curveCount=10; booleanScope=<query x1>; defaultSurfaceScope=True; asVersion=V1758_SWEPT_ANGLE_FIX
+ 13 Chamfer 1                    chamfer           
+      entities=<query x1>; chamferType=EQUAL_OFFSETS; width=0.8 mm; width1=5 mm; width2=5 mm; angle=45 deg; tangentPropagation=True; asVersion=V1758_SWEPT_ANGLE_FIX
+ 14 Plane 3                      cPlane            
+      entities=<query x1>; cplaneType=OFFSET; offset=(42/2) mm; angle=0 deg; oppositeDirection=True; width=150 mm; height=150 mm; asVersion=V1758_SWEPT_ANGLE_FIX
+ 15 Sketch 12                    newSketch         
+      sketchPlane=<query x1>; asVersion=V1758_SWEPT_ANGLE_FIX; entities=11 constraints=34 dims=['(#zcount) * 7mm', '0.25 mm', '0.25 mm', '0.25 mm', '3.8 mm', '#extrusion_w', '45 deg']
+ 16 Delete face 2                deleteFace        
+      deleteFaces=<query x1>; healType=VOID; includeFillet=True; asVersion=V1777_FRAME_SPLINE_PATH_FIX
+ 17 Sweep 1                      sweep             
+      bodyType=SURFACE; operationType=ADD; profiles=<query x1>; surfaceOperationType=ADD; surfaceProfiles=<query x1>; path=<query x8>; booleanScope=<query x1>; defaultSurfaceScope=True; asVersion=V1758_SWEPT_ANGLE_FIX
+ 18 Fill 1                       fill              
+      surfaceOperationType=ADD; edges=<array x8>; constraintMode=PRECISE; sampleSize=5; curveCount=10; defaultSurfaceScope=True; asVersion=V1777_FRAME_SPLINE_PATH_FIX
+ 19 Part Name 1                  partName          
+      part=<query x1>; segmentCount=THREE; separator=_; isString1=True; segment1string=Gridfinity_Vase; expression1=0; displayUnit1=Millimeter; decimalPlaces1=3; expression2=#zcount; displayUnit2=Millimeter; decimalPlaces2=3; isString3=True; segment3string=<BTMParameterConfigured-2222>; expression3=0; displayUnit3=Millimeter; decimalPlaces3=3; isString4=True; expression4=0; displayUnit4=Millimeter; decimalPlaces4=3; isString5=True; expression5=0; displayUnit5=Millimeter; decimalPlaces5=3; isString6=True; expression6=0; displayUnit6=Millimeter; decimalPlaces6=3; setPartName=True
+ 20 Simulate Vase                shell               [suppressed]
+      entities=<query x1>; thickness=#extrusion_w; asVersion=V1777_FRAME_SPLINE_PATH_FIX

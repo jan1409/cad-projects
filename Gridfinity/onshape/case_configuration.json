@@ -1,0 +1,225 @@
+{
+ "btType": "BTConfigurationResponse-2019",
+ "rejectMicroversionSkew": false,
+ "microversionSkew": false,
+ "configurationParameters": [
+  {
+   "btType": "BTMConfigurationParameterQuantity-1826",
+   "rangeAndDefault": {
+    "btType": "BTQuantityRange-181",
+    "defaultValue": 5.0,
+    "minValue": 3.0,
+    "maxValue": 12.0,
+    "location": {
+     "btType": "BTLocationInfo-226",
+     "endLine": 0,
+     "character": 0,
+     "endColumn": 0,
+     "languageVersion": 0,
+     "parseNodeId": "",
+     "endCharacter": 0,
+     "moduleIds": {
+      "btType": "BTDocumentVersionElementIds-1897",
+      "versionId": "",
+      "documentId": "",
+      "elementId": ""
+     },
+     "version": "",
+     "document": "",
+     "line": 0,
+     "nodeId": "aAHpNXUVkgTxzTo+",
+     "elementMicroversion": "",
+     "topLevel": "",
+     "column": 0
+    },
+    "units": ""
+   },
+   "isCosmetic": false,
+   "parameterId": "x_count",
+   "nodeId": "MBiRR2QTvDUrMBpe/",
+   "quantityType": "INTEGER",
+   "parameterName": "x_count",
+   "visibilityCondition": null
+  },
+  {
+   "btType": "BTMConfigurationParameterQuantity-1826",
+   "rangeAndDefault": {
+    "btType": "BTQuantityRange-181",
+    "defaultValue": 4.0,
+    "minValue": 2.0,
+    "maxValue": 12.0,
+    "location": {
+     "btType": "BTLocationInfo-226",
+     "endLine": 0,
+     "character": 0,
+     "endColumn": 0,
+     "languageVersion": 0,
+     "parseNodeId": "",
+     "endCharacter": 0,
+     "moduleIds": {
+      "btType": "BTDocumentVersionElementIds-1897",
+      "versionId": "",
+      "documentId": "",
+      "elementId": ""
+     },
+     "version": "",
+     "document": "",
+     "line": 0,
+     "nodeId": "nTUdIGcyulxS7F0W",
+     "elementMicroversion": "",
+     "topLevel": "",
+     "column": 0
+    },
+    "units": ""
+   },
+   "isCosmetic": false,
+   "parameterId": "y_count",
+   "nodeId": "MAg8iUbswXEuvr9x6",
+   "quantityType": "INTEGER",
+   "parameterName": "y_count",
+   "visibilityCondition": null
+  },
+  {
+   "btType": "BTMConfigurationParameterQuantity-1826",
+   "rangeAndDefault": {
+    "btType": "BTQuantityRange-181",
+    "defaultValue": 6.0,
+    "minValue": 4.0,
+    "maxValue": 12.0,
+    "location": {
+     "btType": "BTLocationInfo-226",
+     "endLine": 0,
+     "character": 0,
+     "endColumn": 0,
+     "languageVersion": 0,
+     "parseNodeId": "",
+     "endCharacter": 0,
+     "moduleIds": {
+      "btType": "BTDocumentVersionElementIds-1897",
+      "versionId": "",
+      "documentId": "",
+      "elementId": ""
+     },
+     "version": "",
+     "document": "",
+     "line": 0,
+     "nodeId": "npRCViSMKResFLZq",
+     "elementMicroversion": "",
+     "topLevel": "",
+     "column": 0
+    },
+    "units": ""
+   },
+   "isCosmetic": false,
+   "parameterId": "z_count",
+   "nodeId": "MFgdCw85VbqTVEPO8",
+   "quantityType": "INTEGER",
+   "parameterName": "z_count",
+   "visibilityCondition": null
+  },
+  {
+   "btType": "BTMConfigurationParameterQuantity-1826",
+   "rangeAndDefault": {
+    "btType": "BTQuantityRange-181",
+    "defaultValue": 1.6,
+    "minValue": 0.75,
+    "maxValue": 2.0,
+    "location": {
+     "btType": "BTLocationInfo-226",
+     "endLine": 0,
+     "character": 0,
+     "endColumn": 0,
+     "languageVersion": 0,
+     "parseNodeId": "",
+     "endCharacter": 0,
+     "moduleIds": {
+      "btType": "BTDocumentVersionElementIds-1897",
+      "versionId": "",
+      "documentId": "",
+      "elementId": ""
+     },
+     "version": "",
+     "document": "",
+     "line": 0,
+     "nodeId": "pwRzg17/Y646TwRJ",
+     "elementMicroversion": "",
+     "topLevel": "",
+     "column": 0
+    },
+    "units": "millimeter"
+   },
+   "isCosmetic": false,
+   "parameterId": "window_t",
+   "nodeId": "M95b+D5LdCNfZl/jb",
+   "quantityType": "LENGTH",
+   "parameterName": "window_t",
+   "visibilityCondition": null
+  },
+  {
+   "btType": "BTMConfigurationParameterBoolean-2550",
+   "parameterId": "Print_Layout",
+   "isCosmetic": false,
+   "defaultValue": false,
+   "nodeId": "MTDzUjANlnP7wfOuX",
+   "parameterName": "Print Layout",
+   "visibilityCondition": null
+  }
+ ],
+ "currentConfiguration": [
+  {
+   "btType": "BTMParameterQuantity-147",
+   "libraryRelationType": "DEFAULT",
+   "isInteger": false,
+   "value": 5.0,
+   "units": "",
+   "expression": "5",
+   "parameterId": "x_count",
+   "nodeId": "M8+b5ZvKsOpzjbHOU",
+   "parameterName": ""
+  },
+  {
+   "btType": "BTMParameterQuantity-147",
+   "libraryRelationType": "DEFAULT",
+   "isInteger": false,
+   "value": 4.0,
+   "units": "",
+   "expression": "4",
+   "parameterId": "y_count",
+   "nodeId": "MYtXyXvY7Q0YOj8KQ",
+   "parameterName": ""
+  },
+  {
+   "btType": "BTMParameterQuantity-147",
+   "libraryRelationType": "DEFAULT",
+   "isInteger": false,
+   "value": 6.0,
+   "units": "",
+   "expression": "6",
+   "parameterId": "z_count",
+   "nodeId": "M7his3dC7aV7OWMGd",
+   "parameterName": ""
+  },
+  {
+   "btType": "BTMParameterQuantity-147",
+   "libraryRelationType": "DEFAULT",
+   "isInteger": false,
+   "value": 1.6,
+   "units": "millimeter",
+   "expression": "1.6 mm",
+   "parameterId": "window_t",
+   "nodeId": "Mz40NiK8CAR6ZRUPD",
+   "parameterName": ""
+  },
+  {
+   "btType": "BTMParameterBoolean-144",
+   "libraryRelationType": "DEFAULT",
+   "value": false,
+   "parameterId": "Print_Layout",
+   "nodeId": "Mpi7srd8/N5T0816l",
+   "parameterName": ""
+  }
+ ],
+ "libraryVersion": 2878,
+ "serializationVersion": "1.2.6",
+ "sourceMicroversion": "7c7d1e5addf52275ff2c4231"
+}

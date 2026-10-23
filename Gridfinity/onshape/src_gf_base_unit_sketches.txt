@@ -1,0 +1,53 @@
+#1 Sketch 1   plane: Top   entities=4
+  L (   2.400,    2.400) -> (  39.600,    2.400)  len  37.200   eBRhbujqdYEL
+  L (   2.400,   39.600) -> (  39.600,   39.600)  len  37.200   eBRhbujqdYEL
+  L (   2.400,    2.400) -> (   2.400,   39.600)  len  37.200   eBRhbujqdYEL
+  L (  39.600,    2.400) -> (  39.600,   39.600)  len  37.200   eBRhbujqdYEL
+  dim LENGTH               37.2 mm                      eBRhbujqdYEL
+  dim DISTANCE             2.4 mm                       <external>, eBRhbujqdYEL
+  dim DISTANCE             2.4 mm                       <external>, eBRhbujqdYEL
+  png: Gridfinity/onshape/sketches/src_gf_base_unit\01_Sketch_1.png
+
+#4 Sketch 2   plane: face/plane of 'Plane 1'   entities=12
+  L (   4.000,    0.000) -> (  38.000,    0.000)  len  34.000   czTi8lpoU32f
+  L (   4.000,   42.000) -> (  38.000,   42.000)  len  34.000   czTi8lpoU32f
+  L (  -0.000,    4.000) -> (  -0.000,   38.000)  len  34.000   czTi8lpoU32f
+  L (  42.000,    4.000) -> (  42.000,   38.000)  len  34.000   czTi8lpoU32f
+  P (   0.000,    0.000)   lwkOBipDvjFH
+  A c=(   4.000,    4.000) r= 4.000  (   0.000,    4.000) -> (   4.000,    0.000)  sweep   90.0°   lwkOBipDvjFH
+  P (  42.000,    0.000)   lwkOBipDvjFH
+  A c=(  38.000,    4.000) r= 4.000  (  38.000,    0.000) -> (  42.000,    4.000)  sweep   90.0°   lwkOBipDvjFH
+  P (  42.000,   42.000)   lwkOBipDvjFH
+  A c=(  38.000,   38.000) r= 4.000  (  42.000,   38.000) -> (  38.000,   42.000)  sweep   90.0°   lwkOBipDvjFH
+  P (  -0.000,   42.000)   lwkOBipDvjFH
+  A c=(   4.000,   38.000) r= 4.000  (   4.000,   42.000) -> (  -0.000,   38.000)  sweep   90.0°   lwkOBipDvjFH
+  dim DISTANCE             42 mm                        lwkOBipDvjFH, lwkOBipDvjFH
+  dim RADIUS               4 mm                         lwkOBipDvjFH
+  dim DISTANCE             42 mm                        lwkOBipDvjFH, lwkOBipDvjFH
+  png: Gridfinity/onshape/sketches/src_gf_base_unit\04_Sketch_2.png
+
+#8 Sketch 6   plane: ?   entities=7
+  L (   8.000,   -8.000) -> (  34.000,   -8.000)  len  26.000   Tc5k0h5GX7u5  (construction)
+  L (   8.000,  -34.000) -> (  34.000,  -34.000)  len  26.000   Tc5k0h5GX7u5  (construction)
+  L (   8.000,   -8.000) -> (   8.000,  -34.000)  len  26.000   Tc5k0h5GX7u5  (construction)
+  L (  34.000,   -8.000) -> (  34.000,  -34.000)  len  26.000   Tc5k0h5GX7u5  (construction)
+  P (  21.000,  -21.000)   Tc5k0h5GX7u5  (construction)
+  C c=(   8.000,   -8.000) r= 3.250 (d=6.500)   a7l0sRButwh6
+  C c=(   8.000,   -8.000) r= 1.500 (d=3.000)   3MlEBY2KyBnC
+  dim LENGTH               26 mm                        Tc5k0h5GX7u5
+  dim DIAMETER             3 mm                         3MlEBY2KyBnC
+  dim DIAMETER             6.5 mm                       a7l0sRButwh6
+  png: Gridfinity/onshape/sketches/src_gf_base_unit\08_Sketch_6.png
+
+#11 Sketch 9   plane: face/plane of 'Sketch 6', face/plane of 'Extrude 9'   entities=2
+  L (   9.500,   -5.117) -> (   9.500,  -10.883)  len   5.766   JRuwOTVQGFJr
+  L (   6.500,   -5.117) -> (   6.500,  -10.883)  len   5.766   sj2B9I6YR4za
+  png: Gridfinity/onshape/sketches/src_gf_base_unit\11_Sketch_9.png
+
+#13 Sketch 10   plane: ?   entities=4
+  L (   6.500,   -6.500) -> (   9.500,   -6.500)  len   3.000   21EeAnepK4EK
+  L (   6.500,   -9.500) -> (   9.500,   -9.500)  len   3.000   21EeAnepK4EK
+  L (   6.500,   -6.500) -> (   6.500,   -9.500)  len   3.000   21EeAnepK4EK
+  L (   9.500,   -6.500) -> (   9.500,   -9.500)  len   3.000   21EeAnepK4EK
+  png: Gridfinity/onshape/sketches/src_gf_base_unit\13_Sketch_10.png
+
