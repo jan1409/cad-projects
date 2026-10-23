@@ -1,0 +1,165 @@
+<title>Gridfinity Rugged Case</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: workbench - spec column (controls, datasheet, files) beside a large 3-D viewport; stacks on phones. */
+:root {
+  --paper: #eef1f3;      /* cool steel paper */
+  --panel: #f8fafb;
+  --ink: #17202a;
+  --muted: #5a6571;
+  --line: #cdd4db;
+  --accent: #2357c6;     /* PETG blue */
+  --accent-ink: #ffffff;
+  --signal: #b8700f;     /* print instructions */
+  --ok: #2e7d4f;
+  --grid-cell: #dbe4f3;
+  --display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #101418; --panel: #161b21; --ink: #e3e8ee; --muted: #93a0ad; --line: #2a323b;
+    --accent: #6e98f0; --accent-ink: #0d1220; --signal: #e0a548; --ok: #5dbb83; --grid-cell: #1f2b40; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #101418; --panel: #161b21; --ink: #e3e8ee; --muted: #93a0ad; --line: #2a323b;
+  --accent: #6e98f0; --accent-ink: #0d1220; --signal: #e0a548; --ok: #5dbb83; --grid-cell: #1f2b40; color-scheme: dark;
+}
+html, body { height: 100%; }
+body { background: var(--paper); color: var(--ink); font: 15px/1.5 var(--body); }
+.app {
+  display: grid; grid-template-columns: minmax(300px, 380px) 1fr; gap: 20px; min-height: 100%; box-sizing: border-box;
+  padding-block: 20px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.spec { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+h1 { font: 700 2.1rem/1 var(--display); letter-spacing: .01em; text-transform: uppercase; margin: 0; text-wrap: balance; }
+.lede { margin: 6px 0 0; color: var(--muted); max-width: 42ch; }
+.site-nav { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; font-size: .85rem; color: var(--muted); }
+.site-nav a { color: var(--accent); font-weight: 600; text-decoration: none; }
+.site-nav a:hover { text-decoration: underline; }
+.label { font: 600 .8rem/1.2 var(--display); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+section { display: flex; flex-direction: column; gap: 10px; }
+.params { display: grid; grid-template-columns: 1fr auto; gap: 14px 16px; align-items: center; }
+.footprint { grid-column: 1 / -1; display: flex; gap: 14px; align-items: center; }
+.footprint canvas { width: 116px; height: 116px; flex: none; }
+.footprint p { margin: 0; color: var(--muted); font-size: .9rem; }
+.stepper { display: flex; align-items: center; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
+.stepper button { width: 36px; height: 36px; border: 0; background: none; color: var(--ink); font: 500 1.2rem var(--mono); cursor: pointer; }
+.stepper button:disabled { color: var(--line); cursor: default; }
+.stepper output { min-width: 2.2ch; text-align: center; font: 500 1.05rem var(--mono); font-variant-numeric: tabular-nums; }
+.param-name { display: flex; flex-direction: column; }
+.param-name small { color: var(--muted); font-size: .82rem; }
+input[type="number"] {
+  width: 92px; height: 36px; box-sizing: border-box; padding: 0 8px; border: 1px solid var(--line); border-radius: 6px;
+  background: var(--panel); color: var(--ink); font: 500 1rem var(--mono); font-variant-numeric: tabular-nums;
+}
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.build {
+  height: 44px; border: 0; border-radius: 6px; background: var(--accent); color: var(--accent-ink);
+  font: 700 1.05rem var(--display); text-transform: uppercase; letter-spacing: .06em; cursor: pointer;
+}
+.build:disabled { opacity: .55; cursor: progress; }
+.sheet { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; margin: 0; }
+.sheet dt { color: var(--muted); }
+.sheet dd { margin: 0; text-align: right; font-family: var(--mono); font-size: .92rem; font-variant-numeric: tabular-nums; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; gap: 6px; align-items: center; padding: 3px 10px; border-radius: 999px; border: 1px solid currentColor; font-size: .85rem; }
+.chip.ok { color: var(--ok); }
+.chip.signal { color: var(--signal); }
+.files { display: flex; flex-direction: column; gap: 8px; }
+.file {
+  display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; align-items: center; padding: 8px 0; border-top: 1px solid var(--line);
+}
+.file strong { font-weight: 600; }
+.file small { color: var(--muted); grid-column: 1; font-family: var(--mono); font-size: .8rem; }
+.file button {
+  grid-row: 1 / span 2; grid-column: 2; height: 32px; padding: 0 12px; border: 1px solid var(--accent); border-radius: 6px;
+  background: none; color: var(--accent); font: 600 .9rem var(--body); cursor: pointer;
+}
+.file button:disabled { border-color: var(--line); color: var(--muted); cursor: default; }
+.file.primary button { background: var(--accent); color: var(--accent-ink); }
+.note { color: var(--muted); font-size: .85rem; margin: 0; }
+.stage {
+  position: sticky; top: calc(env(safe-area-inset-top, 0px) + 20px); align-self: start; height: calc(100dvh - 40px); min-height: 420px;
+  min-width: 0; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); overflow: hidden;
+}
+.stage canvas.view { display: block; width: 100%; height: 100%; touch-action: none; }
+.hud { position: absolute; left: 14px; right: 14px; top: 12px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; pointer-events: none; }
+.hud > * { pointer-events: auto; }
+.status { font-family: var(--mono); font-size: .85rem; color: var(--muted); background: var(--panel); padding: 2px 8px; border-radius: 4px; }
+.status.busy { color: var(--signal); }
+.status.err { color: #c0392b; }
+.views { display: flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--panel); }
+.views button { border: 0; background: none; color: var(--muted); padding: 5px 12px; font: 600 .85rem var(--body); cursor: pointer; }
+.views button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.legend { position: absolute; left: 14px; bottom: 12px; display: flex; gap: 14px; flex-wrap: wrap; font-size: .82rem; color: var(--muted); }
+.legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; background: var(--c); vertical-align: -1px; }
+.toast { position: fixed; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--paper); padding: 8px 14px; border-radius: 6px; font-size: .9rem; }
+@media (max-width: 760px) {
+  .app { grid-template-columns: 1fr; }
+  .stage { position: relative; top: auto; order: -1; min-height: 0; height: 58vh; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="app">
+  <aside class="spec">
+    <header>
+      <!--site:nav-->
+      <h1>Gridfinity Rugged Case</h1>
+      <p class="lede">A sealed, latching case whose floor is a Gridfinity baseplate. Set the size in grid units, build it, and download the print files.</p>
+    </header>
+
+    <section aria-labelledby="size-h">
+      <div class="label" id="size-h">Size in Gridfinity units</div>
+      <div class="params">
+        <div class="footprint"><canvas id="footprint" width="232" height="232" aria-hidden="true"></canvas><p id="footprint-text"></p></div>
+        <div class="param-name">Length<small>X · 42 mm per unit</small></div>
+        <div class="stepper" data-key="x_count"><button type="button" aria-label="Fewer length units">−</button><output id="x_count"></output><button type="button" aria-label="More length units">+</button></div>
+        <div class="param-name">Width<small>Y · 42 mm per unit</small></div>
+        <div class="stepper" data-key="y_count"><button type="button" aria-label="Fewer width units">−</button><output id="y_count"></output><button type="button" aria-label="More width units">+</button></div>
+        <div class="param-name">Height<small>7 mm per unit</small></div>
+        <div class="stepper" data-key="z_count"><button type="button" aria-label="Fewer height units">−</button><output id="z_count"></output><button type="button" aria-label="More height units">+</button></div>
+        <label class="param-name" for="window_t">Plexiglass<small>window thickness, mm</small></label>
+        <input id="window_t" type="number" inputmode="decimal">
+        <label class="param-name" for="window_gap">Window gap<small>bridging room above the glass, mm</small></label>
+        <input id="window_gap" type="number" inputmode="decimal">
+      </div>
+      <button class="build" id="build" type="button">Build case</button>
+    </section>
+
+    <section aria-labelledby="data-h">
+      <div class="label" id="data-h">Datasheet</div>
+      <dl class="sheet" id="sheet"></dl>
+      <div class="chips" id="chips"></div>
+    </section>
+
+    <section aria-labelledby="files-h">
+      <div class="label" id="files-h">Print files <span id="files-for"></span></div>
+      <div class="files" id="files"></div>
+      <p class="note" id="files-note"></p>
+    </section>
+  </aside>
+
+  <main class="stage" aria-label="3-D preview">
+    <canvas class="view" id="view"></canvas>
+    <div class="hud">
+      <span class="status" id="status" role="status" aria-live="polite">Loading the geometry kernel…</span>
+      <div class="views" role="group" aria-label="Preview">
+        <button type="button" id="view-closed" aria-pressed="true">Closed</button>
+        <button type="button" id="view-open" aria-pressed="false">Exploded</button>
+      </div>
+    </div>
+    <div class="legend" aria-hidden="true">
+      <span style="--c:#5f86c9">Base and lid</span><span style="--c:#d8952b">Latches</span><span style="--c:#3b4148">Seal (TPU)</span><span style="--c:#a9d3ee">Plexiglass</span>
+    </div>
+  </main>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script type="importmap">{ "imports": { "three": "./vendor/three.module.js" } }</script>
+<script type="module" src="./app.js"></script>

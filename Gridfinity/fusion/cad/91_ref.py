@@ -1,5 +1,5 @@
 # Make sure the Onshape reference STEP for this configuration is open in its own document, tagged gridfinity/ref = <tag>.
-# The first, untagged import (5x4x6) is tagged on the fly. Re-activates the build document afterwards.
+# Re-activates the build document afterwards.
 import os
 
 REF_DIR = r"D:\CreativeProjects\CAD_Projects\Gridfinity\reference"
@@ -22,10 +22,7 @@ def run(_context: str):
         ref = d.attributes.itemByName("gridfinity", "ref")
         if role is not None:
             build_doc = doc
-        elif ref is None and any(d.rootComponent.occurrences.item(k).component.name == "Base" for k in range(d.rootComponent.occurrences.count)):
-            d.attributes.add("gridfinity", "ref", "5x4x6")  # first manual import
-            ref = d.attributes.itemByName("gridfinity", "ref")
-        if ref is not None and ref.value == tag:
+        if ref is not None and ref.value == tag and d.attributes.itemByName("gridfinity", "web") is None:
             found = True
     if not found:
         path = os.path.join(REF_DIR, tag, "case_%s.step" % tag)

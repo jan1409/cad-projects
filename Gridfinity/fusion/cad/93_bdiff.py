@@ -4,6 +4,8 @@
 REF_NAMES = {"Base": ["Base"], "Lid": ["Lid"], "Seal": ["Seal"], "Window": ["Part 6"], "Latch": ["Latch", "Latch (1)"]}
 PARTS = CFG.get("faces", ["Base"])
 MIN_CM3 = 1e-5
+# Fetched once: after a failed boolean, the next TemporaryBRepManager.get() re-raises that failure.
+TBM = adsk.fusion.TemporaryBRepManager.get()
 
 
 def _design_of(doc):
@@ -12,13 +14,19 @@ def _design_of(doc):
 
 
 def _ref_and_build():
+    """Reference doc for CFG["tag"]; compared doc = the Fusion build, or with CFG["against"] = "web" the imported
+    browser-generator STEP (94_web.py)."""
     ref = build = None
+    against = CFG.get("against", "build")
     for i in range(app.documents.count):
         d = _design_of(app.documents.item(i))
         if d is None:
             continue
         tag = d.attributes.itemByName("gridfinity", "ref")
-        if d.attributes.itemByName("gridfinity", "role") is not None:
+        web = d.attributes.itemByName("gridfinity", "web")
+        if against == "build" and d.attributes.itemByName("gridfinity", "role") is not None:
+            build = d
+        elif against == "web" and web is not None and web.value == CFG["tag"]:
             build = d
         elif tag is not None and tag.value == CFG["tag"]:
             ref = d
@@ -26,7 +34,7 @@ def _ref_and_build():
 
 
 def _merged(design_, names, first_only=False):
-    tbm = adsk.fusion.TemporaryBRepManager.get()
+    tbm = TBM
     acc = None
     r = design_.rootComponent
     seen = set()
@@ -65,7 +73,7 @@ def run(_context: str):
     ref_d, build_d = _ref_and_build()
     if ref_d is None or build_d is None:
         raise RuntimeError("need the reference document (imported STEP) and the build document open")
-    tbm = adsk.fusion.TemporaryBRepManager.get()
+    tbm = TBM
     for part in PARTS:
         build_names = [part] if part != "Latch" else ["Latch"]
         r = _merged(ref_d, REF_NAMES[part])
@@ -74,9 +82,14 @@ def run(_context: str):
             print("[%s] missing (ref %s, build %s)" % (part, r is not None, g is not None))
             continue
         print("[%s] volume ref %.5f build %.5f cm3 (diff %+.5f)" % (part, r.volume, g.volume, g.volume - r.volume))
-        a = tbm.copy(r)
-        tbm.booleanOperation(a, g, adsk.fusion.BooleanTypes.DifferenceBooleanType)
-        _lumps(a, "ref - build (missing in build)")
-        b = tbm.copy(g)
-        tbm.booleanOperation(b, r, adsk.fusion.BooleanTypes.DifferenceBooleanType)
-        _lumps(b, "build - ref (extra in build)")
+        # Nearly identical solids are the hardest case for booleans (e.g. ASM_EDGECOIN_PROBLEM when edges of both lie
+        # within tolerance of each other): report it instead of aborting; the volume difference above stays exact.
+        for label, first, second in (("ref - build (missing in build)", r, g), ("build - ref (extra in build)", g, r)):
+            body = tbm.copy(first)
+            try:
+                tbm.booleanOperation(body, second, adsk.fusion.BooleanTypes.DifferenceBooleanType)
+            except RuntimeError as e:
+                code = next((w for w in str(e).split() if w.startswith("ASM_")), "boolean error")
+                print("  %s: boolean failed (%s)" % (label, code))
+                continue
+            _lumps(body, label)

@@ -1,0 +1,14 @@
+{
+  "name": "cad-projects",
+  "private": true,
+  "description": "Parametric 3D-printing models: Fusion ports, browser generators and the generator site",
+  "workspaces": [
+    "Gridfinity/web",
+    "site"
+  ],
+  "scripts": {
+    "build": "npm run build -w site",
+    "test": "npm test -w site",
+    "serve": "npm run serve -w site"
+  }
+}

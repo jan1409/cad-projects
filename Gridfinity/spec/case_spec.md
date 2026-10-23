@@ -17,7 +17,7 @@ and the window_t 0.75 variant.
 |---|---|---|---|
 | x_count | 5 | 3–8 | length in cells (Onshape allowed 12; capped at 8 for the Prusa XL bed) |
 | y_count | 4 | 3–8 | width in cells (min 3 × 3 footprint, max 8; Onshape allowed 2–12) |
-| z_count (n) | 6 | 4–8 | height units (capped at 8) |
+| z_count (n) | 6 | 5–25 | height units of 7 mm (Onshape allowed 4–12) |
 | window_t (wt) | 1.6 | 0.75–2.0 | plexiglass thickness |
 | window_gap (gap) | 0.2 | 0–0.5 | extra window-pocket depth on the frame side, so the printer bridges 0.2 mm above the plexiglass after the pause; 0 = Onshape original |
 | print_layout | false | | parts in print orientation |
@@ -139,7 +139,13 @@ The exact outlines are in `../onshape/hardware_sections.txt`; the 2-D source ske
 - Print orientation (`print_layout`) is handled by `../fusion/print_export.py`:
   base feet down, lid upside down, latches on their side, seal flat, window as SVG.
 
+## Browser generator (Step 4, 2026-10-23)
+- `../web/` builds the same geometry with replicad/OpenCascade in the browser.
+- It is verified by importing its STEP export into Fusion and comparing exactly with the Onshape STEPs, with the same
+  deviations as the Fusion port. Results: `../web/VALIDATION.md`.
+- Published privately as https://claude.ai/artifact/Pq6FKQCp2CJHJzkV4yBBk4; locally via `node tools/serve.mjs`.
+
 ## Improvements over the Onshape original (user decisions 2026-10-23)
 - `window_gap` = 0.2: the window pocket is 0.2 deeper than the plexiglass. The pause height becomes 1.2 + wt + gap.
-- Ranges capped at 8 units in X, Y and Z: 8 × 8 is the largest case that fits the Prusa XL bed. Minimum footprint 3 × 3 (y_count min 3).
+- Footprint 3–8 × 3–8 units (8 × 8 is the largest case that fits the Prusa XL bed); height 5–25 units of 7 mm.
 - Validation against Onshape runs with window_gap = 0.

@@ -33,6 +33,7 @@ STEPS = {
     "bdiff": "93_bdiff.py",
     "export": "95_export.py",
     "save": "96_save.py",
+    "web": "94_web.py",
 }
 DEFAULT_STEPS = ["doc", "base", "lid", "latch", "seal", "window", "report", "export"]
 
@@ -72,6 +73,10 @@ def main(argv):
         # --force: build outside the user range (validation of the Onshape reference 3x2x4)
         if "--force" not in argv and not spec[k]["min"] <= v <= spec[k]["max"]:
             raise SystemExit("%s = %g is outside %g..%g" % (k, v, spec[k]["min"], spec[k]["max"]))
+    if "--against" in argv:  # bdiff against "build" (default) or "web" (imported browser-generator STEP)
+        cfg["against"] = argv[argv.index("--against") + 1]
+    if "--web-step" in argv:
+        cfg["web_step"] = os.path.abspath(argv[argv.index("--web-step") + 1])
     if "--faces" in argv:
         cfg["faces"] = argv[argv.index("--faces") + 1].split(",")
     tag = "%dx%dx%d" % (x, y, n) + ("" if abs(wt - 1.6) < 1e-9 else "_w%s" % str(wt).replace(".", ""))

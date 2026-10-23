@@ -3,7 +3,7 @@
   "parameters": {
     "x_count":  {"type": "int",   "default": 5,   "min": 3,    "max": 8,   "doc": "grid units along X (length); max 8 = 344.5 mm outside (Prusa XL bed)"},
     "y_count":  {"type": "int",   "default": 4,   "min": 3,    "max": 8,   "doc": "grid units along Y (width, latch side = -Y); max 8 = 358.5 mm outside"},
-    "z_count":  {"type": "int",   "default": 6,   "min": 4,    "max": 8,   "doc": "Gridfinity height units of the inner space"},
+    "z_count":  {"type": "int",   "default": 6,   "min": 5,    "max": 25,  "doc": "Gridfinity height units of the inner space (7 mm each)"},
     "window_t": {"type": "float", "default": 1.6, "min": 0.75, "max": 2.0, "doc": "plexiglass thickness"},
     "window_gap": {"type": "float", "default": 0.2, "min": 0.0, "max": 0.5, "doc": "extra pocket depth above the plexiglass (print side) so the printer can bridge over it after the pause; 0 = Onshape original"},
     "print_layout": {"type": "bool", "default": false, "doc": "arrange parts in print orientation instead of assembled"}

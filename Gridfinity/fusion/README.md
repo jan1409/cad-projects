@@ -6,7 +6,7 @@ It is verified against the Onshape originals by exact B-rep booleans: see [VALID
 ## Run from Claude Code / the terminal (Fusion must be running)
 ```
 python -I Gridfinity/fusion/build.py 5x4x6                      # build all parts + STL export (assembled position)
-python -I Gridfinity/fusion/build.py 6x3x5 --wt 2.0             # any size (3-8 x 3-8 x 4-8) / window thickness
+python -I Gridfinity/fusion/build.py 6x3x5 --wt 2.0             # any size (3-8 x 3-8 x 5-25) / window thickness
 python -I Gridfinity/fusion/build.py 5x4x6 --gap 0              # window_gap 0 = exact Onshape original (default 0.2)
 .venv/Scripts/python.exe Gridfinity/fusion/print_export.py 6x3x5 --wt 2.0
                                                                 # print-oriented STLs, window SVG, BUILD_SHEET.md
@@ -15,7 +15,7 @@ python -I Gridfinity/fusion/validate.py                         # regression: re
 - Builds go into the Fusion document tagged `gridfinity/role = case-build` (`cad/00_doc.py`).
   That is "Gridfinity Tools / Gridfinity Rugged Case" when it is open; otherwise a new unsaved one is created.
   Building never saves; `--steps save` stores a new version.
-- Sizes are limited to 3–8 × 3–8 × 4–8 (`--force` bypasses this; only `validate.py` uses it for the Onshape reference 3×2×4).
+- Sizes are limited to 3–8 × 3–8 × 5–25 (`--force` bypasses this; only `validate.py` uses it for the Onshape reference 3×2×4).
 - Single steps: `--steps doc,base,lid,latch,seal,window,report,export`.
   Comparison steps: `ref` (open the reference STEP for this config), `bdiff` (exact B-rep difference), `faces` (face-type histogram).
 - Outputs:
