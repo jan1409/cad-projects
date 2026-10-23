@@ -114,6 +114,7 @@ update button has no login.
 | `GitHub answered 404: … not found` | `GITHUB_REPO` is misspelt, or the token was not given access to `cad-projects`. |
 | `no site-* release in jan1409/cad-projects yet` | The first *site* workflow has not finished. Check the Actions tab on GitHub. |
 | `docker compose pull` says *denied* or *unauthorized* | The package is still private. Do 1b, or `docker login ghcr.io`. |
+| `download: fetch failed (ECONNRESET: … before secure TLS connection was established)` | A network hiccup. The server already retried for about 50 s, and the next check (within 15 min) tries again. You can also press the button again later. |
 | "The site is being installed" page stays up | The server can't reach GitHub. It needs outbound HTTPS to `api.github.com` and GitHub's download hosts (`*.githubusercontent.com`). |
 | Port 8642 already in use | Change the left number in `ports: - "8642:8642"` in `docker-compose.yml`. |
 

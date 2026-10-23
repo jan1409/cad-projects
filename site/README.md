@@ -60,6 +60,7 @@ Environment variables (all optional except `GITHUB_REPO`, plus `GITHUB_TOKEN` fo
 | `PIN_VERSION` | – | Stay on / roll back to this version |
 | `PORT`, `DATA_DIR` | 8642, /data | |
 | `RELEASE_PREFIX`, `RELEASE_ASSET`, `GITHUB_API_URL` | `site-`, `site.tar.gz`, api.github.com | |
+| `RETRY_DELAYS_S` | 5,15,30 | Waits before retrying a network failure (not HTTP errors) |
 
 API:
 

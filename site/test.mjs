@@ -204,7 +204,7 @@ await step("updater against a fake GitHub", async () => {
       stdio: ["ignore", "pipe", "pipe"],
       env: {
         ...process.env, PORT: "0", DATA_DIR: data, GITHUB_REPO: "me/cad", GITHUB_TOKEN: "test-token",
-        GITHUB_API_URL: `http://127.0.0.1:${gh.address().port}`, UPDATE_INTERVAL_MIN: "0", KEEP_VERSIONS: "2",
+        GITHUB_API_URL: `http://127.0.0.1:${gh.address().port}`, UPDATE_INTERVAL_MIN: "0", KEEP_VERSIONS: "2", RETRY_DELAYS_S: "0.5,0.5",
       },
     });
     child.stdout.on("data", (d) => { out += d; });
@@ -231,7 +231,7 @@ await step("updater against a fake GitHub", async () => {
     dropDownloads = 1;
     s = await update();
     assert.equal(s.current.version, "v2", s.lastError ?? "v2 not installed after a dropped connection");
-    assert.match(out, /download: fetch failed .* - retrying/, "the dropped download was not retried");
+    assert.match(out, /download: fetch failed .* - retrying in/, "the dropped download was not retried");
 
     publish("v3", { corrupt: true });
     s = await update();

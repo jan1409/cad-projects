@@ -178,17 +178,19 @@ async function loadCurrent() {
 // ---------------------------------------------------------------- GitHub releases
 
 // fetch rejects with a TypeError ("fetch failed", cause = the socket/TLS error) when the network fails, also while
-// reading a body ("terminated"). Those are retried twice; HTTP errors and timeouts are reported at once.
+// reading a body ("terminated"). Those are retried over about 50 s; HTTP errors and timeouts are reported at once.
+// (Seen in testing: TLS handshakes reset for a minute or two right after a release was published.)
+const RETRY_DELAYS_S = (env.RETRY_DELAYS_S ?? "5,15,30").split(",").map(Number);
 const reason = (e) => (e.cause ? `${e.message} (${e.cause.code ?? e.cause.name}: ${e.cause.message})` : e.message);
 async function withRetry(what, fn) {
-  for (let attempt = 1; ; attempt++) {
+  for (let attempt = 0; ; attempt++) {
     try {
       return await fn();
     } catch (e) {
       if (!(e instanceof TypeError)) throw e;
-      if (attempt === 3) throw new Error(`${what}: ${reason(e)}`);
-      log(`${what}: ${reason(e)} - retrying`);
-      await new Promise((r) => setTimeout(r, 3000 * attempt));
+      if (attempt >= RETRY_DELAYS_S.length) throw new Error(`${what}: ${reason(e)}`);
+      log(`${what}: ${reason(e)} - retrying in ${RETRY_DELAYS_S[attempt]} s`);
+      await new Promise((r) => setTimeout(r, RETRY_DELAYS_S[attempt] * 1000));
     }
   }
 }
