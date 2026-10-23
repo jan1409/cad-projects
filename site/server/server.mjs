@@ -177,17 +177,34 @@ async function loadCurrent() {
 
 // ---------------------------------------------------------------- GitHub releases
 
+// fetch rejects with a TypeError ("fetch failed", cause = the socket/TLS error) when the network fails, also while
+// reading a body ("terminated"). Those are retried twice; HTTP errors and timeouts are reported at once.
+const reason = (e) => (e.cause ? `${e.message} (${e.cause.code ?? e.cause.name}: ${e.cause.message})` : e.message);
+async function withRetry(what, fn) {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await fn();
+    } catch (e) {
+      if (!(e instanceof TypeError)) throw e;
+      if (attempt === 3) throw new Error(`${what}: ${reason(e)}`);
+      log(`${what}: ${reason(e)} - retrying`);
+      await new Promise((r) => setTimeout(r, 3000 * attempt));
+    }
+  }
+}
+
 async function github(pathname, accept = "application/vnd.github+json") {
   const headers = { Accept: accept, "User-Agent": "cad-site-updater", "X-GitHub-Api-Version": "2022-11-28" };
   if (CONFIG.token) headers.Authorization = `Bearer ${CONFIG.token}`;
   const r = await fetch(`${CONFIG.api}${pathname}`, { headers, redirect: "manual", signal: AbortSignal.timeout(60_000) });
-  if (r.ok || (r.status >= 300 && r.status < 400)) return r;
+  if (r.ok) return r;
+  await r.text().catch(() => ""); // small redirect/error bodies are read, not cancelled, so the connection stays reusable
+  if (r.status >= 300 && r.status < 400) return r;
   const hint = {
     401: "GITHUB_TOKEN was rejected (expired or revoked?)",
     403: "access denied or rate limit reached",
     404: `${CONFIG.repo} not found - check GITHUB_REPO and that GITHUB_TOKEN may read it`,
   }[r.status];
-  await r.body?.cancel();
   throw new Error(`GitHub answered ${r.status}${hint ? `: ${hint}` : ""}`);
 }
 
@@ -204,11 +221,11 @@ function describe(rel) {
 
 async function latestRelease() {
   if (CONFIG.pin) {
-    const r = await github(`/repos/${CONFIG.repo}/releases/tags/${encodeURIComponent(CONFIG.prefix + CONFIG.pin)}`);
-    return describe(await r.json());
+    const tag = encodeURIComponent(CONFIG.prefix + CONFIG.pin);
+    return describe(await withRetry("release lookup", async () => (await github(`/repos/${CONFIG.repo}/releases/tags/${tag}`)).json()));
   }
-  const r = await github(`/repos/${CONFIG.repo}/releases?per_page=30`);
-  const rel = (await r.json())
+  const list = await withRetry("release list", async () => (await github(`/repos/${CONFIG.repo}/releases?per_page=30`)).json());
+  const rel = list
     .filter((x) => !x.draft && !x.prerelease && x.tag_name.startsWith(CONFIG.prefix))
     .sort((a, b) => Date.parse(b.published_at) - Date.parse(a.published_at))[0];
   if (!rel) throw new Error(`no ${CONFIG.prefix}* release in ${CONFIG.repo} yet`);
@@ -216,14 +233,14 @@ async function latestRelease() {
 }
 
 async function download(asset) {
-  let r = await github(`/repos/${CONFIG.repo}/releases/assets/${asset.id}`, "application/octet-stream");
-  if (r.status >= 300) { // GitHub redirects to a signed storage URL, which must not get the token
-    const location = r.headers.get("location");
-    await r.body?.cancel();
-    r = await fetch(location, { headers: { "User-Agent": "cad-site-updater" }, signal: AbortSignal.timeout(300_000) });
-  }
-  if (!r.ok) throw new Error(`download failed: HTTP ${r.status}`);
-  const buf = Buffer.from(await r.arrayBuffer());
+  const buf = await withRetry("download", async () => {
+    let r = await github(`/repos/${CONFIG.repo}/releases/assets/${asset.id}`, "application/octet-stream");
+    if (r.status >= 300) { // GitHub redirects to a signed storage URL, which must not get the token
+      r = await fetch(r.headers.get("location"), { headers: { "User-Agent": "cad-site-updater" }, signal: AbortSignal.timeout(300_000) });
+    }
+    if (!r.ok) throw new Error(`download failed: HTTP ${r.status}`);
+    return Buffer.from(await r.arrayBuffer());
+  });
   if (asset.size && buf.length !== asset.size) throw new Error(`download incomplete: ${buf.length} of ${asset.size} bytes`);
   if (asset.digest?.startsWith("sha256:")) {
     const sha = crypto.createHash("sha256").update(buf).digest("hex");
@@ -257,8 +274,8 @@ async function runCheck(manual) {
       log(`now serving ${rel.version}`);
     }
   } catch (e) {
-    state.lastError = e.message;
-    log(`update check failed: ${e.message}`);
+    state.lastError = reason(e);
+    log(`update check failed: ${state.lastError}`);
   }
   state.lastCheck = new Date().toISOString();
 }

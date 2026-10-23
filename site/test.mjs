@@ -163,12 +163,13 @@ await step("untar", () => {
 // ---------------------------------------------------------------- updater
 await step("updater against a fake GitHub", async () => {
   const releases = [], blobs = new Map();
-  let tokenLeaks = 0;
+  let tokenLeaks = 0, dropDownloads = 0;
   const gh = http.createServer((req, res) => {
     const u = new URL(req.url, "http://x");
     const json = (code, d) => { res.writeHead(code, { "Content-Type": "application/json" }); res.end(JSON.stringify(d)); };
     if (u.pathname.startsWith("/storage/")) { // signed download URL: must arrive without the token
       if (req.headers.authorization) { tokenLeaks++; res.writeHead(400); return res.end(); }
+      if (dropDownloads > 0) { dropDownloads--; return req.socket.destroy(); } // network failure mid-request
       res.writeHead(200, { "Content-Type": "application/octet-stream" });
       return res.end(blobs.get(u.pathname.slice(9)));
     }
@@ -227,8 +228,10 @@ await step("updater against a fake GitHub", async () => {
     assert.equal((await fetch(`${base}/models/gridfinity-rugged-case/`)).status, 200);
 
     publish("v2");
+    dropDownloads = 1;
     s = await update();
-    assert.equal(s.current.version, "v2");
+    assert.equal(s.current.version, "v2", s.lastError ?? "v2 not installed after a dropped connection");
+    assert.match(out, /download: fetch failed .* - retrying/, "the dropped download was not retried");
 
     publish("v3", { corrupt: true });
     s = await update();
