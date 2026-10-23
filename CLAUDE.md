@@ -15,6 +15,9 @@ Printer: Prusa XL (360 × 360 mm bed). Units: mm everywhere.
 - `<Object>/` – `onshape/` (source snapshots), `reference/` (ground-truth exports), `spec/`, `fusion/cad/`, `web/`, `export/` (git-ignored)
 - `.venv/` – uv venv (`.venv/Scripts/python.exe`): numpy, trimesh, manifold3d, shapely, networkx, scipy, rtree, matplotlib, ezdxf
 - `Gridfinity/fusion/` – the Fusion port of the case: `build.py <XxYxZ>`, `validate.py`, `print_export.py` (see its README)
+- `site/` – generator website: overview page, `models.json` registry, `build.mjs`, `test.mjs`, self-updating server + Docker (see its README and DEPLOY.md)
+- `.github/workflows/` – `site.yml` (push to `main` → test → release `site-<version>`), `server-image.yml` (→ `ghcr.io/jan1409/cad-site`)
+- npm workspaces (`Gridfinity/web`, `site`): run `npm install`, `npm test`, `npm run build` and `npm run serve` at the repo root; packages are hoisted to the root `node_modules`
 
 ## Fusion
 - Fusion exposes an MCP server at `http://127.0.0.1:27182/mcp`, registered user-wide as `fusion`. Its tools only load when Fusion runs
@@ -40,11 +43,33 @@ Printer: Prusa XL (360 × 360 mm bed). Units: mm everywhere.
 - The official Onshape Labs FeatureScript MCP is registered user-wide as `onshape` (OAuth via `/mcp`).
 
 ## Browser generators
-- Kernel: `replicad` 1.1.0 + `replicad-opencascadejs` 1.1.0 (OpenCascade WASM, ~22 MB uncompressed); verified in Node 24 (init ~0.1 s).
-- A hosted page (claude.ai Artifact) must load the WASM from jsDelivr/unpkg with exact versions, not embed it (16 MB page limit).
+- Kernel: `replicad` 1.1.0 + `replicad-opencascadejs` 1.1.0 (OpenCascade WASM, 23 MB raw, 7 MB gzipped). The same
+  geometry module runs in Node (validation) and in a Web Worker (page). Example: `Gridfinity/web/` (see its README).
+- OpenCascade pitfalls:
+  - Never fuse/cut with a compound of overlapping solids; fuse pairwise and group disjoint cut tools.
+  - replicad's fuse/cut end with UnifySameDomain, which can throw after a successful boolean: keep a raw
+    `BRepAlgoAPI_Fuse/Cut` fallback. Prefer volume overlap to face-only contact between pieces.
+  - Test the whole parameter range (a sweep), not just the reference sizes: only 3×3 failed.
+  - The fillet always follows tangent chains, so cut special edge rounds explicitly.
+  - Don't end faces exactly on a fillet tangent (sliver faces → non-watertight STL).
+  - replicad's `translate`/`rotate` consume their input; `clone()` first.
+- claude.ai Artifact hosting:
+  - Artifacts can't fetch from CDNs at runtime, so ship the libraries and the kernel as the page's own files (`files`).
+  - `.gz` is not a served type; the gzipped kernel goes as `.wasm`, and the worker gunzips it (DecompressionStream).
+    Limit: 15 MB per binary file.
+  - Downloads need the `downloads` capability. Its allowlist has no STL/3MF, so offer a ZIP (fflate) plus SVG/MD.
+- Generator site (home server, `http://<server>:8642`): the GitHub repo is `jan1409/cad-projects` (private).
+  - A push to `main` publishes a release, and the container installs it within 15 min (or via "Check for updates").
+  - A model page needs a `<!--site:nav-->` marker in its `index.html` and must reference the shared libraries as `./vendor/…`.
+    Register it in `site/models.json` and add a smoke build to `site/test.mjs`.
+  - Card images: transparent Fusion screenshot, cropped and palette-quantised (~40 KB).
+
+## Release checks
+- `npm test` must pass before pushing; CI runs the same suite (geometry min/default/max, site build, server, updater against a fake GitHub).
 
 ## Conventions
 - Run stdlib tools with `python -I`. `-I` ignores PYTHONIOENCODING, so the tools call `sys.stdout.reconfigure(encoding="utf-8")`.
-- Bash heredocs mangle Python with backslash escapes. Write non-trivial patch scripts to a file first.
+- Bash heredocs mangle backslash escapes (Python and JS alike). Write non-trivial patch scripts with the Write tool first.
+- GNU tar (Git Bash) reads `D:/…` as a remote host, so pass relative paths (and `cwd`).
 - PrusaSlicer CLI: `--merge` segfaults, so build multi-object plate 3MFs yourself and slice with `--dont-arrange`; boolean options are bare flags.
 - Validate every generated part against the references (`stl_check.py`, or trimesh volume/bbox diffs) before calling it done.

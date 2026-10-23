@@ -4,3 +4,10 @@ __pycache__/
 *.pyc
 **/export/
 tools/.onshape_calls.log
+
+# generator bundle (rebuilt by Gridfinity/web/tools/bundle.mjs) and site build (site/build.mjs)
+Gridfinity/web/dist/
+site/dist/
+
+# server secrets (site/server/.env.example is the template)
+.env

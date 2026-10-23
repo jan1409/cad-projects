@@ -1,0 +1,57 @@
+# Tests and builds the generator site on every push to main that touches it, then publishes it as the GitHub
+# release "site-<version>" with the asset site.tar.gz. The server container (site/server) installs the newest one.
+name: site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - "Gridfinity/web/**"
+      - "Gridfinity/spec/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/site.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: site-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Test (geometry, build, server, updater)
+        run: npm test
+      - name: Build
+        id: build
+        run: |
+          VERSION="$(date -u +%Y.%m.%d-%H%M)-${GITHUB_SHA::7}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          node site/build.mjs --version "$VERSION"
+          tar -czf site.tar.gz -C site/dist .
+      - name: Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.build.outputs.version }}
+        run: |
+          gh release create "site-$VERSION" site.tar.gz --target "$GITHUB_SHA" --title "Site $VERSION" \
+            --notes "Generator site built from ${GITHUB_SHA::7}: $(git log -1 --format=%s)"
+      - name: Keep the newest 10 site releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release list --limit 200 --json tagName,createdAt \
+            --jq '[.[] | select(.tagName | startswith("site-"))] | sort_by(.createdAt) | reverse | .[10:] | .[].tagName' |
+          while read -r tag; do gh release delete "$tag" --cleanup-tag --yes; done

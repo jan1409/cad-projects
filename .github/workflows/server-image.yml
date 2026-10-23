@@ -1,0 +1,41 @@
+# Builds the server container (site/server) and pushes it to ghcr.io/<owner>/cad-site when the server changes.
+# The image holds only server.mjs; site content comes from the releases made by site.yml.
+name: server-image
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/server/**"
+      - ".github/workflows/server-image.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Test the server (Node 22, as in the image)
+        run: node site/test.mjs --skip-geometry
+      - name: Build and push
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          IMAGE="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/cad-site"
+          echo "$GH_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          docker build --platform linux/amd64 \
+            --label "org.opencontainers.image.source=https://github.com/$GITHUB_REPOSITORY" \
+            --label "org.opencontainers.image.description=Self-updating web server for the CAD generator site" \
+            --label "org.opencontainers.image.revision=$GITHUB_SHA" \
+            -t "$IMAGE:latest" -t "$IMAGE:${GITHUB_SHA::7}" site/server
+          docker push --all-tags "$IMAGE"

@@ -1,0 +1,16 @@
+[
+  {
+    "id": "gridfinity-rugged-case",
+    "title": "Gridfinity Rugged Case",
+    "summary": "Sealed, latching case whose floor is a Gridfinity baseplate, with a plexiglass window in the lid. Prints as base, lid, two latches and a TPU seal.",
+    "app": "../Gridfinity/web/app",
+    "modules": "../Gridfinity/web/src",
+    "spec": "../Gridfinity/spec/case_params.json",
+    "image": "../Gridfinity/web/app/card.png",
+    "facts": [
+      "{x_count.min}–{x_count.max} × {y_count.min}–{y_count.max} cells of 42 mm",
+      "{z_count.min}–{z_count.max} height units of 7 mm",
+      "STL print set, window SVG, build sheet"
+    ]
+  }
+]

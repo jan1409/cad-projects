@@ -1,0 +1,20 @@
+# CAD generator site on port 8642. Put this file and .env (from .env.example) into one folder on the server,
+# then run `docker compose up -d`. Step-by-step instructions: site/DEPLOY.md
+services:
+  cad-site:
+    image: ghcr.io/jan1409/cad-site:latest
+    # build: .            # alternative: build the image on the server from this folder (Dockerfile + server.mjs)
+    container_name: cad-site
+    restart: unless-stopped
+    ports:
+      - "8642:8642"
+    env_file: .env
+    volumes:
+      - cad-site-data:/data
+    logging:
+      options:
+        max-size: "1m"
+        max-file: "3"
+
+volumes:
+  cad-site-data:
