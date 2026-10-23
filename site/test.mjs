@@ -1,5 +1,6 @@
 // Site checks, run by CI before every release (npm test):
-//   geometry  smallest, default and largest case build with watertight parts (Gridfinity/web/node/sweep.mjs --one)
+//   geometry  smallest, default and largest case and boxes build with watertight parts
+//             (Gridfinity/web/node/sweep.mjs --one, Gridfinity/web/node/bin_build.mjs)
 //   build     the site builds; every relative URL in the pages and modules points at a file that exists
 //   server    static serving: MIME types, redirects, ETag/304, gzip, no path traversal or dot files
 //   untar     archives made by the system tar unpack byte for byte; unsafe paths are refused
@@ -61,6 +62,18 @@ if (!args.includes("--skip-geometry")) {
       const row = out.split("\n").find((l) => l.startsWith("|"));
       assert.ok(row?.endsWith("| ok |"), row ?? out);
     });
+  }
+  const bins = JSON.parse(fs.readFileSync(path.join(root, "Gridfinity/spec/bin_params.json"), "utf8")).variants;
+  for (const [variant, { parameters: B }] of Object.entries(bins)) {
+    for (const k of ["min", "default", "max"]) {
+      const cfg = [B.x_count[k], B.y_count[k], B.z_count[k]];
+      await step(`geometry ${variant} box ${cfg.join("x")}`, () => {
+        const out = execFileSync(process.execPath, [path.join(root, "Gridfinity/web/node/bin_build.mjs"), variant, ...cfg.map(String)],
+          { encoding: "utf8", maxBuffer: 1 << 26 });
+        const row = out.split("\n").find((l) => l.startsWith("|"));
+        assert.ok(row?.endsWith("| ok |"), row ?? out);
+      });
+    }
   }
 }
 

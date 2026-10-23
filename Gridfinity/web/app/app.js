@@ -61,6 +61,7 @@ function render() {
   const rows = [
     ["Inner space", `${env.Li} × ${env.Wi} mm`],
     ["Clear height above floor", `${fmt(env.top - 5.5)} mm`],
+    ["Gridfinity boxes", `up to ${inputs.z_count} units high`], // lip clears the closed lid by 1 mm (node/bin_case_fit.mjs)
     ["Outside, closed", `${outer.map((v) => fmt(v)).join(" × ")} mm`],
     ["Base / lid height", `${fmt(env.split + 6.6)} / ${fmt(env.top - env.split + 3.4)} mm`],
     ["Window (plexiglass)", `${env.Li - 4} × ${env.Wi - 4} × ${inputs.window_t.toFixed(2)} mm`],

@@ -1,0 +1,22 @@
+#2 Sketch 7   plane: face/plane of 'Plane 1'   entities=8
+  L (  19.550,   26.800) -> (   6.550,   26.800)  len  13.000   tPguLt9uzMuK
+  L (   6.550,   26.800) -> (   6.550,   25.600)  len   1.200   NKzdkIUhM2i3
+  L (   6.550,   25.600) -> (  19.550,   18.094)  len  15.011   BxGlu9a5wQzz
+  L (  19.550,   18.094) -> (  19.550,   26.800)  len   8.706   F4ZSer6XvDta
+  L (   6.550,   25.600) -> (  19.550,   25.600)  len  13.000   OmNusqW6fOzq  (construction)
+  A c=(   5.301,   31.143) r=25.000  ( -19.550,   28.415) -> (   6.992,    6.200)  sweep   87.6°   1qfpWiCzmYnm
+  L ( -19.550,   28.415) -> ( -19.550,    6.200)  len  22.215   in1EnTdzyESn
+  L ( -19.550,    6.200) -> (   6.992,    6.200)  len  26.542   c4ZxmPCqbqIx
+  dim ANGLE                60 deg                       BxGlu9a5wQzz, F4ZSer6XvDta
+  dim RADIUS               25 mm                        1qfpWiCzmYnm
+  dim LENGTH               13 mm                        tPguLt9uzMuK
+  dim LENGTH               1.2 mm                       NKzdkIUhM2i3
+  dim DISTANCE             22.215434798125063*mm        1qfpWiCzmYnm, 1qfpWiCzmYnm
+  dim DISTANCE             26.542112847506594*mm        1qfpWiCzmYnm, in1EnTdzyESn
+
+#8 Sketch 1   plane: ?   entities=4
+  L (  19.550,   62.750) -> ( -19.550,   62.750)  len  39.100   0FFL9n9rPR7l
+  L (  19.550,    6.200) -> ( -19.550,    6.200)  len  39.100   0FFL9n9rPR7l
+  L (  19.550,   62.750) -> (  19.550,    6.200)  len  56.550   0FFL9n9rPR7l
+  L ( -19.550,   62.750) -> ( -19.550,    6.200)  len  56.550   0FFL9n9rPR7l
+

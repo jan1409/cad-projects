@@ -12,5 +12,35 @@
       "{z_count.min}–{z_count.max} height units of 7 mm",
       "STL print set, window SVG, build sheet"
     ]
+  },
+  {
+    "id": "gridfinity-standard-box",
+    "title": "Gridfinity Standard Box",
+    "summary": "Plain Gridfinity box to the official dimensions: stacking lip, magnet holes and 7 mm height units. Shows which Rugged Case it fits.",
+    "variant": "standard",
+    "app": "../Gridfinity/web/bin",
+    "modules": "../Gridfinity/web/src",
+    "spec": "../Gridfinity/spec/bin_params.json",
+    "image": "../Gridfinity/web/bin/card_standard.png",
+    "facts": [
+      "{x_count.min}–{x_count.max} × {y_count.min}–{y_count.max} cells of 42 mm",
+      "{z_count.min}–{z_count.max} height units of 7 mm",
+      "STL, build sheet"
+    ]
+  },
+  {
+    "id": "gridfinity-label-box",
+    "title": "Gridfinity Box with Label",
+    "summary": "Gridfinity box with a label ledge on the back wall, a separate label plate for UV printing, and a scoop at the front.",
+    "variant": "label",
+    "app": "../Gridfinity/web/bin",
+    "modules": "../Gridfinity/web/src",
+    "spec": "../Gridfinity/spec/bin_params.json",
+    "image": "../Gridfinity/web/bin/card_label.png",
+    "facts": [
+      "{x_count.min}–{x_count.max} × {y_count.min}–{y_count.max} cells of 42 mm",
+      "{z_count.min}–{z_count.max} height units of 7 mm",
+      "Box and label plate as STL, build sheet"
+    ]
   }
 ]

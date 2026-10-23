@@ -27,7 +27,8 @@ npm run serve           # http://localhost:8642 from site/dist (static mode: no 
 
 ## Adding a model
 
-1. Build the generator like `Gridfinity/web/app/`. It needs an `index.html` with a `<!--site:nav-->` marker where the
+1. Build the generator like `Gridfinity/web/app/`, or like `Gridfinity/web/bin/` when several models share one page
+   (`"variant"` in `models.json` → `model.json` next to the page). It needs an `index.html` with a `<!--site:nav-->` marker where the
    "← All models" bar goes, plus `app.js` and `worker.js`. They reference the shared libraries as `./vendor/…`;
    `build.mjs` rewrites that to `../../vendor/`.
 2. Add an entry to `models.json`:

@@ -62,7 +62,13 @@ Printer: Prusa XL (360 × 360 mm bed). Units: mm everywhere.
   - A push to `main` publishes a release, and the container installs it within 15 min (or via "Check for updates").
   - A model page needs a `<!--site:nav-->` marker in its `index.html` and must reference the shared libraries as `./vendor/…`.
     Register it in `site/models.json` and add a smoke build to `site/test.mjs`.
-  - Card images: transparent Fusion screenshot, cropped and palette-quantised (~40 KB).
+  - Card images: transparent Fusion screenshot, cropped and palette-quantised (~40 KB). For web-only models, export a
+    coloured STEP (`R.exportSTEP([{shape, color}])`), import it into a temporary Fusion doc, then screenshot it.
+  - Several models can share one app: `variant` in `site/models.json` → `model.json` next to the page (Gridfinity boxes).
+- Gridfinity boxes: official dimensions in `Gridfinity/spec/gridfinity_standard.md` (from gridfinity-rebuilt's
+  `standard.scad`; the spec site only has drawings). Jan's Onshape box templates match them to 4 µm.
+- Reference STEPs: `node Gridfinity/web/node/step2stl.mjs` splits solids; compare exactly with replicad booleans
+  (`bin_check.mjs`) – no Fusion needed for web-only models.
 
 ## Release checks
 - `npm test` must pass before pushing; CI runs the same suite (geometry min/default/max, site build, server, updater against a fake GitHub).

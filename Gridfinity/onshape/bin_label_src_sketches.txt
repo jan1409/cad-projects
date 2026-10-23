@@ -1,0 +1,90 @@
+#0 Sketch 1   plane: Top   entities=4
+  L ( -21.000,  -21.000) -> (  21.000,  -21.000)  len  42.000   uU87hue5czIN
+  L ( -21.000,   21.000) -> (  21.000,   21.000)  len  42.000   uU87hue5czIN
+  L ( -21.000,  -21.000) -> ( -21.000,   21.000)  len  42.000   uU87hue5czIN
+  L (  21.000,  -21.000) -> (  21.000,   21.000)  len  42.000   uU87hue5czIN
+  dim LENGTH               #slotDimension               uU87hue5czIN
+  dim LENGTH               #slotDimension               uU87hue5czIN
+
+#3 Sketch 2   plane: Front   entities=6
+  L ( -21.000,    5.000) -> ( -18.600,    2.600)  len   3.394   4rbHnJrKx665
+  L ( -18.600,    2.600) -> ( -18.600,    0.800)  len   1.800   C30HihduIHQT
+  L ( -18.600,    0.800) -> ( -17.800,    0.000)  len   1.131   67mv0mTMG3m0
+  L ( -21.000,    5.000) -> ( -21.000,    5.000)  len   0.000   99uEAHF90Jru
+  L ( -21.000,    5.000) -> ( -21.000,    0.000)  len   5.000   xMSgeHO7NvLk
+  L ( -21.000,    0.000) -> ( -17.800,    0.000)  len   3.200   T7p2GapgB4Ar
+  dim ANGLE                45 deg                       <external>, 67mv0mTMG3m0
+  dim DISTANCE             0.8 mm                       C30HihduIHQT, 67mv0mTMG3m0
+  dim ANGLE                45 deg                       <external>, 4rbHnJrKx665
+  dim DISTANCE             2.4 mm                       C30HihduIHQT, xMSgeHO7NvLk
+
+#9 Sketch 6   plane: ?   entities=9
+  L ( -13.000,   13.000) -> (  13.000,   13.000)  len  26.000   E2SI7oN920eQ  (construction)
+  L ( -13.000,  -13.000) -> (  13.000,  -13.000)  len  26.000   E2SI7oN920eQ  (construction)
+  L ( -13.000,   13.000) -> ( -13.000,  -13.000)  len  26.000   E2SI7oN920eQ  (construction)
+  L (  13.000,   13.000) -> (  13.000,  -13.000)  len  26.000   E2SI7oN920eQ  (construction)
+  P (   0.000,    0.000)   E2SI7oN920eQ  (construction)
+  C c=( -13.000,   13.000) r= 3.250 (d=6.500)   GoVlTxkwa5je
+  C c=(  13.000,   13.000) r= 3.250 (d=6.500)   YeclV39WQCQF
+  C c=(  13.000,  -13.000) r= 3.250 (d=6.500)   WwLvfYBxMtJd
+  C c=( -13.000,  -13.000) r= 3.250 (d=6.500)   dMiuKNJZhhaN
+  dim DISTANCE             13 mm                        E2SI7oN920eQ, E2SI7oN920eQ
+  dim DISTANCE             13 mm                        E2SI7oN920eQ, E2SI7oN920eQ
+  dim DIAMETER             6.5 mm                       GoVlTxkwa5je
+
+#13 Sketch 3   plane: ?   entities=11
+  L ( -17.000,  -21.000) -> (  59.000,  -21.000)  len  76.000   Zhc5OPbYVoxO
+  L ( -17.000,   21.000) -> (  59.000,   21.000)  len  76.000   Zhc5OPbYVoxO
+  L ( -21.000,  -17.000) -> ( -21.000,   17.000)  len  34.000   Zhc5OPbYVoxO
+  L (  63.000,  -17.000) -> (  63.000,   17.000)  len  34.000   Zhc5OPbYVoxO
+  P ( -21.000,   21.000)   MRsI3kwX75xh
+  A c=( -17.000,   17.000) r= 4.000  ( -17.000,   21.000) -> ( -21.000,   17.000)  sweep   90.0°   MRsI3kwX75xh
+  P ( -21.000,  -21.000)   2PXFcTqkm5hx
+  A c=( -17.000,  -17.000) r= 4.000  ( -21.000,  -17.000) -> ( -17.000,  -21.000)  sweep   90.0°   2PXFcTqkm5hx
+  P (  63.000,  -21.000)   iqtYgxer7qFK
+  A c=(  59.000,  -17.000) r= 4.000  (  59.000,  -21.000) -> (  63.000,  -17.000)  sweep   90.0°   iqtYgxer7qFK
+  A c=(  59.000,   17.000) r= 4.000  (  63.000,   17.000) -> (  59.000,   21.000)  sweep   90.0°   wbSLTIh0GMfJ
+  dim RADIUS               4.0*mm                       MRsI3kwX75xh
+  dim DISTANCE             #slotDimension*#slotsDeep    Zhc5OPbYVoxO, Zhc5OPbYVoxO
+  dim DISTANCE             #slotDimension*#slotsWide    Zhc5OPbYVoxO, Zhc5OPbYVoxO
+
+#15 Sketch 4   plane: Front   entities=13
+  L ( -18.600,    2.600) -> ( -21.000,    5.000)  len   3.394   eqXwGOPPAcsF
+  L ( -18.600,    0.800) -> ( -18.600,    2.600)  len   1.800   eqXwGOPPAcsF
+  L ( -17.800,   -0.000) -> ( -18.600,    0.800)  len   1.131   eqXwGOPPAcsF
+  L ( -18.600,    9.600) -> ( -21.000,   12.000)  len   3.394   1cPKFynrIEY3  (construction)
+  L ( -17.800,    7.000) -> ( -18.600,    7.800)  len   1.131   1cPKFynrIEY3  (construction)
+  L ( -18.600,    7.800) -> ( -18.600,    9.600)  len   1.800   1cPKFynrIEY3  (construction)
+  L ( -17.800,   -0.000) -> (   7.200,   -0.000)  len  25.000   1cPKFynrIEY3  (construction)
+  L ( -17.800,   -0.000) -> ( -17.800,    7.000)  len   7.000   1cPKFynrIEY3  (construction)
+  L ( -18.154,    7.000) -> ( -18.850,    7.696)  len   0.985   FYeXfwnAhzMX
+  L ( -18.850,    7.696) -> ( -18.850,    9.496)  len   1.800   FYeXfwnAhzMX
+  L ( -18.850,    9.496) -> ( -21.000,   11.646)  len   3.041   FYeXfwnAhzMX
+  L ( -21.000,    7.000) -> ( -21.000,   11.646)  len   4.646   iuCSONdKSbhJ
+  L ( -21.000,    7.000) -> ( -18.154,    7.000)  len   2.846   SyOuXklxP1Bl
+  dim LENGTH               #HeightUnit*#slotHeight      1cPKFynrIEY3
+  dim DISTANCE             0.25 mm                      1cPKFynrIEY3, FYeXfwnAhzMX
+
+#20 Sketch 5   plane: Front   entities=4
+  L ( -18.154,   19.800) -> ( -19.550,   11.880)  len   8.042   Zao4LlHdlLzI
+  L ( -19.550,   11.880) -> ( -19.550,    6.200)  len   5.680   BqD48LWn4f2r
+  L ( -19.550,    6.200) -> ( -18.154,    6.200)  len   1.396   5kNXMjk7yaoF
+  L ( -18.154,   19.800) -> ( -18.154,    6.200)  len  13.600   0HHNnQwwu2sz
+  dim DISTANCE             #wallThickness               <external>, BqD48LWn4f2r
+  dim DISTANCE             #wallThickness               <external>, Zao4LlHdlLzI
+  dim ANGLE                10 deg                       Zao4LlHdlLzI, 0HHNnQwwu2sz
+
+#23 Sketch 7   plane: face/plane of 'Plane 1'   entities=9
+  L ( -19.550,   42.000) -> (  -8.154,   42.000)  len  11.396   4QjXJSuUbDO5
+  L (  -8.154,   42.000) -> (  -8.154,   40.800)  len   1.200   mrYibnkOB0jd
+  L (  -8.154,   40.800) -> ( -19.550,   34.220)  len  13.159   2mKbc7S5qo9Y
+  L ( -19.550,   34.220) -> ( -19.550,   42.000)  len   7.780   2cIHOYkChonO
+  L ( -18.154,   40.800) -> (  -8.154,   40.800)  len  10.000   PH4MexculULS  (construction)
+  P (  19.550,    6.200)   Yw97s0dt6e6b
+  A c=(   4.550,   21.200) r=15.000  (   4.550,    6.200) -> (  19.550,   21.200)  sweep   90.0°   Yw97s0dt6e6b
+  L (   4.550,    6.200) -> (  19.550,    6.200)  len  15.000   XMWAXFI4bLXj
+  L (  19.550,    6.200) -> (  19.550,   21.200)  len  15.000   CtwisKb0FDH9
+  dim ANGLE                60 deg                       2mKbc7S5qo9Y, 2cIHOYkChonO
+  dim LENGTH               10 mm                        PH4MexculULS
+  dim RADIUS               15.0*mm                      Yw97s0dt6e6b
+

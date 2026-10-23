@@ -72,13 +72,16 @@ for (const m of registry) {
   for (const f of ["app.js", "worker.js"]) put(`${out}/${f}`, rewrite(fs.readFileSync(path.join(app, f), "utf8")));
   put(`${out}/index.html`, page(rewrite(fs.readFileSync(path.join(app, "index.html"), "utf8")).replace("<!--site:nav-->", nav(m.title))));
   for (const f of fs.readdirSync(path.resolve(site, m.modules))) if (f.endsWith(".js")) copy(path.join(path.resolve(site, m.modules), f), `${out}/src/${f}`);
-  put(`${out}/case_params.json`, JSON.stringify(spec, null, 1));
+  put(`${out}/${path.basename(m.spec)}`, JSON.stringify(spec, null, 1));
+  // the page reads its variant here (several models can share one app, e.g. the Gridfinity boxes)
+  put(`${out}/model.json`, JSON.stringify({ id: m.id, title: m.title, variant: m.variant ?? null }, null, 1));
   let image = null;
   if (m.image && fs.existsSync(path.resolve(site, m.image))) {
     image = `models/${m.id}/card${path.extname(m.image)}`;
     copy(path.resolve(site, m.image), image);
   }
-  served.push({ id: m.id, title: m.title, summary: m.summary, href: `models/${m.id}/`, image, facts: m.facts.map((f) => fill(f, spec.parameters)) });
+  const params = spec.parameters ?? spec.variants?.[m.variant]?.parameters;
+  served.push({ id: m.id, title: m.title, summary: m.summary, href: `models/${m.id}/`, image, facts: m.facts.map((f) => fill(f, params)) });
 }
 put("models.json", JSON.stringify(served, null, 1));
 

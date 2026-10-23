@@ -1,0 +1,51 @@
+features: 25   rollbackIndex: 25   types: {'newSketch': 7, 'extrude': 6, 'sweep': 3, 'moveFace': 3, 'fillet': 2, 'booleanBodies': 1, 'transform': 1, 'linearPattern': 1, 'cPlane': 1}
+  0 Sketch 1                     newSketch         
+      sketchPlane=<query x1>; asVersion=V1837_SENTENCE_CASE_IN_VARIABLE_FEATURE_VERSION_BUMP; entities=4 constraints=10 dims=['#slotDimension', '#slotDimension']
+  1 Extrude 1                    extrude           
+      domain=MODEL; bodyType=SOLID; operationType=NEW; surfaceOperationType=NEW; flatOperationType=REMOVE; entities=<query x1>; endBound=BLIND; depth=#nestingDepth; offsetDistance=25 mm; draftAngle=3 deg; secondDirectionBound=BLIND; secondDirectionOppositeDirection=True; secondDirectionDepth=25 mm; secondDirectionOffsetDistance=25 mm; secondDirectionDraftAngle=3 deg; defaultSurfaceScope=True; asVersion=V1837_SENTENCE_CASE_IN_VARIABLE_FEATURE_VERSION_BUMP
+  2 Fillet 1                     fillet            
+      filletType=EDGE; entities=<query x4>; tangentPropagation=True; blendControlType=RADIUS; crossSection=CIRCULAR; radius=#cornerFillet; width=5 mm; rho=0.5; magnitude=0.5; vertexSettings=<array x0>; pointOnEdgeSettings=<array x0>; allowEdgeOverflow=True; asVersion=V1837_SENTENCE_CASE_IN_VARIABLE_FEATURE_VERSION_BUMP; startPartialType=PERCENTAGE; endPartialType=PERCENTAGE
+  3 Sketch 2                     newSketch         
+      sketchPlane=<query x1>; asVersion=V1837_SENTENCE_CASE_IN_VARIABLE_FEATURE_VERSION_BUMP; entities=6 constraints=18 dims=['45 deg', '0.8 mm', '45 deg', '2.4 mm']
+  4 Sweep 1                      sweep             
+      bodyType=SOLID; operationType=REMOVE; profiles=<query x1>; surfaceOperationType=NEW; path=<query x8>; booleanScope=<query x1>; defaultSurfaceScope=True; asVersion=V1837_SENTENCE_CASE_IN_VARIABLE_FEATURE_VERSION_BUMP; profileControl=NONE
+  5 Extrude 2                    extrude           
+      domain=MODEL; bodyType=SOLID; operationType=NEW; surfaceOperationType=NEW; flatOperationType=REMOVE; entities=<query x1>; thickness=5.0*mm; thickness2=0.0*mm; thickness1=5.0*mm; endBound=BLIND; depth=#nestingDepth; offsetDistance=25 mm; startOffsetDistance=25.0*mm; startOffsetBound=BLIND; draftAngle=3 deg; secondDirectionBound=BLIND; secondDirectionOppositeDirection=True; secondDirectionDepth=25 mm; secondDirectionOffsetDistance=25 mm; secondDirectionDraftAngle=3 deg; booleanScope=<query x1>; defaultSurfaceScope=True; asVersion=V1837_SENTENCE_CASE_IN_VARIABLE_FEATURE_VERSION_BUMP
+  6 Boolean 1                    booleanBodies     
+      operationType=SUBTRACTION; tools=<query x1>; targets=<query x1>; offsetDistance=5 mm; keepTools=True; asVersion=V1837_SENTENCE_CASE_IN_VARIABLE_FEATURE_VERSION_BUMP
+  7 Move face 1                  moveFace          
+      outputType=MOVE; moveFaces=<query x12>; moveFaceType=OFFSET; limitType=BLIND; translationDistance=5 mm; angle=0 deg; offsetDistance=#nestingClearance; oppositeDirection=True; offset=0 mm; oppositeOffsetDirection=True; reFillet=True; asVersion=V1837_SENTENCE_CASE_IN_VARIABLE_FEATURE_VERSION_BUMP
+  8 Move face 2                  moveFace          
+      outputType=MOVE; moveFaces=<query x12>; moveFaceType=OFFSET; limitType=BLIND; translationDistance=5 mm; angle=0 deg; offsetDistance=0.25 mm; oppositeDirection=True; offset=0 mm; oppositeOffsetDirection=True; reFillet=True; asVersion=V1837_SENTENCE_CASE_IN_VARIABLE_FEATURE_VERSION_BUMP
+  9 Sketch 6                     newSketch         
+      sketchPlane=<query x1>; asVersion=V1837_SENTENCE_CASE_IN_VARIABLE_FEATURE_VERSION_BUMP; entities=9 constraints=21 dims=['13 mm', '13 mm', '6.5 mm']
+ 10 Extrude 5                    extrude           
+      domain=MODEL; bodyType=SOLID; operationType=REMOVE; surfaceOperationType=NEW; flatOperationType=REMOVE; entities=<query x1>; thickness=5.0*mm; thickness2=0.0*mm; thickness1=5.0*mm; endBound=BLIND; oppositeDirection=True; depth=2.4 mm; offsetDistance=25 mm; startOffsetDistance=25.0*mm; startOffsetBound=BLIND; draftAngle=3 deg; secondDirectionBound=BLIND; secondDirectionOppositeDirection=True; secondDirectionDepth=25 mm; secondDirectionOffsetDistance=25 mm; secondDirectionDraftAngle=3 deg; booleanScope=<query x1>; defaultSurfaceScope=True; asVersion=V1837_SENTENCE_CASE_IN_VARIABLE_FEATURE_VERSION_BUMP
+ 11 Transform 1                  transform         
+      entities=<query x1>; transformType=TRANSLATION_3D; distance=25 mm; uniform=True; scale=1; scaleX=1; scaleY=1; scaleZ=1; secondaryAxisType=PLUS_X; angle=30 deg; dx=0 mm; dy=0 mm; dz=-1 mm; asVersion=V1837_SENTENCE_CASE_IN_VARIABLE_FEATURE_VERSION_BUMP
+ 12 Linear pattern 1             linearPattern     
+      patternType=PART; operationType=ADD; entities=<query x2>; instanceFunction=<BTMParameterFeatureList-1749>; directionOne=<query x1>; distance=#slotDimension; instanceCount=#slotsDeep; hasSecondDir=True; directionTwo=<query x1>; distanceTwo=#slotDimension; instanceCountTwo=#slotsWide; booleanScope=<query x1>; asVersion=V1837_SENTENCE_CASE_IN_VARIABLE_FEATURE_VERSION_BUMP; skippedInstances=<array x0>
+ 13 Sketch 3                     newSketch         
+      sketchPlane=<query x1>; asVersion=V1837_SENTENCE_CASE_IN_VARIABLE_FEATURE_VERSION_BUMP; entities=11 constraints=34 dims=['4.0*mm', '#slotDimension*#slotsDeep', '#slotDimension*#slotsWide']
+ 14 Extrude 3                    extrude           
+      domain=MODEL; bodyType=SOLID; operationType=ADD; surfaceOperationType=NEW; flatOperationType=REMOVE; entities=<query x1>; thickness=5.0*mm; thickness2=0.0*mm; thickness1=5.0*mm; endBound=BLIND; depth=#slotDimension*#slotHeight-#nestingDepth; offsetDistance=25 mm; startOffsetDistance=25.0*mm; startOffsetBound=BLIND; draftAngle=3 deg; secondDirectionBound=BLIND; secondDirectionOppositeDirection=True; secondDirectionDepth=25 mm; secondDirectionOffsetDistance=25 mm; secondDirectionDraftAngle=3 deg; defaultScope=True; defaultSurfaceScope=True; asVersion=V1837_SENTENCE_CASE_IN_VARIABLE_FEATURE_VERSION_BUMP
+ 15 Sketch 4                     newSketch         
+      sketchPlane=<query x1>; asVersion=V1837_SENTENCE_CASE_IN_VARIABLE_FEATURE_VERSION_BUMP; entities=13 constraints=31 dims=['#slotDimension*#slotHeight', '0.25 mm']
+ 16 Sweep 2                      sweep             
+      bodyType=SOLID; operationType=ADD; profiles=<query x1>; surfaceOperationType=NEW; path=<query x8>; booleanScope=<query x1>; defaultSurfaceScope=True; asVersion=V1837_SENTENCE_CASE_IN_VARIABLE_FEATURE_VERSION_BUMP; profileControl=NONE
+ 17 Move face 3                  moveFace          
+      outputType=MOVE; moveFaces=<query x8>; moveFaceType=OFFSET; limitType=BLIND; translationDistance=5 mm; angle=0 deg; offsetDistance=#nestingClearance; oppositeDirection=True; offset=0 mm; oppositeOffsetDirection=True; reFillet=True; asVersion=V1837_SENTENCE_CASE_IN_VARIABLE_FEATURE_VERSION_BUMP
+ 18 Fillet 2                     fillet            
+      filletType=EDGE; entities=<query x1>; tangentPropagation=True; blendControlType=RADIUS; crossSection=CIRCULAR; radius=0.6 mm; width=5 mm; rho=0.5; magnitude=0.5; vertexSettings=<array x0>; pointOnEdgeSettings=<array x0>; allowEdgeOverflow=True; asVersion=V1837_SENTENCE_CASE_IN_VARIABLE_FEATURE_VERSION_BUMP; startPartialType=PERCENTAGE; endPartialType=PERCENTAGE
+ 19 Extrude 4                    extrude           
+      domain=MODEL; bodyType=SOLID; operationType=REMOVE; surfaceOperationType=NEW; flatOperationType=REMOVE; entities=<query x1>; endBound=UP_TO_SURFACE; oppositeDirection=True; depth=25 mm; endBoundEntityFace=<query x1>; hasOffset=True; offsetDistance=#wallThickness+#nestingDepth; draftAngle=3 deg; secondDirectionBound=BLIND; secondDirectionOppositeDirection=True; secondDirectionDepth=25 mm; secondDirectionOffsetDistance=25 mm; secondDirectionDraftAngle=3 deg; booleanScope=<query x1>; defaultSurfaceScope=True; asVersion=V1837_SENTENCE_CASE_IN_VARIABLE_FEATURE_VERSION_BUMP
+ 20 Sketch 5                     newSketch         
+      sketchPlane=<query x1>; asVersion=V1837_SENTENCE_CASE_IN_VARIABLE_FEATURE_VERSION_BUMP; entities=4 constraints=11 dims=['#wallThickness', '#wallThickness', '10 deg']
+ 21 Sweep 3                      sweep             
+      bodyType=SOLID; operationType=REMOVE; profiles=<query x1>; surfaceOperationType=NEW; path=<query x8>; booleanScope=<query x1>; defaultSurfaceScope=True; asVersion=V1837_SENTENCE_CASE_IN_VARIABLE_FEATURE_VERSION_BUMP; profileControl=NONE
+ 22 Plane 1                      cPlane              [suppressed]
+      entities=<query x2>; cplaneType=MID_PLANE; offset=25 mm; angle=0 deg; width=150 mm; height=150 mm; asVersion=V1837_SENTENCE_CASE_IN_VARIABLE_FEATURE_VERSION_BUMP
+ 23 Sketch 7                     newSketch           [suppressed]
+      sketchPlane=<query x1>; asVersion=V1837_SENTENCE_CASE_IN_VARIABLE_FEATURE_VERSION_BUMP; entities=9 constraints=20 dims=['60 deg', '10 mm', '15.0*mm']
+ 24 Extrude 6                    extrude             [suppressed]
+      domain=MODEL; bodyType=SOLID; operationType=ADD; surfaceOperationType=NEW; flatOperationType=REMOVE; entities=<query x2>; endBound=BLIND; depth=#slotDimension*#slotsDeep-3mm; offsetDistance=25 mm; symmetric=True; draftAngle=3 deg; secondDirectionBound=BLIND; secondDirectionOppositeDirection=True; secondDirectionDepth=25 mm; secondDirectionOffsetDistance=25 mm; secondDirectionDraftAngle=3 deg; booleanScope=<query x1>; defaultSurfaceScope=True; asVersion=V1837_SENTENCE_CASE_IN_VARIABLE_FEATURE_VERSION_BUMP

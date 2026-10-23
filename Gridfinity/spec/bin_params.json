@@ -1,0 +1,80 @@
+{
+ "name": "Gridfinity Boxes (bins)",
+ "units": "mm",
+ "frame": "Box centred in X/Y; z = 0 is the underside of the feet; the label (if any) sits on the +Y wall and runs along X.",
+ "source": {
+  "standard": "Onshape 'TemplateBox_HeightAdjust' (aee95cbe04963c37301ca12a, version 1709bdbec751f2c8b82e4d11, Part Studio 'Template'); same tree as 'TemplateBox' 009f11a5d6c90faddac6565f but with height in 7 mm units",
+  "label": "Onshape 'Gridfinity_box_Beschriftung' (23ef78d9a8fac409ffab3feb, Part Studio 'GridFinityStorageWithLabel'): derives the template and adds label ledge, label plate and scoop"
+ },
+ "official": {
+  "_source": "gridfinity.xyz/specification, as encoded in gridfinity-rebuilt-openscad src/core/standard.scad",
+  "pitch": 42,
+  "height_unit": 7,
+  "clearance": 0.25,
+  "corner_r": 3.75,
+  "foot": {
+   "_note": "[z, offset from the 42 mm cell outline]: 0.8 @ 45 deg, 1.8 vertical, 2.15 @ 45 deg = 4.75; corner radius = 4 - offset",
+   "sections": [[0, 3.2], [0.8, 2.4], [2.6, 2.4], [4.75, 0.25]],
+   "height": 4.75
+  },
+  "lip": {
+   "_note": "inward from the box outline, above the wall top T: 0.7 @ 45 deg, 1.8 vertical, 1.9 @ 45 deg to the outer edge (4.4 high, 2.6 deep), top edge rounded r 0.6",
+   "depth": 2.6,
+   "height": 4.4,
+   "inner": 0.7,
+   "vertical": 1.8,
+   "top_r": 0.6
+  },
+  "magnet": {"d": 6.5, "depth": 2.4, "offset": 13, "_note": "4 per cell at (+-13, +-13) from the cell centre, for 6 x 2 mm magnets"}
+ },
+ "design": {
+  "_note": "Not defined by the standard; taken from the Onshape designs.",
+  "wall": 1.2,
+  "floor_top": 6.2,
+  "lip_support": 1.2,
+  "support_angle": 10,
+  "label": {
+   "_note": "Ledge along X on the +Y inner wall: top at T - plate_t, 13 deep from the inner wall, 0.95 front edge, supported at 60 deg from the wall. The plate fills the pocket between ledge front and lip, flush with the wall top.",
+   "depth": 13,
+   "front": 0.95,
+   "support_angle": 60,
+   "plate_t": 1.45
+  },
+  "scoop": {
+   "_note": "Concave fill between floor and the -Y inner wall (label box only). Onshape uses r 25 at every height, which pokes above the lip of boxes lower than 5 units; here r = min(25, T - floor_top - lip_support - 0.5).",
+   "r": 25
+  }
+ },
+ "variants": {
+  "standard": {
+   "title": "Gridfinity Standard Box",
+   "parameters": {
+    "x_count": {"type": "int", "min": 1, "max": 10, "default": 2, "label": "Width", "help": "X, 42 mm per unit"},
+    "y_count": {"type": "int", "min": 1, "max": 10, "default": 2, "label": "Length", "help": "Y, 42 mm per unit"},
+    "z_count": {"type": "int", "min": 2, "max": 30, "default": 6, "label": "Height", "help": "7 mm per unit"},
+    "magnets": {"type": "bool", "default": true, "label": "Magnet holes", "help": "6 × 2 mm, 4 per cell"}
+   }
+  },
+  "label": {
+   "title": "Gridfinity Box with Label",
+   "parameters": {
+    "x_count": {"type": "int", "min": 1, "max": 10, "default": 2, "label": "Width", "help": "X, 42 mm per unit; the label runs along it"},
+    "y_count": {"type": "int", "min": 1, "max": 10, "default": 2, "label": "Length", "help": "Y, 42 mm per unit"},
+    "z_count": {"type": "int", "min": 3, "max": 30, "default": 6, "label": "Height", "help": "7 mm per unit"},
+    "magnets": {"type": "bool", "default": true, "label": "Magnet holes", "help": "6 × 2 mm, 4 per cell"},
+    "plate_gap": {"type": "float", "min": 0, "max": 0.5, "default": 0, "step": 0.05, "label": "Plate clearance", "help": "per side, mm; makes the label plate smaller"}
+   }
+  }
+ },
+ "rugged_case": {
+  "_note": "Informational fit check against Gridfinity/spec/case_params.json (z_count 5..25, x/y 3..8). A box of h units fits a case of z_count >= h: the lip clears the closed lid by 1.0-1.25 mm (Gridfinity/web/node/bin_case_fit.mjs, checked for n = 5, 12, 25).",
+  "z_extra": 0,
+  "x_min": 3,
+  "y_min": 3,
+  "x_max": 8,
+  "y_max": 8,
+  "z_min": 5,
+  "z_max": 25
+ },
+ "bed": [360, 360]
+}

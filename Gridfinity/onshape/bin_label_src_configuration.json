@@ -1,0 +1,159 @@
+{
+ "btType": "BTConfigurationResponse-2019",
+ "rejectMicroversionSkew": false,
+ "microversionSkew": false,
+ "configurationParameters": [
+  {
+   "btType": "BTMConfigurationParameterQuantity-1826",
+   "rangeAndDefault": {
+    "btType": "BTQuantityRange-181",
+    "defaultValue": 1.0,
+    "minValue": 1.0,
+    "maxValue": 20.0,
+    "location": {
+     "btType": "BTLocationInfo-226",
+     "endLine": 0,
+     "character": 0,
+     "endColumn": 0,
+     "languageVersion": 0,
+     "parseNodeId": "",
+     "endCharacter": 0,
+     "moduleIds": {
+      "btType": "BTDocumentVersionElementIds-1897",
+      "documentId": "",
+      "elementId": "",
+      "versionId": ""
+     },
+     "version": "",
+     "line": 0,
+     "document": "",
+     "elementMicroversion": "",
+     "nodeId": "6xabt1/hW2w3/BiD",
+     "column": 0,
+     "topLevel": ""
+    },
+    "units": ""
+   },
+   "isCosmetic": false,
+   "nodeId": "MBkfsGMRHZBvdvhR7",
+   "parameterId": "slotsDeep",
+   "quantityType": "INTEGER",
+   "parameterName": "slotsDeep",
+   "visibilityCondition": null
+  },
+  {
+   "btType": "BTMConfigurationParameterQuantity-1826",
+   "rangeAndDefault": {
+    "btType": "BTQuantityRange-181",
+    "defaultValue": 1.0,
+    "minValue": 1.0,
+    "maxValue": 20.0,
+    "location": {
+     "btType": "BTLocationInfo-226",
+     "endLine": 0,
+     "character": 0,
+     "endColumn": 0,
+     "languageVersion": 0,
+     "parseNodeId": "",
+     "endCharacter": 0,
+     "moduleIds": {
+      "btType": "BTDocumentVersionElementIds-1897",
+      "documentId": "",
+      "elementId": "",
+      "versionId": ""
+     },
+     "version": "",
+     "line": 0,
+     "document": "",
+     "elementMicroversion": "",
+     "nodeId": "3fdoyvc8EsfF9tcm",
+     "column": 0,
+     "topLevel": ""
+    },
+    "units": ""
+   },
+   "isCosmetic": false,
+   "nodeId": "MeJxy7AtvH1+Cs1+2",
+   "parameterId": "slotsWide",
+   "quantityType": "INTEGER",
+   "parameterName": "slotsWide",
+   "visibilityCondition": null
+  },
+  {
+   "btType": "BTMConfigurationParameterQuantity-1826",
+   "rangeAndDefault": {
+    "btType": "BTQuantityRange-181",
+    "defaultValue": 0.5,
+    "minValue": 0.5,
+    "maxValue": 10.0,
+    "location": {
+     "btType": "BTLocationInfo-226",
+     "endLine": 0,
+     "character": 0,
+     "endColumn": 0,
+     "languageVersion": 0,
+     "parseNodeId": "",
+     "endCharacter": 0,
+     "moduleIds": {
+      "btType": "BTDocumentVersionElementIds-1897",
+      "documentId": "",
+      "elementId": "",
+      "versionId": ""
+     },
+     "version": "",
+     "line": 0,
+     "document": "",
+     "elementMicroversion": "",
+     "nodeId": "zSrqt0Uh/MIqmFsJ",
+     "column": 0,
+     "topLevel": ""
+    },
+    "units": ""
+   },
+   "isCosmetic": false,
+   "nodeId": "MLfHeS+asIB4g4spL",
+   "parameterId": "slotHeight",
+   "quantityType": "REAL",
+   "parameterName": "slotHeight",
+   "visibilityCondition": null
+  }
+ ],
+ "currentConfiguration": [
+  {
+   "btType": "BTMParameterQuantity-147",
+   "libraryRelationType": "DEFAULT",
+   "isInteger": false,
+   "value": 1.0,
+   "units": "",
+   "expression": "1",
+   "nodeId": "MWygaKADdJAOV1bI6",
+   "parameterId": "slotsDeep",
+   "parameterName": ""
+  },
+  {
+   "btType": "BTMParameterQuantity-147",
+   "libraryRelationType": "DEFAULT",
+   "isInteger": false,
+   "value": 1.0,
+   "units": "",
+   "expression": "1",
+   "nodeId": "Myx280dA0W0gVpHGb",
+   "parameterId": "slotsWide",
+   "parameterName": ""
+  },
+  {
+   "btType": "BTMParameterQuantity-147",
+   "libraryRelationType": "DEFAULT",
+   "isInteger": false,
+   "value": 0.5,
+   "units": "",
+   "expression": "0.5",
+   "nodeId": "MZ7p/u/o5TJm9Fzto",
+   "parameterId": "slotHeight",
+   "parameterName": ""
+  }
+ ],
+ "libraryVersion": 2615,
+ "serializationVersion": "1.2.9",
+ "sourceMicroversion": "4ed35116b4e6547a3beb49fd"
+}

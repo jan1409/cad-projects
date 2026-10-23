@@ -1,0 +1,184 @@
+{
+ "btType": "BTConfigurationResponse-2019",
+ "rejectMicroversionSkew": false,
+ "microversionSkew": false,
+ "configurationParameters": [
+  {
+   "btType": "BTMConfigurationParameterString-872",
+   "isCosmetic": false,
+   "defaultValue": "Test",
+   "nodeId": "MfdZEuxRtK5ex/YST",
+   "parameterId": "Label_Text",
+   "parameterName": "Label Text",
+   "visibilityCondition": {
+    "btType": "BTParameterVisibilityCondition-177"
+   }
+  },
+  {
+   "btType": "BTMConfigurationParameterQuantity-1826",
+   "rangeAndDefault": {
+    "btType": "BTQuantityRange-181",
+    "minValue": 1.0,
+    "maxValue": 10.0,
+    "location": {
+     "btType": "BTLocationInfo-226",
+     "endLine": 0,
+     "character": 0,
+     "endColumn": 0,
+     "parseNodeId": "",
+     "endCharacter": 0,
+     "moduleIds": {
+      "btType": "BTDocumentVersionElementIds-1897",
+      "documentId": "",
+      "elementId": "",
+      "versionId": ""
+     },
+     "languageVersion": 0,
+     "version": "",
+     "document": "",
+     "elementMicroversion": "",
+     "line": 0,
+     "nodeId": "K0GkKCYmHY/ZUav1",
+     "topLevel": "",
+     "column": 0
+    },
+    "defaultValue": 1.0,
+    "units": ""
+   },
+   "isCosmetic": false,
+   "nodeId": "MEE8X2cBnn7t8YDj2",
+   "parameterId": "Breite",
+   "quantityType": "INTEGER",
+   "parameterName": "Breite",
+   "visibilityCondition": {
+    "btType": "BTParameterVisibilityCondition-177"
+   }
+  },
+  {
+   "btType": "BTMConfigurationParameterQuantity-1826",
+   "rangeAndDefault": {
+    "btType": "BTQuantityRange-181",
+    "minValue": 1.0,
+    "maxValue": 15.0,
+    "location": {
+     "btType": "BTLocationInfo-226",
+     "endLine": 0,
+     "character": 0,
+     "endColumn": 0,
+     "parseNodeId": "",
+     "endCharacter": 0,
+     "moduleIds": {
+      "btType": "BTDocumentVersionElementIds-1897",
+      "documentId": "",
+      "elementId": "",
+      "versionId": ""
+     },
+     "languageVersion": 0,
+     "version": "",
+     "document": "",
+     "elementMicroversion": "",
+     "line": 0,
+     "nodeId": "FjRWhRAO4+ayLKdf",
+     "topLevel": "",
+     "column": 0
+    },
+    "defaultValue": 1.0,
+    "units": ""
+   },
+   "isCosmetic": false,
+   "nodeId": "M+sa6orLwRXCzv169",
+   "parameterId": "Hoehe",
+   "quantityType": "INTEGER",
+   "parameterName": "Hoehe",
+   "visibilityCondition": {
+    "btType": "BTParameterVisibilityCondition-177"
+   }
+  },
+  {
+   "btType": "BTMConfigurationParameterQuantity-1826",
+   "rangeAndDefault": {
+    "btType": "BTQuantityRange-181",
+    "minValue": 1.0,
+    "maxValue": 10.0,
+    "location": {
+     "btType": "BTLocationInfo-226",
+     "endLine": 0,
+     "character": 0,
+     "endColumn": 0,
+     "parseNodeId": "",
+     "endCharacter": 0,
+     "moduleIds": {
+      "btType": "BTDocumentVersionElementIds-1897",
+      "documentId": "",
+      "elementId": "",
+      "versionId": ""
+     },
+     "languageVersion": 0,
+     "version": "",
+     "document": "",
+     "elementMicroversion": "",
+     "line": 0,
+     "nodeId": "rHP/Bao/Y/+y3jJR",
+     "topLevel": "",
+     "column": 0
+    },
+    "defaultValue": 1.0,
+    "units": ""
+   },
+   "isCosmetic": false,
+   "nodeId": "MXZ6JwTgjqFYjLvMQ",
+   "parameterId": "Laenge",
+   "quantityType": "INTEGER",
+   "parameterName": "Laenge",
+   "visibilityCondition": {
+    "btType": "BTParameterVisibilityCondition-177"
+   }
+  }
+ ],
+ "currentConfiguration": [
+  {
+   "btType": "BTMParameterString-149",
+   "libraryRelationType": "DEFAULT",
+   "value": "Test",
+   "nodeId": "MbCrG7GOUB/xCZ7qL",
+   "parameterId": "Label_Text",
+   "parameterName": ""
+  },
+  {
+   "btType": "BTMParameterQuantity-147",
+   "libraryRelationType": "DEFAULT",
+   "isInteger": false,
+   "value": 1.0,
+   "units": "",
+   "expression": "1",
+   "nodeId": "MwBRWBBFuNSkFzhuP",
+   "parameterId": "Breite",
+   "parameterName": ""
+  },
+  {
+   "btType": "BTMParameterQuantity-147",
+   "libraryRelationType": "DEFAULT",
+   "isInteger": false,
+   "value": 1.0,
+   "units": "",
+   "expression": "1",
+   "nodeId": "MuvfbSQyljSFmIdBR",
+   "parameterId": "Hoehe",
+   "parameterName": ""
+  },
+  {
+   "btType": "BTMParameterQuantity-147",
+   "libraryRelationType": "DEFAULT",
+   "isInteger": false,
+   "value": 1.0,
+   "units": "",
+   "expression": "1",
+   "nodeId": "MKebhjTm8WQg2YXik",
+   "parameterId": "Laenge",
+   "parameterName": ""
+  }
+ ],
+ "libraryVersion": 2837,
+ "serializationVersion": "1.2.23",
+ "sourceMicroversion": "4e5e454c4c85370d348ad92d"
+}

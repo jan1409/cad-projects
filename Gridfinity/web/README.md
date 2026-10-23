@@ -23,6 +23,21 @@ original by exact B-rep booleans: [VALIDATION.md](VALIDATION.md).
 | `tools/bundle.mjs` | assembles `dist/` (page, modules, spec, vendor files, gzipped kernel as `vendor/opencascade-gz.wasm`) |
 | `tools/serve.mjs` | static server for `dist/` |
 
+## Gridfinity boxes (bins)
+Two site models, Standard Box and Box with Label, share one page. The site build writes `model.json` with the variant
+next to it. Spec: `../spec/bin_spec.md` and `bin_params.json`. Validation: [BIN_VALIDATION.md](BIN_VALIDATION.md).
+
+| Path | Purpose |
+|---|---|
+| `src/bin.js` | geometry: wall + lip swept along the outline, ruled-loft feet, label ledge, scoop, plate; `binEnv` for the datasheet |
+| `bin/index.html`, `bin/app.js`, `bin/worker.js` | the page (controls generated from the variant's parameters), worker, card images |
+| `node/bin_build.mjs` | `node node/bin_build.mjs label 3 2 6 [--out dir]` builds and checks one box; `--sweep` runs 46 configurations |
+| `node/bin_check.mjs`, `node/bin_diff.mjs` | exact comparison with the Onshape STEPs in `../reference/bins/`, and where they differ |
+| `node/bin_case_fit.mjs` | interference check of boxes in a closed Rugged Case (which heights fit) |
+| `node/step2stl.mjs` | splits a STEP into one STL per solid and prints volumes / bounding boxes |
+
+Run the box pages through the site: `npm run build` and `npm run serve` at the repo root.
+
 ## Validation
 `python -I Gridfinity/fusion/validate.py --web` builds every reference configuration with `node/build.mjs`, imports
 `case.step` into Fusion and compares it exactly with the Onshape STEP (Fusion MCP server must be running).
