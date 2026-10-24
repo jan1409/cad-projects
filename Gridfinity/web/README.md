@@ -17,9 +17,10 @@ original by exact B-rep booleans: [VALIDATION.md](VALIDATION.md).
 |---|---|
 | `src/case.js` | the geometry: port of `../fusion/cad/_case.py` + `10_base.py` … `50_window.py`, reads `../spec/case_params.json` |
 | `src/expr.js`, `src/geom2d.js` | spec expression evaluator (no eval) and the rounded-polygon math (same as the Fusion port) |
+| `src/strings.js` | English and German texts of all three pages and their build sheets (language core: `../../site/shared/i18n.js`) |
 | `app/index.html`, `app/app.js` | the page: parameters, live datasheet, footprint, three.js preview, downloads |
 | `app/worker.js` | builds the parts in a Web Worker (loads the gzipped kernel, returns preview meshes and print STLs) |
-| `node/build.mjs` | the same build headless: `node node/build.mjs 5x4x6 [--wt 1.6] [--gap 0.2] [--force]` → `../export/web/<tag>/` (STLs, `case.step`, print set) |
+| `node/build.mjs` | the same build headless: `node node/build.mjs 5x4x6 [--wt 1.6] [--gap 0.2] [--force] [--lang de]` → `../export/web/<tag>/` (STLs, `case.step`, print set) |
 | `tools/bundle.mjs` | assembles `dist/` (page, modules, spec, vendor files, gzipped kernel as `vendor/opencascade-gz.wasm`) |
 | `tools/serve.mjs` | static server for `dist/` |
 

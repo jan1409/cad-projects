@@ -1,5 +1,5 @@
 // Build the case headless with the same module the browser page uses, and export it.
-// Usage: node node/build.mjs <XxYxZ> [--wt 1.6] [--gap 0.2] [--force] [--parts Base,Lid,...]
+// Usage: node node/build.mjs <XxYxZ> [--wt 1.6] [--gap 0.2] [--force] [--parts Base,Lid,...] [--lang en|de]
 // Output: Gridfinity/export/web/<tag>/ (assembled STLs + case.step) and .../print/ (oriented STLs, window SVG, build sheet)
 import fs from "node:fs";
 import path from "node:path";
@@ -7,6 +7,8 @@ import { fileURLToPath } from "node:url";
 import opencascade from "replicad-opencascadejs";
 import * as R from "replicad";
 import { makeCase, toPrint, windowSVG, buildSheet, PRINT } from "../src/case.js";
+import strings from "../src/strings.js";
+import { translator } from "../../../site/shared/i18n.js";
 
 const args = process.argv.slice(2);
 const opt = (name, dflt) => (args.includes(name) ? args[args.indexOf(name) + 1] : dflt);
@@ -18,6 +20,7 @@ const inputs = { x_count: x, y_count: y, z_count: n, window_t: Number(opt("--wt"
 for (const [k, v] of Object.entries(inputs))
   if (!args.includes("--force") && !(P[k].min <= v && v <= P[k].max)) throw new Error(`${k} = ${v} outside ${P[k].min}..${P[k].max}`);
 const parts = opt("--parts", "Base,Lid,Latch,Seal,Window").split(",");
+const t = translator(strings, opt("--lang", "en")); // language of the window SVG title and the build sheet
 
 let tag = `${x}x${y}x${n}` + (Math.abs(inputs.window_t - 1.6) < 1e-9 ? "" : `_w${String(inputs.window_t).replace(".", "")}`);
 if (Math.abs(inputs.window_gap - P.window_gap.default) > 1e-9) tag += `_g${String(inputs.window_gap).replace(".", "")}`;
@@ -53,7 +56,7 @@ const stepShapes = Object.entries(shapes).map(([name, shape]) => ({
   name, shape: name === "Latch" ? R.makeCompound([shape.clone(), shape.clone().translate([-2 * kase.env.hinge_x, 0, 0])]) : shape }));
 await writeBlob(path.join(out, "case.step"), R.exportSTEP(stepShapes));
 if (parts.includes("Window")) {
-  fs.writeFileSync(path.join(out, "print", `Gridfinity_Rugged_Case_${tag}_Window_${inputs.window_t.toFixed(2)}mm.svg`), windowSVG(kase.env));
+  fs.writeFileSync(path.join(out, "print", `Gridfinity_Rugged_Case_${tag}_Window_${inputs.window_t.toFixed(2)}mm.svg`), windowSVG(kase.env, t));
 }
-if (Object.keys(sizes).length === 4) fs.writeFileSync(path.join(out, "print", "BUILD_SHEET.md"), buildSheet(kase.env, tag, sizes));
+if (Object.keys(sizes).length === 4) fs.writeFileSync(path.join(out, "print", "BUILD_SHEET.md"), buildSheet(kase.env, tag, sizes, t));
 console.log("written", out);

@@ -1,11 +1,15 @@
 // Gridfinity baseplate generator - UI for both variants (size in cells, or fitted to a drawer). The variant comes from
 // model.json, which the site build writes next to the page; geometry runs in worker.js, the datasheet uses plateEnv.
+// Texts: src/strings.js and the {en, de} labels of the spec; the language switch re-renders the page in place.
 import * as THREE from "three";
 import { OrbitControls } from "./vendor/OrbitControls.js";
 import { zipSync } from "./vendor/fflate.js";
-import { plateEnv, plateBuildSheet } from "./src/baseplate.js";
+import { translator, applyDom, mountLangSwitch, num, pick } from "./vendor/i18n.js";
+import { plateEnv, plateBuildSheet, SIDES } from "./src/baseplate.js";
+import S from "./src/strings.js";
 
 const $ = (id) => document.getElementById(id);
+const t = translator(S);
 const el = (tag, props = {}, ...children) => {
   const e = Object.assign(document.createElement(tag), props);
   e.append(...children);
@@ -20,12 +24,11 @@ const fileBase = variant === "drawer" ? "Gridfinity_Drawer_Baseplate" : "Gridfin
 const COLORS = [0x5f86c9, 0x4fa3a5, 0x8a7cc9, 0xc98a5f, 0x6fae6a, 0xc96f8a, 0x9aa55a, 0x5fa0c9];
 const hex = (c) => `#${c.toString(16).padStart(6, "0")}`;
 
-$("title").textContent = V.title;
-document.title = V.title;
-$("lede").textContent = variant === "drawer"
-  ? "A Gridfinity baseplate that fills a drawer: enter its inside size, and the page fits as many 42 mm cells as possible and fills the rest with a flat border. Larger plates are split into pieces that fit the printer."
-  : "A Gridfinity baseplate to the official dimensions, sized in 42 mm cells, with an optional solid bottom plate and magnet holes. Plates larger than the printer are split into pieces.";
-$("size-h").textContent = variant === "drawer" ? "Drawer" : "Size in Gridfinity cells";
+function labelPage() {
+  $("title").textContent = document.title = pick(V.title);
+  $("lede").textContent = t(variant === "drawer" ? "plate.ledeDrawer" : "plate.ledeGrid");
+  $("size-h").textContent = t(variant === "drawer" ? "plate.sizeDrawer" : "plate.sizeGrid");
+}
 
 // ---------- state ----------
 const inputs = Object.fromEntries(KEYS.map((k) => [k, P[k].default]));
@@ -35,27 +38,32 @@ try {
   const saved = JSON.parse(localStorage.getItem(STORE) || "{}");
   for (const k of KEYS) if (valid(P[k], saved[k])) inputs[k] = saved[k];
 } catch { /* storage unavailable: defaults */ }
-let built = null; // { tag, env, parts: {A: {stl, volume}, ...}, sheet }
+let built = null; // { tag, env, parts: {A: {stl, volume}, ...} }
 let building = false;
 
-const fmt = (v, d = 1) => v.toFixed(d);
-const num = (v) => String(+v.toFixed(2));
-const tagOf = (i) => (variant === "drawer" ? `${num(i.width)}x${num(i.depth)}mm` : `${i.x_count}x${i.y_count}`) +
-  (i.bottom ? `_b${num(i.bottom_h)}` : "") + (i.bottom && i.magnets ? "_mag" : "");
+const fmt = (v, d = 1) => num(v, d);
+const short = (v) => String(+v.toFixed(2)); // input values and file names: always with a decimal point
+const tagOf = (i) => (variant === "drawer" ? `${short(i.width)}x${short(i.depth)}mm` : `${i.x_count}x${i.y_count}`) +
+  (i.bottom ? `_b${short(i.bottom_h)}` : "") + (i.bottom && i.magnets ? "_mag" : "");
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 const envOf = (i = inputs) => plateEnv(spec, { ...i, variant });
 const active = (p) => !p.requires || inputs[p.requires];
 
 // ---------- parameters (generated from the spec) ----------
-const params = $("params");
+const params = $("params"), labels = []; // labels: functions that write the current language into the controls
 for (const key of KEYS) {
   const p = P[key];
-  const name = el(p.type === "int" || p.type === "choice" ? "div" : "label", { className: "param-name", htmlFor: key, id: `${key}-name` },
-    p.label, el("small", { textContent: p.help }));
+  const text = el("span"), help = el("small");
+  const name = el(p.type === "int" || p.type === "choice" ? "div" : "label", { className: "param-name", htmlFor: key, id: `${key}-name` }, text, help);
+  labels.push(() => { text.textContent = pick(p.label); help.textContent = pick(p.help); });
   let control;
   if (p.type === "int") {
-    const minus = el("button", { type: "button", textContent: "−", ariaLabel: `Fewer ${p.label.toLowerCase()} cells` });
-    const plus = el("button", { type: "button", textContent: "+", ariaLabel: `More ${p.label.toLowerCase()} cells` });
+    const minus = el("button", { type: "button", textContent: "−" });
+    const plus = el("button", { type: "button", textContent: "+" });
+    labels.push(() => {
+      minus.ariaLabel = t("common.decrease", { name: pick(p.label) });
+      plus.ariaLabel = t("common.increase", { name: pick(p.label) });
+    });
     minus.addEventListener("click", () => setInput(key, inputs[key] - 1));
     plus.addEventListener("click", () => setInput(key, inputs[key] + 1));
     control = el("div", { className: "stepper" }, minus, el("output", { id: key }), plus);
@@ -63,18 +71,21 @@ for (const key of KEYS) {
     control = el("input", { type: "checkbox", id: key });
     control.addEventListener("change", () => setInput(key, control.checked));
   } else if (p.type === "choice") {
-    control = el("div", { className: "seg", role: "group", id: key, ariaLabel: p.label }, ...p.options.map(([value, text]) => {
-      const b = el("button", { type: "button", textContent: text });
+    const seg = control = el("div", { className: "seg", role: "group", id: key }, ...p.options.map(([value, text]) => {
+      const b = el("button", { type: "button" });
       b.dataset.value = value;
       b.addEventListener("click", () => setInput(key, value));
+      labels.push(() => { b.textContent = pick(text); });
       return b;
     }));
+    labels.push(() => { seg.ariaLabel = pick(p.label); });
   } else {
     control = el("input", { type: "number", id: key, inputMode: "decimal", min: p.min, max: p.max, step: p.step ?? 0.1 });
     control.addEventListener("change", () => setInput(key, Number(control.value)));
   }
   params.append(name, control);
 }
+const labelParams = () => labels.forEach((f) => f());
 
 function setInput(key, value) {
   const p = P[key];
@@ -103,7 +114,7 @@ function render() {
     } else if (p.type === "choice") {
       for (const b of $(key).querySelectorAll("button")) b.setAttribute("aria-pressed", String(b.dataset.value === inputs[key]));
     } else {
-      $(key).value = num(inputs[key]);
+      $(key).value = short(inputs[key]);
       $(key).disabled = !on;
     }
     $(`${key}-name`).classList.toggle("off", !on);
@@ -111,27 +122,30 @@ function render() {
   }
   const env = envOf();
   drawFootprint(env);
-  const strips = Object.entries(env.pad).filter(([, v]) => v > 0).map(([k, v]) => `${k} ${fmt(v)}`);
+  const strips = Object.entries(env.pad).filter(([, v]) => v > 0).map(([k, v]) => `${t(SIDES[k])} ${fmt(v)}`);
   const rows = [];
-  if (env.drawer) rows.push(["Drawer (inside)", `${fmt(env.width)} × ${fmt(env.depth)} mm`]);
-  rows.push(["Plate", `${fmt(env.W)} × ${fmt(env.D)} × ${fmt(env.H)} mm`]);
-  rows.push(["Grid", `${env.nx} × ${env.ny} cells = ${fmt(env.grid[0])} × ${fmt(env.grid[1])} mm`]);
-  if (env.drawer) rows.push(["Border strips", strips.length ? strips.join(" · ") + " mm" : "none"]);
-  rows.push(["Bottom plate", env.b ? `${fmt(env.b)} mm, closed` : "none, open bottom"]);
-  rows.push(["Magnets", env.magnetCount ? `${env.magnetCount} × 6 × 2 mm` : "none"]);
-  rows.push(["Pieces", env.pieces.length === 1 ? "1" : `${env.pieces.length} (${env.split[0]} × ${env.split[1]}), ${env.unique.length} different`]);
-  if (env.boxUnits !== null) rows.push(["Boxes in the drawer", env.boxUnits >= 1 ? `up to ${env.boxUnits} units (${fmt(7 * env.boxUnits + spec.design.box_top)} mm)` : "drawer too low"]);
+  if (env.drawer) rows.push([t("plate.rowDrawer"), `${fmt(env.width)} × ${fmt(env.depth)} mm`]);
+  rows.push([t("plate.rowPlate"), `${fmt(env.W)} × ${fmt(env.D)} × ${fmt(env.H)} mm`]);
+  rows.push([t("plate.rowGrid"), t("plate.valGrid", { nx: env.nx, ny: env.ny, w: env.grid[0], d: env.grid[1] })]);
+  if (env.drawer) rows.push([t("plate.rowStrips"), strips.length ? strips.join(" · ") + " mm" : t("common.none")]);
+  rows.push([t("plate.rowBottom"), env.b ? t("plate.valBottom", { b: env.b }) : t("plate.valNoBottom")]);
+  rows.push([t("common.magnets"), env.magnetCount ? `${env.magnetCount} × 6 × 2 mm` : t("common.none")]);
+  rows.push([t("plate.rowPieces"), env.pieces.length === 1 ? "1"
+    : t("plate.valPieces", { total: env.pieces.length, cx: env.split[0], cy: env.split[1], n: env.unique.length })]);
+  if (env.boxUnits !== null) rows.push([t("plate.rowBoxes"), env.boxUnits >= 1
+    ? t("plate.valBoxes", { n: env.boxUnits, h: 7 * env.boxUnits + spec.design.box_top }) : t("plate.valTooLow")]);
   $("sheet").replaceChildren(...rows.flatMap(([k, v]) => [el("dt", { textContent: k }), el("dd", { textContent: v })]));
   const bed = spec.bed, chips = [];
-  chips.push(env.pieces.length === 1 ? chip("ok", `Fits a ${bed[0]} × ${bed[1]} bed in one piece`)
-    : chip("signal", `Splits into ${env.pieces.length} pieces of at most ${bed[0]} × ${bed[1]} mm`));
-  if (env.dropped > 0.005) chips.push(chip("signal", `${env.dropped.toFixed(2)} mm left free (too narrow for a strip)`));
-  if (env.boxUnits !== null && env.boxUnits < 1) chips.push(chip("signal", "The drawer is too low for a box"));
+  chips.push(env.pieces.length === 1 ? chip("ok", t("plate.chipOnePiece", { x: bed[0], y: bed[1] }))
+    : chip("signal", t("plate.chipSplit", { n: env.pieces.length, x: bed[0], y: bed[1] })));
+  if (env.dropped > 0.005) chips.push(chip("signal", t("plate.chipDropped", { d: env.dropped })));
+  if (env.boxUnits !== null && env.boxUnits < 1) chips.push(chip("signal", t("plate.chipTooLow")));
   $("chips").replaceChildren(...chips);
-  $("footprint-text").textContent = (env.drawer ? `${env.nx} × ${env.ny} cells in a ${fmt(env.W)} × ${fmt(env.D)} mm plate` : `${env.nx} × ${env.ny} cells of 42 × 42 mm`) +
-    (env.pieces.length > 1 ? `, printed as ${env.pieces.length} pieces.` : ".") + " Front at the bottom.";
+  const many = env.pieces.length > 1, at = { nx: env.nx, ny: env.ny, w: env.W, d: env.D, n: env.pieces.length };
+  $("footprint-text").textContent = env.drawer ? t(many ? "plate.footprintDrawerPieces" : "plate.footprintDrawer", at)
+    : t(many ? "plate.footprintGridPieces" : "plate.footprintGrid", at);
   const current = built && built.tag === tagOf(inputs);
-  $("build").textContent = building ? "Building…" : current ? "Rebuild baseplate" : "Build baseplate";
+  $("build").textContent = building ? t("common.building") : current ? t("plate.rebuild") : t("plate.build");
   renderFiles();
 }
 const chip = (kind, text) => el("span", { className: `chip ${kind}`, textContent: text });
@@ -187,36 +201,38 @@ const pieceFile = (u) => `${fileBase}_${built.tag}${built.env.pieces.length > 1 
 function files() {
   if (!built) return [];
   const { env } = built, many = env.pieces.length > 1, list = [];
-  if (many) list.push({ key: "zip", label: "Print set (.zip)", sub: `${env.unique.length} STL${env.unique.length > 1 ? "s" : ""} and the build sheet`, primary: true, file: `${fileBase}_${built.tag}.zip` });
+  if (many) list.push({ key: "zip", label: t("common.printSet"), sub: t("plate.zipSub", { n: env.unique.length }), primary: true, file: `${fileBase}_${built.tag}.zip` });
   for (const u of env.unique) {
+    const label = !many ? t("plate.filePlate") : u.count > 1 ? t("plate.filePieceCount", { id: u.id, count: u.count }) : t("plate.filePiece", { id: u.id });
     list.push({
-      key: u.id, label: many ? `Piece ${u.id}${u.count > 1 ? ` × ${u.count}` : ""} (.stl)` : "Baseplate (.stl)", primary: !many, file: pieceFile(u),
-      sub: `${fmt(u.w)} × ${fmt(u.d)} × ${fmt(env.H)} mm, ${fmt(built.parts[u.id].volume, 1)} cm³`,
+      key: u.id, label, primary: !many, file: pieceFile(u),
+      sub: t("plate.fileSub", { w: u.w, d: u.d, h: env.H, v: built.parts[u.id].volume }),
     });
   }
-  list.push({ key: "md", label: "Build sheet (.md)", sub: many ? "dimensions, piece layout" : "dimensions, magnets", file: `${fileBase}_${built.tag}_BUILD_SHEET.md` });
+  list.push({ key: "md", label: t("common.buildSheet"), sub: t(many ? "plate.mdSubPieces" : "plate.mdSub"), file: `${fileBase}_${built.tag}_BUILD_SHEET.md` });
   return list;
 }
 function renderFiles() {
   const list = files();
   $("files-for").textContent = built ? `· ${built.tag.split("_")[0].replace(/x/g, " × ").replace("mm", " mm")}` : "";
   $("files").replaceChildren(...list.map((f) => {
-    const btn = el("button", { type: "button", textContent: "Download", disabled: building });
+    const btn = el("button", { type: "button", textContent: t("common.download"), disabled: building });
     btn.addEventListener("click", () => download(f));
     return el("div", { className: `file${f.primary ? " primary" : ""}` }, el("strong", { textContent: f.label }), btn, el("small", { textContent: f.sub }));
   }));
   const stale = built && built.tag !== tagOf(inputs);
-  $("files-note").textContent = !built ? "The files appear once the baseplate is built."
-    : stale ? "These files are for the last build; build again to get the current settings." : "";
+  $("files-note").textContent = !built ? t("plate.empty") : stale ? t("common.stale") : "";
 }
 
+// the build sheet is written at download time, in the page's current language
+const sheet = () => plateBuildSheet(built.env, built.tag, pick(V.title), t);
 function download(f) {
   let data;
   if (f.key === "zip") {
-    const entries = { "BUILD_SHEET.md": new TextEncoder().encode(built.sheet) };
+    const entries = { "BUILD_SHEET.md": new TextEncoder().encode(sheet()) };
     for (const u of built.env.unique) entries[pieceFile(u)] = new Uint8Array(built.parts[u.id].stl);
     data = new Blob([zipSync(entries, { level: 6 })]);
-  } else if (f.key === "md") data = new Blob([built.sheet]);
+  } else if (f.key === "md") data = new Blob([sheet()]);
   else data = new Blob([built.parts[f.key].stl]);
   const a = el("a", { href: URL.createObjectURL(data), download: f.file });
   document.body.append(a);
@@ -288,8 +304,13 @@ function frame(env) {
   camera.position.copy(controls.target).addScaledVector(dir, dist);
   controls.update();
   $("views").hidden = env.pieces.length < 2;
+  showLegend();
+}
+function showLegend() {
+  const env = layoutEnv;
+  if (!env) return;
   $("legend").replaceChildren(...env.unique.map((u, k) =>
-    el("span", { style: `--c:${hex(COLORS[k % COLORS.length])}`, textContent: env.pieces.length > 1 ? `${u.id}${u.count > 1 ? ` × ${u.count}` : ""}` : "Baseplate" })));
+    el("span", { style: `--c:${hex(COLORS[k % COLORS.length])}`, textContent: env.pieces.length > 1 ? `${u.id}${u.count > 1 ? ` × ${u.count}` : ""}` : t("plate.legendPlate") })));
 }
 for (const [id, value] of [["view-closed", false], ["view-open", true]]) {
   $(id).addEventListener("click", () => {
@@ -310,7 +331,15 @@ resize();
 renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
 
 // ---------- build ----------
-const status = (text, kind = "") => { const s = $("status"); s.textContent = text; s.className = `status ${kind}`; };
+// status line as [key, vars, kind], so a language switch can show it again; function vars are evaluated when shown
+let shown = null;
+const status = (key, vars = {}, kind = "") => { shown = [key, vars, kind]; showStatus(); };
+function showStatus() {
+  const [key, vars, kind] = shown, s = $("status");
+  s.textContent = t(key, Object.fromEntries(Object.entries(vars).map(([k, v]) => [k, typeof v === "function" ? v() : v])));
+  s.className = `status ${kind}`;
+}
+const workerError = (msg) => () => (msg.code === "kernel" ? t("common.kernelError", { status: msg.status }) : msg.message);
 let worker = null, pending = null, t0 = 0, kernelReady = false, firstBuild = true, queued = false;
 
 // OpenCascade's WASM heap only grows, so every build gets a fresh worker (the kernel comes from the browser cache)
@@ -321,7 +350,7 @@ function startWorker() {
   worker.onerror = (e) => {
     building = false;
     $("build").disabled = false;
-    status(`The geometry worker stopped: ${e.message || "unknown error"}`, "err");
+    status("common.workerStopped", { error: () => e.message || t("common.unknownError") }, "err");
     render();
   };
 }
@@ -338,21 +367,22 @@ function onWorkerMessage({ data: msg }) {
       build();
     }
   } else if (msg.type === "progress") {
-    status(msg.total > 1 ? `Building piece ${msg.id} (${msg.index + 1} of ${msg.total})…` : "Building the baseplate…", "busy");
+    if (msg.total > 1) status("plate.buildingPiece", { id: msg.id, i: msg.index + 1, n: msg.total }, "busy");
+    else status("plate.buildingPlate", {}, "busy");
   } else if (msg.type === "part") {
     pending.parts[msg.id] = { stl: msg.stl, volume: msg.volume };
     setPart(msg.id, msg, pending.env);
   } else if (msg.type === "done") {
-    built = { ...pending, sheet: plateBuildSheet(pending.env, pending.tag, V.title) };
+    built = { ...pending };
     building = false;
     $("build").disabled = false;
-    status(`Built ${pending.env.nx} × ${pending.env.ny} cells in ${((performance.now() - t0) / 1000).toFixed(1)} s`);
+    status("plate.built", { nx: pending.env.nx, ny: pending.env.ny, s: (performance.now() - t0) / 1000 });
     render();
     recycleWorker();
   } else if (msg.type === "error") {
     building = false;
     $("build").disabled = false;
-    status(`Build failed: ${msg.message}`, "err");
+    status("common.failed", { error: workerError(msg) }, "err");
     render();
     recycleWorker();
   }
@@ -362,7 +392,7 @@ function build() {
   if (building) return;
   if (!kernelReady) {
     queued = true;
-    status("Loading the geometry kernel…", "busy");
+    status("common.kernel", {}, "busy");
     return;
   }
   building = true;
@@ -373,11 +403,20 @@ function build() {
   layoutEnv = env;
   clearParts();
   frame(env);
-  status("Starting…", "busy");
+  status("common.starting", {}, "busy");
   render();
   worker.postMessage({ type: "build", inputs: { ...inputs, variant } });
 }
 $("build").addEventListener("click", build);
+const relabel = () => { applyDom(t); labelPage(); labelParams(); };
+relabel();
+mountLangSwitch();
+document.addEventListener("langchange", () => {
+  relabel();
+  render();
+  showLegend();
+  showStatus();
+});
 render();
-status("Loading the geometry kernel (about 7 MB)…", "busy");
+status("common.kernelFirst", {}, "busy");
 startWorker();

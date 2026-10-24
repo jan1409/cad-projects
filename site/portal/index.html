@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Parametric Models</title>
+<title data-i18n="portal.title">Parametric Models</title>
 <!--site:icon-->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
@@ -46,7 +46,12 @@ body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.5 va
 }
 .label { font: 600 .8rem/1.2 var(--display); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
 header { display: flex; flex-direction: column; gap: 8px; }
-h1 { font: 700 2.6rem/1 var(--display); letter-spacing: .01em; text-transform: uppercase; margin: 0; text-wrap: balance; }
+h1 { font: 700 2.6rem/1 var(--display); letter-spacing: .01em; text-transform: uppercase; margin: 0; text-wrap: balance; hyphens: auto; }
+.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.lang { display: inline-flex; flex: none; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--panel); }
+.lang button { border: 0; background: none; color: var(--muted); padding: 3px 9px; font: 600 .78rem var(--body); letter-spacing: .04em; cursor: pointer; }
+.lang button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.lang button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 .lede { margin: 0; color: var(--muted); max-width: 60ch; }
 .models { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 20px; }
 .card {
@@ -63,7 +68,7 @@ h1 { font: 700 2.6rem/1 var(--display); letter-spacing: .01em; text-transform: u
 }
 .plate img { display: block; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 10px 14px rgb(0 0 0 / .18)); }
 .card-body { display: flex; flex-direction: column; gap: 10px; padding: 16px 18px 18px; flex: 1; }
-.card h2 { font: 700 1.5rem/1.05 var(--display); text-transform: uppercase; letter-spacing: .01em; margin: 0; text-wrap: balance; }
+.card h2 { font: 700 1.5rem/1.05 var(--display); text-transform: uppercase; letter-spacing: .01em; margin: 0; text-wrap: balance; hyphens: auto; }
 .card p { margin: 0; color: var(--muted); }
 .facts { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; font: 400 .85rem/1.4 var(--mono); }
 .facts li { display: flex; gap: 8px; }
@@ -93,21 +98,21 @@ footer { display: flex; flex-direction: column; gap: 12px; border-top: 1px solid
 <body>
 <div class="wrap">
   <header>
-    <div class="label">CAD projects · print generators</div>
-    <h1>Parametric models</h1>
-    <p class="lede">Pick a model, set its size and download print-ready files. Every part is built in your browser with the OpenCascade kernel; nothing is uploaded.</p>
+    <div class="top"><div class="label" data-i18n="portal.kicker">CAD projects · print generators</div><div class="lang" data-lang-switch></div></div>
+    <h1 data-i18n="portal.heading">Parametric models</h1>
+    <p class="lede" data-i18n="portal.lede">Pick a model, set its size and download print-ready files. Every part is built in your browser with the OpenCascade kernel; nothing is uploaded.</p>
   </header>
 
-  <main class="models" id="models" aria-label="Models">
-    <p class="empty">Loading models…</p>
+  <main class="models" id="models" aria-label="Models" data-i18n-attr="aria-label:portal.models">
+    <p class="empty" data-i18n="portal.loading">Loading models…</p>
   </main>
 
   <footer>
     <div class="site">
-      <div class="facts-row" id="site-facts"><span>Site version <b id="site-version">…</b></span></div>
+      <div class="facts-row" id="site-facts"><span><span data-i18n="portal.siteVersion">Site version</span> <b id="site-version">…</b></span></div>
       <div class="update" id="update" hidden>
         <span class="msg" id="update-msg" role="status" aria-live="polite"></span>
-        <button class="check" id="check" type="button">Check for updates</button>
+        <button class="check" id="check" type="button" data-i18n="update.check">Check for updates</button>
       </div>
     </div>
   </footer>

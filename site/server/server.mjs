@@ -345,15 +345,32 @@ function sendText(res, code, text, type = "text/plain; charset=utf-8", extra = {
 }
 
 const escape = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-function waitingPage() {
-  const s = status();
-  const line = s.lastError ? `Last attempt failed: ${s.lastError}` : s.checking || !s.lastCheck ? "Downloading the latest release…" : "Waiting for the next attempt.";
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="10"><title>Installing site</title>
+// the image holds only this file, so the waiting page carries its own texts (the site's are in shared/i18n.js and strings.js)
+const WAITING = {
+  en: { title: "Installing site", heading: "The site is being installed", failed: "Last attempt failed: ", downloading: "Downloading the latest release…",
+    waiting: "Waiting for the next attempt.", repo: "Repository", reload: "This page reloads every 10 seconds." },
+  de: { title: "Website wird installiert", heading: "Die Website wird installiert", failed: "Letzter Versuch fehlgeschlagen: ",
+    downloading: "Das neueste Release wird heruntergeladen…", waiting: "Warte auf den nächsten Versuch.", repo: "Repository",
+    reload: "Diese Seite lädt alle 10 Sekunden neu." },
+};
+// first supported language of an Accept-Language header ("de-DE,de;q=0.9,en;q=0.8"), by quality; English otherwise
+export function acceptLanguage(header = "") {
+  const tags = String(header).split(",").map((part, i) => {
+    const [tag, ...params] = part.trim().toLowerCase().split(";");
+    const q = Number(params.map((p) => p.trim()).find((p) => p.startsWith("q="))?.slice(2) ?? 1);
+    return { base: tag.split("-")[0], q: Number.isFinite(q) ? q : 0, i };
+  }).filter((t) => t.q > 0 && t.base in WAITING).sort((a, b) => b.q - a.q || a.i - b.i);
+  return tags[0]?.base ?? "en";
+}
+function waitingPage(req) {
+  const s = status(), lang = acceptLanguage(req.headers["accept-language"]), w = WAITING[lang];
+  const line = s.lastError ? `${w.failed}${s.lastError}` : s.checking || !s.lastCheck ? w.downloading : w.waiting;
+  return `<!doctype html><html lang="${lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="refresh" content="10"><title>${w.title}</title>
 <style>body{margin:0;padding:48px max(16px,env(safe-area-inset-left,0px));font:16px/1.5 system-ui,sans-serif;background:#eef1f3;color:#17202a}
 @media (prefers-color-scheme:dark){body{background:#101418;color:#e3e8ee}}code{font-family:ui-monospace,Consolas,monospace}</style></head>
-<body><h1>The site is being installed</h1><p>${escape(line)}</p><p>Repository <code>${escape(CONFIG.repo || "(GITHUB_REPO not set)")}</code>.
-This page reloads every 10 seconds.</p></body></html>`;
+<body><h1>${w.heading}</h1><p>${escape(line)}</p><p>${w.repo} <code>${escape(CONFIG.repo || "(GITHUB_REPO not set)")}</code>.
+${w.reload}</p></body></html>`;
 }
 
 async function api(req, res, pathname) {
@@ -371,7 +388,7 @@ async function handle(req, res) {
   const url = new URL(req.url, "http://localhost");
   if (url.pathname.startsWith("/api/")) return api(req, res, url.pathname);
   if (req.method !== "GET" && req.method !== "HEAD") return sendText(res, 405, "Method not allowed", undefined, { Allow: "GET, HEAD" });
-  if (!state.root) return sendText(res, 503, waitingPage(), "text/html; charset=utf-8", { "Retry-After": "10" });
+  if (!state.root) return sendText(res, 503, waitingPage(req), "text/html; charset=utf-8", { "Retry-After": "10", Vary: "Accept-Language" });
 
   let rel;
   try { rel = decodeURIComponent(url.pathname); } catch { return sendText(res, 400, "Bad request"); }

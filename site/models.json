@@ -1,76 +1,91 @@
 [
   {
     "id": "gridfinity-rugged-case",
-    "title": "Gridfinity Rugged Case",
-    "summary": "Sealed, latching case whose floor is a Gridfinity baseplate, with a plexiglass window in the lid. Prints as base, lid, two latches and a TPU seal.",
+    "title": { "en": "Gridfinity Rugged Case", "de": "Gridfinity Rugged Case" },
+    "summary": {
+      "en": "Sealed, latching case whose floor is a Gridfinity baseplate, with a plexiglass window in the lid. Prints as base, lid, two latches and a TPU seal.",
+      "de": "Dichter Koffer mit Verschlüssen, dessen Boden eine Gridfinity-Baseplate ist, mit Plexiglasfenster im Deckel. Gedruckt werden Unterteil, Deckel, zwei Verschlüsse und eine TPU-Dichtung."
+    },
     "app": "../Gridfinity/web/app",
     "modules": "../Gridfinity/web/src",
     "spec": "../Gridfinity/spec/case_params.json",
     "image": "../Gridfinity/web/app/card.png",
     "facts": [
-      "{x_count.min}–{x_count.max} × {y_count.min}–{y_count.max} cells of 42 mm",
-      "{z_count.min}–{z_count.max} height units of 7 mm",
-      "STL print set, window SVG, build sheet"
+      { "en": "{x_count.min}–{x_count.max} × {y_count.min}–{y_count.max} cells of 42 mm", "de": "{x_count.min}–{x_count.max} × {y_count.min}–{y_count.max} Zellen à 42 mm" },
+      { "en": "{z_count.min}–{z_count.max} height units of 7 mm", "de": "{z_count.min}–{z_count.max} Höheneinheiten à 7 mm" },
+      { "en": "STL print set, window SVG, build sheet", "de": "STL-Druckset, Fenster-SVG, Bauanleitung" }
     ]
   },
   {
     "id": "gridfinity-standard-box",
-    "title": "Gridfinity Standard Box",
-    "summary": "Plain Gridfinity box to the official dimensions: stacking lip, magnet holes and 7 mm height units. Shows which Rugged Case it fits.",
+    "title": { "en": "Gridfinity Standard Box", "de": "Gridfinity Standard-Box" },
+    "summary": {
+      "en": "Plain Gridfinity box to the official dimensions: stacking lip, magnet holes and 7 mm height units. Shows which Rugged Case it fits.",
+      "de": "Schlichte Gridfinity-Box nach den offiziellen Maßen: Stapelrand, Magnetlöcher und Höheneinheiten von 7 mm. Zeigt, in welches Rugged Case sie passt."
+    },
     "variant": "standard",
     "app": "../Gridfinity/web/bin",
     "modules": "../Gridfinity/web/src",
     "spec": "../Gridfinity/spec/bin_params.json",
     "image": "../Gridfinity/web/bin/card_standard.png",
     "facts": [
-      "{x_count.min}–{x_count.max} × {y_count.min}–{y_count.max} cells of 42 mm",
-      "{z_count.min}–{z_count.max} height units of 7 mm",
-      "STL, build sheet"
+      { "en": "{x_count.min}–{x_count.max} × {y_count.min}–{y_count.max} cells of 42 mm", "de": "{x_count.min}–{x_count.max} × {y_count.min}–{y_count.max} Zellen à 42 mm" },
+      { "en": "{z_count.min}–{z_count.max} height units of 7 mm", "de": "{z_count.min}–{z_count.max} Höheneinheiten à 7 mm" },
+      { "en": "STL, build sheet", "de": "STL, Bauanleitung" }
     ]
   },
   {
     "id": "gridfinity-label-box",
-    "title": "Gridfinity Box with Label",
-    "summary": "Gridfinity box with a label ledge on the back wall, a separate label plate for UV printing, and a scoop at the front.",
+    "title": { "en": "Gridfinity Box with Label", "de": "Gridfinity Box mit Beschriftung" },
+    "summary": {
+      "en": "Gridfinity box with a label ledge on the back wall, a separate label plate for UV printing, and a scoop at the front.",
+      "de": "Gridfinity-Box mit Beschriftungsleiste an der Rückwand, separatem Beschriftungsschild für den UV-Druck und Griffmulde vorne."
+    },
     "variant": "label",
     "app": "../Gridfinity/web/bin",
     "modules": "../Gridfinity/web/src",
     "spec": "../Gridfinity/spec/bin_params.json",
     "image": "../Gridfinity/web/bin/card_label.png",
     "facts": [
-      "{x_count.min}–{x_count.max} × {y_count.min}–{y_count.max} cells of 42 mm",
-      "{z_count.min}–{z_count.max} height units of 7 mm",
-      "Box and label plate as STL, build sheet"
+      { "en": "{x_count.min}–{x_count.max} × {y_count.min}–{y_count.max} cells of 42 mm", "de": "{x_count.min}–{x_count.max} × {y_count.min}–{y_count.max} Zellen à 42 mm" },
+      { "en": "{z_count.min}–{z_count.max} height units of 7 mm", "de": "{z_count.min}–{z_count.max} Höheneinheiten à 7 mm" },
+      { "en": "Box and label plate as STL, build sheet", "de": "Box und Beschriftungsschild als STL, Bauanleitung" }
     ]
   },
   {
     "id": "gridfinity-baseplate",
-    "title": "Gridfinity Baseplate",
-    "summary": "Gridfinity baseplate to the official profile, sized in cells, with an optional solid bottom plate and magnet holes. Large plates are split into printable pieces.",
+    "title": { "en": "Gridfinity Baseplate", "de": "Gridfinity Baseplate" },
+    "summary": {
+      "en": "Gridfinity baseplate to the official profile, sized in cells, with an optional solid bottom plate and magnet holes. Large plates are split into printable pieces.",
+      "de": "Gridfinity-Baseplate nach dem offiziellen Profil, in Zellen bemessen, wahlweise mit geschlossener Bodenplatte und Magnetlöchern. Große Platten werden in druckbare Teile zerlegt."
+    },
     "variant": "grid",
     "app": "../Gridfinity/web/baseplate",
     "modules": "../Gridfinity/web/src",
     "spec": "../Gridfinity/spec/baseplate_params.json",
     "image": "../Gridfinity/web/baseplate/card_grid.png",
     "facts": [
-      "{x_count.min}–{x_count.max} × {y_count.min}–{y_count.max} cells of 42 mm",
-      "Optional bottom plate {bottom_h.min}–{bottom_h.max} mm",
-      "STL per piece, build sheet"
+      { "en": "{x_count.min}–{x_count.max} × {y_count.min}–{y_count.max} cells of 42 mm", "de": "{x_count.min}–{x_count.max} × {y_count.min}–{y_count.max} Zellen à 42 mm" },
+      { "en": "Optional bottom plate {bottom_h.min}–{bottom_h.max} mm", "de": "Bodenplatte optional, {bottom_h.min}–{bottom_h.max} mm" },
+      { "en": "STL per piece, build sheet", "de": "STL pro Teil, Bauanleitung" }
     ]
   },
   {
     "id": "gridfinity-drawer-baseplate",
-    "title": "Gridfinity Drawer Baseplate",
-    "summary": "Enter the inside of a drawer: fits as many Gridfinity cells as possible and fills the rest with a flat border on the sides you choose, so the plate sits without play.",
+    "title": { "en": "Gridfinity Drawer Baseplate", "de": "Gridfinity Schubladen-Baseplate" },
+    "summary": {
+      "en": "Enter the inside of a drawer: fits as many Gridfinity cells as possible and fills the rest with a flat border on the sides you choose, so the plate sits without play.",
+      "de": "Gib die Innenmaße einer Schublade ein: Es passen so viele Gridfinity-Zellen wie möglich hinein, und der Rest wird auf den gewählten Seiten mit einem flachen Rand gefüllt, sodass die Platte ohne Spiel sitzt."
+    },
     "variant": "drawer",
     "app": "../Gridfinity/web/baseplate",
     "modules": "../Gridfinity/web/src",
     "spec": "../Gridfinity/spec/baseplate_params.json",
     "image": "../Gridfinity/web/baseplate/card_drawer.png",
     "facts": [
-      "Drawers {width.min}–{width.max} mm",
-      "Optional bottom plate {bottom_h.min}–{bottom_h.max} mm",
-      "Split into pieces of at most 360 mm"
+      { "en": "Drawers {width.min}–{width.max} mm", "de": "Schubladen {width.min}–{width.max} mm" },
+      { "en": "Optional bottom plate {bottom_h.min}–{bottom_h.max} mm", "de": "Bodenplatte optional, {bottom_h.min}–{bottom_h.max} mm" },
+      { "en": "Split into pieces of at most 360 mm", "de": "In Teile von höchstens 360 mm zerlegt" }
     ]
   }
 ]

@@ -40,7 +40,11 @@ body { background: var(--paper); color: var(--ink); font: 15px/1.5 var(--body); 
   padding-block: 20px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
 .spec { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
-h1 { font: 700 2.1rem/1 var(--display); letter-spacing: .01em; text-transform: uppercase; margin: 0; text-wrap: balance; }
+h1 { font: 700 2.1rem/1 var(--display); letter-spacing: .01em; text-transform: uppercase; margin: 0; text-wrap: balance; hyphens: auto; }
+.title-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.lang { display: inline-flex; flex: none; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--panel); }
+.lang button { border: 0; background: none; color: var(--muted); padding: 3px 9px; font: 600 .78rem var(--body); letter-spacing: .04em; cursor: pointer; }
+.lang button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
 .lede { margin: 6px 0 0; color: var(--muted); max-width: 42ch; }
 .site-nav { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; font-size: .85rem; color: var(--muted); }
 .site-nav a { color: var(--accent); font-weight: 600; text-decoration: none; }
@@ -117,7 +121,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
   <aside class="spec">
     <header>
       <!--site:nav-->
-      <h1 id="title">Gridfinity Baseplate</h1>
+      <div class="title-row"><h1 id="title">Gridfinity Baseplate</h1><div class="lang" data-lang-switch></div></div>
       <p class="lede" id="lede">A Gridfinity baseplate built to the official dimensions. Set its size, build it, and download the print files.</p>
     </header>
 
@@ -130,25 +134,25 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
     </section>
 
     <section aria-labelledby="data-h">
-      <div class="label" id="data-h">Datasheet</div>
+      <div class="label" id="data-h" data-i18n="common.datasheet">Datasheet</div>
       <dl class="sheet" id="sheet"></dl>
       <div class="chips" id="chips"></div>
     </section>
 
     <section aria-labelledby="files-h">
-      <div class="label" id="files-h">Print files <span id="files-for"></span></div>
+      <div class="label" id="files-h"><span data-i18n="common.printFiles">Print files</span> <span id="files-for"></span></div>
       <div class="files" id="files"></div>
       <p class="note" id="files-note"></p>
     </section>
   </aside>
 
-  <main class="stage" aria-label="3-D preview">
+  <main class="stage" aria-label="3-D preview" data-i18n-attr="aria-label:common.preview3d">
     <canvas class="view" id="view"></canvas>
     <div class="hud">
       <span class="status" id="status" role="status" aria-live="polite">Loading the geometry kernel…</span>
-      <div class="views" role="group" aria-label="Preview" id="views" hidden>
-        <button type="button" id="view-closed" aria-pressed="true">Assembled</button>
-        <button type="button" id="view-open" aria-pressed="false">Spread</button>
+      <div class="views" role="group" aria-label="Preview" data-i18n-attr="aria-label:common.previewMode" id="views" hidden>
+        <button type="button" id="view-closed" aria-pressed="true" data-i18n="common.assembled">Assembled</button>
+        <button type="button" id="view-open" aria-pressed="false" data-i18n="plate.spread">Spread</button>
       </div>
     </div>
     <div class="legend" aria-hidden="true" id="legend">

@@ -143,22 +143,22 @@ export function plateToPrint(shape, env) {
   return shape.clone().translate(0, 0, -(env.T - env.plate[2]));
 }
 
-export function binBuildSheet(env, tag, title, rugged) {
-  const f = (v) => v.toFixed(1);
+// title: the model title in the sheet's language; rugged: the translated Rugged Case fit; t: translator of src/strings.js
+export function binBuildSheet(env, tag, title, rugged, t) {
   const lines = [
     `# ${title} ${tag}`,
     "",
-    `- Outside: ${f(env.W)} × ${f(env.D)} × ${f(env.top)} mm (wall top at ${f(env.T)} mm, stacking lip above it)`,
-    `- Inside: ${f(env.inner[0])} × ${f(env.inner[1])} mm at the floor, ${f(env.depth)} mm deep; opening under the lip ${f(env.opening[0])} × ${f(env.opening[1])} mm`,
-    `- Grid: ${env.x_count} × ${env.y_count} cells of 42 mm, ${env.z_count} height units of 7 mm (official Gridfinity dimensions)`,
-    env.magnets ? `- Magnet holes: ${env.x_count * env.y_count * 4} × Ø6.5 × 2.4 mm for 6 × 2 mm magnets (press or glue in)` : "- No magnet holes",
-    env.label ? `- Label plate: ${f(env.plate[0])} × ${f(env.plate[1])} × ${env.plate[2].toFixed(2)} mm, printed flat; lies in the pocket behind the lip` : null,
-    rugged ? `- Rugged Case: ${rugged}` : null,
+    `- ${t("sheet.boxOutside", { w: env.W, d: env.D, top: env.top, wall: env.T })}`,
+    `- ${t("sheet.boxInside", { iw: env.inner[0], id: env.inner[1], depth: env.depth, ow: env.opening[0], od: env.opening[1] })}`,
+    `- ${t("sheet.boxGrid", { x: env.x_count, y: env.y_count, z: env.z_count })}`,
+    `- ${env.magnets ? t("sheet.magnets", { n: env.x_count * env.y_count * 4 }) : t("sheet.noMagnets")}`,
+    env.label ? `- ${t("sheet.boxPlate", { a: env.plate[0], b: env.plate[1], c: env.plate[2] })}` : null,
+    rugged ? `- ${t("sheet.boxRugged", { fit: rugged })}` : null,
     "",
-    "## Printing",
+    `## ${t("sheet.printing")}`,
     "",
-    "- Box: as exported, feet down, no supports.",
-    env.label ? "- Label plate: flat on the bed; UV-print or label the top face." : null,
+    `- ${t("sheet.boxPrintBox")}`,
+    env.label ? `- ${t("sheet.boxPrintPlate")}` : null,
   ];
   return lines.filter((l) => l !== null).join("\n") + "\n";
 }

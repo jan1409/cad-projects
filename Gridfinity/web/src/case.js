@@ -248,10 +248,10 @@ export function makeCase(R, spec, inputs) {
 
 // Print orientation (same as Gridfinity/fusion/print_export.py): rotation [axis, deg] then drop onto z = 0, centred.
 export const PRINT = {
-  Base: { file: "Base", qty: 1, rot: null, note: "feet down, no supports" },
-  Lid: { file: "Lid", qty: 1, rot: [[1, 0, 0], 180], note: "upside down (top on the bed); pause for the window" },
-  Latch: { file: "Latch_x2", qty: 2, rot: [[0, 1, 0], 90], note: "on its side, holes vertical" },
-  Seal: { file: "Seal_TPU", qty: 1, rot: null, note: "flat, TPU" },
+  Base: { file: "Base", qty: 1, rot: null, note: "sheet.caseBase" },
+  Lid: { file: "Lid", qty: 1, rot: [[1, 0, 0], 180], note: "sheet.caseLid" },
+  Latch: { file: "Latch_x2", qty: 2, rot: [[0, 1, 0], 90], note: "sheet.caseLatch" },
+  Seal: { file: "Seal_TPU", qty: 1, rot: null, note: "sheet.caseSeal" },
 };
 
 export function toPrint(shape, part) {
@@ -262,7 +262,8 @@ export function toPrint(shape, part) {
   return s.translate([-(x0 + x1) / 2, -(y0 + y1) / 2, -z0]);
 }
 
-export function windowSVG(env) {
+// t: translator of src/strings.js (site/shared/i18n.js) in the language of the page
+export function windowSVG(env, t) {
   const w = env.Li - 4, h = env.Wi - 4, r = 0.2, m = 1;
   const x0 = m, y0 = m, x1 = m + w, y1 = m + h, f = (v) => v.toFixed(3);
   const d = `M ${f(x0 + r)} ${f(y0)} H ${f(x1 - r)} A ${r} ${r} 0 0 1 ${f(x1)} ${f(y0 + r)} V ${f(y1 - r)} ` +
@@ -270,29 +271,28 @@ export function windowSVG(env) {
     `A ${r} ${r} 0 0 1 ${f(x0 + r)} ${f(y0)} Z`;
   const W = w + 2 * m, H = h + 2 * m;
   return `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="${f(W)}mm" height="${f(H)}mm" viewBox="0 0 ${f(W)} ${f(H)}">\n` +
-    `  <title>Gridfinity Rugged Case window ${w.toFixed(1)} x ${h.toFixed(1)} mm, r ${r}</title>\n` +
+    `  <title>${t("sheet.caseSvgTitle", { w, h, r })}</title>\n` +
     `  <path d="${d}" fill="none" stroke="#ff0000" stroke-width="0.1"/>\n</svg>\n`;
 }
 
-export function buildSheet(env, tag, sizes) {
-  const pause = 1.2 + env.window_t + env.window_gap;
+export function buildSheet(env, tag, sizes, t) {
+  const pause = 1.2 + env.window_t + env.window_gap, f = (v, d = 1) => t.num(v, d);
   const rows = Object.entries(PRINT).map(([part, p]) => {
     const s = sizes[part];
-    return `| Gridfinity_Rugged_Case_${tag}_${p.file}.stl | ${p.qty} | ${s.map((v) => v.toFixed(1)).join(" x ")} | ${p.note} |`;
+    return `| Gridfinity_Rugged_Case_${tag}_${p.file}.stl | ${p.qty} | ${s.map((v) => f(v)).join(" x ")} | ${t(p.note)} |`;
   });
   return [
-    `# Gridfinity Rugged Case ${tag} - build sheet`, "",
-    `Inner space ${env.Li} x ${env.Wi} mm (${env.x_count} x ${env.y_count} Gridfinity cells), ${env.z_count} height units. ` +
-    `Outside ${(env.Li + 8.52).toFixed(1)} x ${(env.Wi + 22.52).toFixed(1)} mm.`, "",
-    "| File | Qty | Size mm (print orientation) | Orientation |", "|---|---|---|---|", ...rows,
-    `| Gridfinity_Rugged_Case_${tag}_Window_${env.window_t.toFixed(2)}mm.svg | 1 | ${(env.Li - 4).toFixed(1)} x ${(env.Wi - 4).toFixed(1)} x ${env.window_t.toFixed(2)} | laser-cut plexiglass, cut on the red line |`,
-    "", "## Window insert (print pause)",
-    `The lid prints upside down. Add a pause (M601 / 'Add pause' in PrusaSlicer) before the first layer that starts at or above **${pause.toFixed(2)} mm**,`,
-    `i.e. when the top ribs and the open window pocket (${(env.window_t + env.window_gap).toFixed(2)} mm deep = ${env.window_t.toFixed(2)} plexiglass + ${env.window_gap.toFixed(2)} gap) are finished.`,
-    `Drop the plexiglass in (protective film off) and resume: the next layers bridge ${env.window_gap.toFixed(2)} mm above it and lock it in.`,
-    "", "## Hardware",
-    "- 6 x M3 x 30 screws: 2 hinge pins (back), 2 latch pivots (lid, front), 2 latch catches (base, front).",
-    "  The screw goes in through the 3.4 mm hole at the case end and threads into the 2.85 mm hole towards the centre.",
-    "- Seal in TPU, pressed into the groove on the base rim.", "",
+    `# ${t("sheet.caseTitle", { tag })}`, "",
+    t("sheet.caseIntro", { li: env.Li, wi: env.Wi, x: env.x_count, y: env.y_count, z: env.z_count, ox: env.Li + 8.52, oy: env.Wi + 22.52 }), "",
+    t("sheet.caseTable"), "|---|---|---|---|", ...rows,
+    `| Gridfinity_Rugged_Case_${tag}_Window_${env.window_t.toFixed(2)}mm.svg | 1 | ${f(env.Li - 4)} x ${f(env.Wi - 4)} x ${f(env.window_t, 2)} | ${t("sheet.caseWindow")} |`,
+    "", `## ${t("sheet.casePauseHead")}`,
+    t("sheet.casePause1", { z: pause }),
+    t("sheet.casePause2", { d: env.window_t + env.window_gap, wt: env.window_t, gap: env.window_gap }),
+    t("sheet.casePause3", { gap: env.window_gap }),
+    "", `## ${t("sheet.caseHardwareHead")}`,
+    `- ${t("sheet.caseScrews")}`,
+    `  ${t("sheet.caseScrewHoles")}`,
+    `- ${t("sheet.caseSeal2")}`, "",
   ].join("\n");
 }

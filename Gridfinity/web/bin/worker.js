@@ -6,10 +6,12 @@ import * as R from "./vendor/replicad.js";
 import { makeBin, plateToPrint } from "./src/bin.js";
 
 const post = (msg, transfer = []) => self.postMessage(msg, transfer);
+// code "kernel" lets the page say it in its language; other errors come from OpenCascade and pass through as text
+const fail = (err) => post({ type: "error", message: String(err?.message ?? err), code: err?.code, status: err?.status });
 
 async function loadKernel() {
   const res = await fetch(new URL("./vendor/opencascade-gz.wasm", import.meta.url));
-  if (!res.ok) throw new Error(`could not load the geometry kernel (${res.status})`);
+  if (!res.ok) throw Object.assign(new Error(`could not load the geometry kernel (${res.status})`), { code: "kernel", status: res.status });
   let buf = await res.arrayBuffer();
   const head = new Uint8Array(buf, 0, 2);
   if (head[0] === 0x1f && head[1] === 0x8b) { // still gzipped (a server may already have decoded it)
@@ -19,7 +21,7 @@ async function loadKernel() {
   return (await fetch(new URL("./bin_params.json", import.meta.url))).json();
 }
 const ready = loadKernel();
-ready.then(() => post({ type: "ready" }), (err) => post({ type: "error", message: String(err.message ?? err) }));
+ready.then(() => post({ type: "ready" }), fail);
 
 const STL = { tolerance: 0.01, angularTolerance: 0.1, binary: true };
 
@@ -44,6 +46,6 @@ self.onmessage = async ({ data }) => {
     }
     post({ type: "done" });
   } catch (err) {
-    post({ type: "error", message: String(err?.message ?? err) });
+    fail(err);
   }
 };

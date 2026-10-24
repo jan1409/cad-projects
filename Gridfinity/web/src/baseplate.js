@@ -133,30 +133,37 @@ export function makePiece(R, spec, env, u) {
   return body;
 }
 
-export function plateBuildSheet(env, tag, title) {
-  const f = (v) => v.toFixed(1);
-  const sides = Object.entries(env.pad).filter(([, v]) => v > 0).map(([k, v]) => `${k} ${f(v)}`);
+// border sides as literal keys of src/strings.js (they translate the names of env.pad)
+export const SIDES = { left: "plate.left", right: "plate.right", front: "plate.front", back: "plate.back" };
+
+// title: the model title in the sheet's language; t: translator of src/strings.js (site/shared/i18n.js)
+export function plateBuildSheet(env, tag, title, t) {
+  const sides = Object.entries(env.pad).filter(([, v]) => v > 0).map(([k, v]) => `${t(SIDES[k])} ${t.num(v, 1)}`);
+  const list = sides.join(", ") || t("common.none"), boxUnits = Math.max(0, env.boxUnits ?? 0);
   const lines = [
     `# ${title} ${tag}`,
     "",
-    env.drawer ? `- Drawer (inside): ${f(env.width)} × ${f(env.depth)} mm; ${f(env.clearance)} mm clearance per side` : null,
-    `- Plate: ${f(env.W)} × ${f(env.D)} × ${f(env.H)} mm (${env.b ? `${f(env.b)} mm bottom plate + ` : ""}5 mm grid)`,
-    `- Grid: ${env.nx} × ${env.ny} cells of 42 mm = ${f(env.grid[0])} × ${f(env.grid[1])} mm (official Gridfinity baseplate profile)`,
-    env.drawer ? `- Border strips (mm): ${sides.join(", ") || "none"}${env.dropped > 0.005 ? `; ${env.dropped.toFixed(2)} mm too narrow for a strip left free` : ""}` : null,
-    env.magnetCount ? `- Magnet holes: ${env.magnetCount} × Ø6.5 × 2.4 mm for 6 × 2 mm magnets (press or glue in)` : env.b ? "- No magnet holes" : "- Open bottom: the boxes stand on the drawer floor",
-    env.boxUnits !== null ? `- Drawer height ${f(env.drawer_h)} mm: boxes up to ${Math.max(0, env.boxUnits)} units (${f(7 * Math.max(0, env.boxUnits) + 3.55)} mm with the stacking lip)` : null,
+    env.drawer ? `- ${t("sheet.plateDrawer", { w: env.width, d: env.depth, c: env.clearance })}` : null,
+    `- ${env.b ? t("sheet.platePlateBottom", { w: env.W, d: env.D, h: env.H, b: env.b }) : t("sheet.platePlate", { w: env.W, d: env.D, h: env.H })}`,
+    `- ${t("sheet.plateGrid", { nx: env.nx, ny: env.ny, w: env.grid[0], d: env.grid[1] })}`,
+    env.drawer ? `- ${env.dropped > 0.005 ? t("sheet.plateStripsDropped", { list, d: env.dropped }) : t("sheet.plateStrips", { list })}` : null,
+    `- ${env.magnetCount ? t("sheet.magnets", { n: env.magnetCount }) : env.b ? t("sheet.noMagnets") : t("sheet.plateOpen")}`,
+    env.boxUnits !== null ? `- ${t("sheet.plateDrawerH", { h: env.drawer_h, n: boxUnits, bh: 7 * boxUnits + 3.55 })}` : null,
     "",
-    "## Pieces",
+    `## ${t("sheet.platePiecesHead")}`,
     "",
-    env.pieces.length === 1 ? "One piece; it fits the bed." : `${env.pieces.length} pieces, split along cell lines; they lie side by side in the drawer (seen from above, front at the bottom):`,
+    env.pieces.length === 1 ? t("sheet.plateOnePiece") : t("sheet.plateManyPieces", { n: env.pieces.length }),
     "",
-    ...env.unique.map((u) => `- ${u.id}${u.count > 1 ? ` × ${u.count}` : ""}: ${f(u.w)} × ${f(u.d)} mm, ${u.desc[0]} × ${u.desc[1]} cells`),
+    ...env.unique.map((u) => {
+      const v = { id: u.id, count: u.count, w: u.w, d: u.d, cx: u.desc[0], cy: u.desc[1] };
+      return `- ${u.count > 1 ? t("sheet.platePieceCount", v) : t("sheet.platePiece", v)}`;
+    }),
     "",
     ...(env.pieces.length > 1 ? layoutRows(env).map((row) => `    ${row}`).concat([""]) : []),
-    "## Printing",
+    `## ${t("sheet.printing")}`,
     "",
-    "- As exported, bottom down, no supports. The ridges between the cells end in a sharp edge, as the standard defines it.",
-    env.pieces.length > 1 ? "- Turn each piece as the layout shows; equal letters are the same part." : null,
+    `- ${t("sheet.platePrint")}`,
+    env.pieces.length > 1 ? `- ${t("sheet.plateTurn")}` : null,
   ];
   return lines.filter((l) => l !== null).join("\n") + "\n";
 }

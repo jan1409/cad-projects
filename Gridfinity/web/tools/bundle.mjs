@@ -22,7 +22,7 @@ fs.mkdirSync(path.join(dist, "vendor"), { recursive: true });
 
 const copy = (from, to) => fs.copyFileSync(from, path.join(dist, to));
 for (const f of ["app.js", "worker.js"]) copy(path.join(web, "app", f), f);
-for (const f of ["case.js", "expr.js", "geom2d.js"]) copy(path.join(web, "src", f), path.join("src", f));
+for (const f of ["case.js", "expr.js", "geom2d.js", "strings.js"]) copy(path.join(web, "src", f), path.join("src", f));
 copy(path.join(web, "..", "spec", "case_params.json"), "case_params.json");
 
 const rd = path.join(nm, "replicad", "dist");
@@ -35,6 +35,7 @@ fs.writeFileSync(path.join(dist, "vendor", "opencascade-gz.wasm"), zlib.gzipSync
 copy(path.join(nm, "three", "build", "three.module.js"), "vendor/three.module.js");
 copy(path.join(nm, "three", "examples", "jsm", "controls", "OrbitControls.js"), "vendor/OrbitControls.js");
 copy(path.join(nm, "fflate", "esm", "browser.js"), "vendor/fflate.js");
+copy(path.join(web, "..", "..", "site", "shared", "i18n.js"), "vendor/i18n.js"); // languages, shared with the generator site
 
 const page = fs.readFileSync(path.join(web, "app", "index.html"), "utf8");
 fs.writeFileSync(path.join(dist, "artifact.html"), page);

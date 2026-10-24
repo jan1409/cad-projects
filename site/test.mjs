@@ -2,6 +2,8 @@
 //   geometry  smallest, default and largest case, boxes and baseplates build with watertight parts
 //             (Gridfinity/web/node/sweep.mjs --one, bin_build.mjs, plate_build.mjs)
 //   layout    baseplate fitting and splitting (pieces fit the bed and add up, rotations dedupe)
+//   i18n      every text in English and German with the same placeholders; every key used exists and every key is
+//             used; build sheets render in both languages; Accept-Language of the server's waiting page
 //   build     the site builds; every relative URL in the pages and modules points at a file that exists
 //   server    static serving: MIME types, redirects, ETag/304, gzip, no path traversal or dot files
 //   untar     archives made by the system tar unpack byte for byte; unsafe paths are refused
@@ -16,7 +18,7 @@ import os from "node:os";
 import path from "node:path";
 import zlib from "node:zlib";
 import { fileURLToPath } from "node:url";
-import { createSiteServer, untar } from "./server/server.mjs";
+import { createSiteServer, untar, acceptLanguage } from "./server/server.mjs";
 
 const site = path.dirname(fileURLToPath(import.meta.url));
 const root = path.dirname(site);
@@ -139,6 +141,94 @@ await step("baseplate layout", async () => {
   assert.deepEqual([env.pieces.length, env.magnetCount], [1, 256]);
 });
 
+// ---------------------------------------------------------------- translations (no geometry kernel)
+await step("translations", async () => {
+  const { LANGS, translator, siteStrings } = await import("./shared/i18n.js");
+  const gridStrings = (await import("../Gridfinity/web/src/strings.js")).default;
+  const portalStrings = (await import("./portal/strings.js")).default;
+  const problems = [];
+  const holes = (s) => [...s.matchAll(/\{(\w+(?::\d)?)\}/g)].map((m) => m[1]);
+  const forms = (v) => (v && typeof v === "object" ? Object.values(v) : [v]);
+  // a text is {en, de}: both non-empty, the same placeholders, and a plural ({one, other}) in both or in neither
+  const text = (v, where) => {
+    if (!v || typeof v !== "object" || LANGS.some((l) => !(l in v))) return problems.push(`${where}: not {${LANGS.join(", ")}}`);
+    const plural = LANGS.map((l) => typeof v[l] === "object");
+    if (plural.some((p) => p !== plural[0])) return problems.push(`${where}: plural in one language only`);
+    for (const l of LANGS) {
+      if (forms(v[l]).some((f) => typeof f !== "string" || !f.trim())) problems.push(`${where}.${l}: empty`);
+      if (plural[0] && !("other" in v[l])) problems.push(`${where}.${l}: no "other" form`);
+    }
+    const sets = LANGS.map((l) => [...new Set(forms(v[l]).flatMap(holes))].sort().join(" "));
+    if (sets.some((s) => s !== sets[0])) problems.push(`${where}: placeholders ${LANGS.map((l, i) => `${l} {${sets[i]}}`).join(" vs ")}`);
+  };
+  const dicts = { site: siteStrings, grid: gridStrings, portal: portalStrings };
+  for (const [name, dict] of Object.entries(dicts)) for (const [k, v] of Object.entries(dict)) text(v, `${name} ${k}`);
+  for (const m of JSON.parse(fs.readFileSync(path.join(site, "models.json"), "utf8"))) {
+    text(m.title, `models.json ${m.id} title`);
+    text(m.summary, `models.json ${m.id} summary`);
+    m.facts.forEach((f, i) => text(f, `models.json ${m.id} fact ${i}`));
+  }
+  for (const f of ["bin_params.json", "baseplate_params.json"]) {
+    for (const [name, v] of Object.entries(JSON.parse(fs.readFileSync(path.join(root, "Gridfinity/spec", f), "utf8")).variants)) {
+      text(v.title, `${f} ${name} title`);
+      for (const [k, p] of Object.entries(v.parameters)) {
+        text(p.label, `${f} ${name}.${k} label`);
+        text(p.help, `${f} ${name}.${k} help`);
+        for (const [o, label] of p.options ?? []) text(label, `${f} ${name}.${k} option ${o}`);
+      }
+    }
+  }
+  // keys are only written as literals: "ns.key" in the code, data-i18n="key" and data-i18n-attr="attr:key;…" in pages
+  const keysIn = (rel) => {
+    const s = fs.readFileSync(path.join(root, rel), "utf8"), keys = new Set();
+    for (const m of s.matchAll(/["'](?:site|portal|update|common|case|box|plate|sheet)\.[A-Za-z]\w*["']/g)) keys.add(m[0].slice(1, -1));
+    for (const [, attr] of s.matchAll(/data-i18n-attr="([^"]+)"/g)) for (const pair of attr.split(";")) keys.add(pair.split(":")[1].trim());
+    return [...keys].filter((k) => !/\.(m?js|json|html|css|md|png)$/.test(k)); // not file names like "portal.js"
+  };
+  const files = (dir, re) => fs.readdirSync(path.join(root, dir)).filter((f) => re.test(f)).map((f) => `${dir}/${f}`);
+  const users = {
+    grid: [...["app", "bin", "baseplate"].flatMap((d) => files(`Gridfinity/web/${d}`, /^(index\.html|app\.js|worker\.js)$/)),
+      ...files("Gridfinity/web/src", /\.js$/).filter((f) => !f.endsWith("strings.js"))],
+    portal: ["site/portal/index.html", "site/portal/portal.js"],
+    site: ["site/build.mjs"], // the nav bar
+  };
+  const used = new Set();
+  for (const [name, list] of Object.entries(users)) {
+    for (const rel of list) for (const k of keysIn(rel)) {
+      used.add(k);
+      if (!(k in dicts[name]) && !(k in siteStrings)) problems.push(`${rel}: unknown key ${k}`);
+    }
+  }
+  for (const [name, dict] of Object.entries(dicts)) for (const k of Object.keys(dict)) if (!used.has(k)) problems.push(`${name}: unused key ${k}`);
+  // build sheets and the window SVG in both languages: everything filled in, and German differs from English
+  const { caseEnv } = await import("../Gridfinity/web/src/expr.js");
+  const { buildSheet, windowSVG } = await import("../Gridfinity/web/src/case.js");
+  const { binEnv, binBuildSheet } = await import("../Gridfinity/web/src/bin.js");
+  const { plateEnv, plateBuildSheet } = await import("../Gridfinity/web/src/baseplate.js");
+  const spec = (f) => JSON.parse(fs.readFileSync(path.join(root, "Gridfinity/spec", f), "utf8"));
+  const cs = spec("case_params.json"), bs = spec("bin_params.json"), ps = spec("baseplate_params.json");
+  const caseIn = Object.fromEntries(Object.entries(cs.parameters).map(([k, p]) => [k, p.default]));
+  const sizes = { Base: [1, 2, 3], Lid: [1, 2, 3], Latch: [1, 2, 3], Seal: [1, 2, 3] };
+  const sheets = (t) => [
+    buildSheet(caseEnv(cs, caseIn), "5x4x6", sizes, t), windowSVG(caseEnv(cs, caseIn), t),
+    binBuildSheet(binEnv(bs, { variant: "label", x_count: 3, y_count: 2, z_count: 6, magnets: true, plate_gap: 0 }), "3x2x6", "Box", "fit", t),
+    plateBuildSheet(plateEnv(ps, { variant: "drawer", width: 600, depth: 380, clearance: 0.5, spare_x: "left", spare_y: "back", bottom: true,
+      bottom_h: 4, magnets: true, drawer_h: 60 }), "600x380mm", "Plate", t),
+    plateBuildSheet(plateEnv(ps, { variant: "grid", x_count: 4, y_count: 4, bottom: false, bottom_h: 4, magnets: false }), "4x4", "Plate", t),
+  ];
+  const out = Object.fromEntries(LANGS.map((l) => [l, sheets(translator(gridStrings, l))]));
+  for (const l of LANGS) out[l].forEach((s, i) => {
+    const bad = /undefined|NaN|\{\w+(?::\d)?\}|\b(?:sheet|common|plate|box|case)\.[a-z]\w*/.exec(s);
+    if (bad) problems.push(`sheet ${i} (${l}): "${bad[0]}"`);
+  });
+  out.de.forEach((s, i) => { if (s === out.en[i]) problems.push(`sheet ${i}: German = English`); });
+  assert.deepEqual(problems, [], `translation problems:\n${problems.join("\n")}`);
+  assert.equal(translator(gridStrings, "de")("plate.valBoxes", { n: 1, h: 10.55 }), "bis 1 Einheit (10,6 mm)"); // plural, decimal comma
+  assert.equal(translator(gridStrings, "en")("plate.valBoxes", { n: 2, h: 17.5 }), "up to 2 units (17.5 mm)");
+  for (const [header, want] of [["de-DE,de;q=0.9,en;q=0.8", "de"], ["en-US,de;q=0.5", "en"], ["fr-FR,de;q=0.7", "de"], ["", "en"], ["de;q=0, en;q=0.1", "en"]])
+    assert.equal(acceptLanguage(header), want, `Accept-Language: ${header}`);
+});
+
 // ---------------------------------------------------------------- build
 await step("site build", () => {
   execFileSync(process.execPath, [path.join(site, "build.mjs"), "--version", "test-1", "--out", dist], { stdio: "pipe" });
@@ -151,7 +241,7 @@ await step("site build", () => {
     const html = read(`${m.href}index.html`);
     assert.match(html, /^<!doctype html>/i, `${m.id}: not a full document`);
     assert.ok(html.includes('class="site-nav"') && !html.includes("<!--site:nav-->"), `${m.id}: nav missing`);
-    assert.ok(!m.facts.some((f) => /\{\w+\.\w+\}/.test(f)), `${m.id}: unfilled fact`);
+    assert.ok(!m.facts.some((f) => Object.values(f).some((s) => /\{\w+\.\w+\}/.test(s))), `${m.id}: unfilled fact`);
     if (m.image) assert.ok(fs.existsSync(path.join(dist, m.image)), `${m.id}: image missing`);
   }
   const wasm = fs.readFileSync(path.join(dist, "vendor/opencascade-gz.wasm"));
@@ -295,6 +385,7 @@ await step("updater against a fake GitHub", async () => {
     let s = await until(async () => { const v = await state(); return v.lastCheck && v; }, "first check");
     assert.match(s.lastError, /no site-\* release/);
     assert.equal((await fetch(`${base}/`)).status, 503, "waiting page while nothing is installed");
+    assert.match(await (await fetch(`${base}/`, { headers: { "Accept-Language": "de-DE,de;q=0.9" } })).text(), /lang="de".*Die Website wird installiert/s);
 
     publish("v1");
     s = await update();

@@ -1,11 +1,15 @@
 // Gridfinity box generator - UI for both variants (standard box, box with label). The variant comes from model.json,
 // which the site build writes next to the page; geometry runs in worker.js, the datasheet uses binEnv from src/bin.js.
+// Texts: src/strings.js and the {en, de} labels of the spec; the language switch re-renders the page in place.
 import * as THREE from "three";
 import { OrbitControls } from "./vendor/OrbitControls.js";
 import { zipSync } from "./vendor/fflate.js";
+import { translator, applyDom, mountLangSwitch, num, pick } from "./vendor/i18n.js";
 import { binEnv, binBuildSheet } from "./src/bin.js";
+import S from "./src/strings.js";
 
 const $ = (id) => document.getElementById(id);
+const t = translator(S);
 const el = (tag, props = {}, ...children) => {
   const e = Object.assign(document.createElement(tag), props);
   e.append(...children);
@@ -18,16 +22,11 @@ const V = spec.variants[variant], P = V.parameters, KEYS = Object.keys(P);
 const STORE = `gridfinity-box-${variant}-inputs`;
 const fileBase = variant === "label" ? "Gridfinity_Box_Label" : "Gridfinity_Box";
 
-$("title").textContent = V.title;
-document.title = V.title;
-$("lede").textContent = variant === "label"
-  ? "A Gridfinity box to the official dimensions, with a label ledge on the back wall, a separate label plate and a scoop at the front. Set the size in grid units, build it, and download the print files."
-  : "A plain Gridfinity box to the official dimensions: stacking lip, magnet holes and 7 mm height units. Set the size in grid units, build it, and download the print files.";
-$("build").textContent = "Build box";
-if (variant === "label") {
-  $("views").hidden = false;
-  $("legend").append(el("span", { style: "--c:#e6a23c", textContent: "Label plate" }));
+function labelPage() {
+  $("title").textContent = document.title = pick(V.title);
+  $("lede").textContent = t(variant === "label" ? "box.ledeLabel" : "box.ledeStandard");
 }
+if (variant === "label") $("views").hidden = $("legend-plate").hidden = false;
 
 // ---------- state ----------
 const inputs = Object.fromEntries(KEYS.map((k) => [k, P[k].default]));
@@ -38,24 +37,30 @@ try {
     if (p.type === "bool" ? typeof v === "boolean" : typeof v === "number" && v >= p.min && v <= p.max) inputs[k] = v;
   }
 } catch { /* storage unavailable: defaults */ }
-let built = null; // { tag, env, parts: {Box: {stl, volume}, Plate: ...}, sheet }
+let built = null; // { tag, env, parts: {Box: {stl, volume}, Plate: ...} }
 let building = false;
 
-const fmt = (v, d = 1) => v.toFixed(d);
+const fmt = (v, d = 1) => num(v, d);
 const tagOf = (i) => `${i.x_count}x${i.y_count}x${i.z_count}${i.magnets ? "" : "_nomag"}` +
   (i.plate_gap ? `_g${String(i.plate_gap).replace(".", "")}` : "");
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 const envOf = () => binEnv(spec, { ...inputs, variant });
 
 // ---------- parameters (generated from the spec) ----------
-const params = $("params");
+const params = $("params"), labels = []; // labels: functions that write the current language into the controls
 for (const key of KEYS) {
   const p = P[key];
-  const name = el(p.type === "int" ? "div" : "label", { className: "param-name", htmlFor: key }, p.label, el("small", { textContent: p.help }));
+  const text = el("span"), help = el("small");
+  const name = el(p.type === "int" ? "div" : "label", { className: "param-name", htmlFor: key }, text, help);
+  labels.push(() => { text.textContent = pick(p.label); help.textContent = pick(p.help); });
   let control;
   if (p.type === "int") {
-    const minus = el("button", { type: "button", textContent: "−", ariaLabel: `Fewer ${p.label.toLowerCase()} units` });
-    const plus = el("button", { type: "button", textContent: "+", ariaLabel: `More ${p.label.toLowerCase()} units` });
+    const minus = el("button", { type: "button", textContent: "−" });
+    const plus = el("button", { type: "button", textContent: "+" });
+    labels.push(() => {
+      minus.ariaLabel = t("common.decrease", { name: pick(p.label) });
+      plus.ariaLabel = t("common.increase", { name: pick(p.label) });
+    });
     minus.addEventListener("click", () => setInput(key, inputs[key] - 1));
     plus.addEventListener("click", () => setInput(key, inputs[key] + 1));
     control = el("div", { className: "stepper" }, minus, el("output", { id: key }), plus);
@@ -68,6 +73,7 @@ for (const key of KEYS) {
   }
   params.append(name, control);
 }
+const labelParams = () => labels.forEach((f) => f());
 
 function setInput(key, value) {
   const p = P[key];
@@ -81,16 +87,17 @@ function setInput(key, value) {
   render();
 }
 
-// smallest Rugged Case (Gridfinity/spec/case_params.json ranges) that takes this box, or why none does
+// smallest Rugged Case (Gridfinity/spec/case_params.json ranges) that takes this box, or why none does; text() translates it
 function ruggedFit(env) {
   const rc = spec.rugged_case;
   const z = Math.max(rc.z_min, env.z_count + rc.z_extra);
   const lo = Math.min(env.x_count, env.y_count), hi = Math.max(env.x_count, env.y_count);
-  if (hi > Math.max(rc.x_max, rc.y_max) || lo > Math.min(rc.x_max, rc.y_max)) return { ok: false, text: `Wider than the largest Rugged Case (${rc.x_max} × ${rc.y_max})` };
-  if (z > rc.z_max) return { ok: false, text: `Taller than the largest Rugged Case (${rc.z_max} units)` };
+  const fit = (ok, key, vars) => ({ ok, z, text: () => t(key, vars) });
+  if (hi > Math.max(rc.x_max, rc.y_max) || lo > Math.min(rc.x_max, rc.y_max)) return fit(false, "box.fitWide", { x: rc.x_max, y: rc.y_max });
+  if (z > rc.z_max) return fit(false, "box.fitTall", { z: rc.z_max });
   const fits = env.x_count <= rc.x_max && env.y_count <= rc.y_max;
   const [x, y] = fits ? [env.x_count, env.y_count] : [env.y_count, env.x_count];
-  return { ok: true, z, text: `Rugged Case ${Math.max(rc.x_min, x)} × ${Math.max(rc.y_min, y)} × ${z} or larger` };
+  return fit(true, "box.fitOk", { x: Math.max(rc.x_min, x), y: Math.max(rc.y_min, y), z });
 }
 
 function render() {
@@ -108,26 +115,25 @@ function render() {
   drawFootprint(env);
   const fit = ruggedFit(env);
   const rows = [
-    ["Outside", `${fmt(env.W)} × ${fmt(env.D)} × ${fmt(env.top)} mm`],
-    ["Wall top / with lip", `${fmt(env.T)} / ${fmt(env.top)} mm`],
-    ["Inside at the floor", `${fmt(env.inner[0])} × ${fmt(env.inner[1])} mm`],
-    ["Usable depth", `${fmt(env.depth)} mm`],
-    ["Opening under the lip", `${fmt(env.opening[0])} × ${fmt(env.opening[1])} mm`],
-    ["Capacity (gross)", `≈ ${env.capacity.toFixed(2)} l`],
-    ["Magnets", env.magnets ? `${env.x_count * env.y_count * 4} × 6 × 2 mm` : "none"],
+    [t("box.rowOutside"), `${fmt(env.W)} × ${fmt(env.D)} × ${fmt(env.top)} mm`],
+    [t("box.rowWall"), `${fmt(env.T)} / ${fmt(env.top)} mm`],
+    [t("box.rowInside"), `${fmt(env.inner[0])} × ${fmt(env.inner[1])} mm`],
+    [t("box.rowDepth"), `${fmt(env.depth)} mm`],
+    [t("box.rowOpening"), `${fmt(env.opening[0])} × ${fmt(env.opening[1])} mm`],
+    [t("box.rowCapacity"), t("box.valCapacity", { l: env.capacity })],
+    [t("common.magnets"), env.magnets ? `${env.x_count * env.y_count * 4} × 6 × 2 mm` : t("common.none")],
   ];
-  if (env.label) rows.push(["Label plate", `${fmt(env.plate[0])} × ${fmt(env.plate[1])} × ${env.plate[2].toFixed(2)} mm`]);
+  if (env.label) rows.push([t("box.rowPlate"), `${fmt(env.plate[0])} × ${fmt(env.plate[1])} × ${fmt(env.plate[2], 2)} mm`]);
   const rc = spec.rugged_case, need = Math.max(rc.z_min, env.z_count + rc.z_extra);
-  rows.push(["Rugged Case height", need <= rc.z_max ? `≥ ${need} units` : `${need} units, above the ${rc.z_max} maximum`]);
+  rows.push([t("box.rowRugged"), need <= rc.z_max ? t("box.valRugged", { n: need }) : t("box.valRuggedOver", { n: need, max: rc.z_max })]);
   $("sheet").replaceChildren(...rows.flatMap(([k, v]) => [el("dt", { textContent: k }), el("dd", { textContent: v })]));
   const bed = spec.bed, onBed = env.W <= bed[0] && env.D <= bed[1];
   $("chips").replaceChildren(
-    chip(onBed ? "ok" : "signal", onBed ? `Fits a ${bed[0]} × ${bed[1]} bed` : `Larger than a ${bed[0]} × ${bed[1]} bed`),
-    chip(fit.ok ? "ok" : "signal", fit.text));
-  $("footprint-text").textContent = `${env.x_count} × ${env.y_count} cells of 42 × 42 mm, ${env.z_count} × 7 mm high.` +
-    (env.label ? " The label runs along the width, on the back wall." : "");
+    chip(onBed ? "ok" : "signal", t(onBed ? "common.bedFits" : "common.bedTooBig", { x: bed[0], y: bed[1] })),
+    chip(fit.ok ? "ok" : "signal", fit.text()));
+  $("footprint-text").textContent = t(env.label ? "box.footprintLabel" : "box.footprint", { x: env.x_count, y: env.y_count, z: env.z_count });
   const current = built && built.tag === tagOf(inputs);
-  $("build").textContent = building ? "Building…" : current ? "Rebuild box" : "Build box";
+  $("build").textContent = building ? t("common.building") : current ? t("box.rebuild") : t("box.build");
   renderFiles();
 }
 const chip = (kind, text) => el("span", { className: `chip ${kind}`, textContent: text });
@@ -159,38 +165,39 @@ function drawFootprint(env) {
 // ---------- files ----------
 function files() {
   if (!built) return [];
-  const t = built.tag, name = `${fileBase}_${t}`;
+  const name = `${fileBase}_${built.tag}`;
   const list = [];
   if (built.parts.Plate)
-    list.push({ key: "zip", label: "Print set (.zip)", sub: "box and label plate as STL, build sheet", primary: true, file: `${name}.zip` });
-  list.push({ key: "Box", label: "Box (.stl)", sub: `${fmt(built.parts.Box.volume, 1)} cm³, feet down`, primary: !built.parts.Plate, file: `${name}.stl` });
-  if (built.parts.Plate) list.push({ key: "Plate", label: "Label plate (.stl)", sub: `${fmt(built.parts.Plate.volume, 2)} cm³, flat`, file: `${name}_Label_Plate.stl` });
-  list.push({ key: "md", label: "Build sheet (.md)", sub: "dimensions, magnets, Rugged Case fit", file: `${name}_BUILD_SHEET.md` });
+    list.push({ key: "zip", label: t("common.printSet"), sub: t("box.zipSub"), primary: true, file: `${name}.zip` });
+  list.push({ key: "Box", label: t("box.fileBox"), sub: t("box.fileBoxSub", { v: built.parts.Box.volume }), primary: !built.parts.Plate, file: `${name}.stl` });
+  if (built.parts.Plate) list.push({ key: "Plate", label: t("box.filePlate"), sub: t("box.filePlateSub", { v: built.parts.Plate.volume }), file: `${name}_Label_Plate.stl` });
+  list.push({ key: "md", label: t("common.buildSheet"), sub: t("box.mdSub"), file: `${name}_BUILD_SHEET.md` });
   return list;
 }
 function renderFiles() {
   const list = files();
   $("files-for").textContent = built ? `· ${built.tag.replace(/x/g, " × ").split("_")[0]}` : "";
   $("files").replaceChildren(...list.map((f) => {
-    const btn = el("button", { type: "button", textContent: "Download", disabled: building });
+    const btn = el("button", { type: "button", textContent: t("common.download"), disabled: building });
     btn.addEventListener("click", () => download(f));
     return el("div", { className: `file${f.primary ? " primary" : ""}` }, el("strong", { textContent: f.label }), btn, el("small", { textContent: f.sub }));
   }));
   const stale = built && built.tag !== tagOf(inputs);
-  $("files-note").textContent = !built ? "The files appear once the box is built."
-    : stale ? "These files are for the last build; build again to get the current settings." : "";
+  $("files-note").textContent = !built ? t("box.empty") : stale ? t("common.stale") : "";
 }
 
+// the build sheet is written at download time, in the page's current language
+const sheet = () => binBuildSheet(built.env, built.tag.split("_")[0], pick(V.title), ruggedFit(built.env).text(), t);
 function download(f) {
   let data;
   if (f.key === "zip") {
     const entries = {
       [`${fileBase}_${built.tag}.stl`]: new Uint8Array(built.parts.Box.stl),
       [`${fileBase}_${built.tag}_Label_Plate.stl`]: new Uint8Array(built.parts.Plate.stl),
-      "BUILD_SHEET.md": new TextEncoder().encode(built.sheet),
+      "BUILD_SHEET.md": new TextEncoder().encode(sheet()),
     };
     data = new Blob([zipSync(entries, { level: 6 })]);
-  } else if (f.key === "md") data = new Blob([built.sheet]);
+  } else if (f.key === "md") data = new Blob([sheet()]);
   else data = new Blob([built.parts[f.key].stl]);
   const a = el("a", { href: URL.createObjectURL(data), download: f.file });
   document.body.append(a);
@@ -264,7 +271,15 @@ resize();
 renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
 
 // ---------- build ----------
-const status = (text, kind = "") => { const s = $("status"); s.textContent = text; s.className = `status ${kind}`; };
+// status line as [key, vars, kind], so a language switch can show it again; function vars are evaluated when shown
+let shown = null;
+const status = (key, vars = {}, kind = "") => { shown = [key, vars, kind]; showStatus(); };
+function showStatus() {
+  const [key, vars, kind] = shown, s = $("status");
+  s.textContent = t(key, Object.fromEntries(Object.entries(vars).map(([k, v]) => [k, typeof v === "function" ? v() : v])));
+  s.className = `status ${kind}`;
+}
+const workerError = (msg) => () => (msg.code === "kernel" ? t("common.kernelError", { status: msg.status }) : msg.message);
 let worker = null, pending = null, t0 = 0, kernelReady = false, firstBuild = true, queued = false;
 
 // OpenCascade's WASM heap only grows, so every build gets a fresh worker (the kernel comes from the browser cache)
@@ -275,7 +290,7 @@ function startWorker() {
   worker.onerror = (e) => {
     building = false;
     $("build").disabled = false;
-    status(`The geometry worker stopped: ${e.message || "unknown error"}`, "err");
+    status("common.workerStopped", { error: () => e.message || t("common.unknownError") }, "err");
     render();
   };
 }
@@ -292,23 +307,21 @@ function onWorkerMessage({ data: msg }) {
       build();
     }
   } else if (msg.type === "progress") {
-    status(`Building the ${msg.part === "Plate" ? "label plate" : "box"}…`, "busy");
+    status(msg.part === "Plate" ? "box.buildingPlate" : "box.buildingBox", {}, "busy");
   } else if (msg.type === "part") {
     pending.parts[msg.part] = { stl: msg.stl, volume: msg.volume };
     setPart(msg.part, msg);
   } else if (msg.type === "done") {
-    const env = binEnv(spec, { ...pending.inputs, variant });
-    const fit = ruggedFit(env);
-    built = { ...pending, env, sheet: binBuildSheet(env, pending.tag.split("_")[0], V.title, fit.text) };
+    built = { ...pending, env: binEnv(spec, { ...pending.inputs, variant }) };
     building = false;
     $("build").disabled = false;
-    status(`Built ${built.tag.split("_")[0].replace(/x/g, " × ")} in ${((performance.now() - t0) / 1000).toFixed(1)} s`);
+    status("common.built", { size: built.tag.split("_")[0].replace(/x/g, " × "), s: (performance.now() - t0) / 1000 });
     render();
     recycleWorker();
   } else if (msg.type === "error") {
     building = false;
     $("build").disabled = false;
-    status(`Build failed: ${msg.message}`, "err");
+    status("common.failed", { error: workerError(msg) }, "err");
     render();
     recycleWorker();
   }
@@ -318,7 +331,7 @@ function build() {
   if (building) return;
   if (!kernelReady) {
     queued = true;
-    status("Loading the geometry kernel…", "busy");
+    status("common.kernel", {}, "busy");
     return;
   }
   building = true;
@@ -327,11 +340,19 @@ function build() {
   pending = { tag: tagOf(inputs), inputs: { ...inputs }, parts: {} };
   clearParts();
   frame(envOf());
-  status("Starting…", "busy");
+  status("common.starting", {}, "busy");
   render();
   worker.postMessage({ type: "build", inputs: { ...inputs, variant } });
 }
 $("build").addEventListener("click", build);
+const relabel = () => { applyDom(t); labelPage(); labelParams(); };
+relabel();
+mountLangSwitch();
+document.addEventListener("langchange", () => {
+  relabel();
+  render();
+  showStatus();
+});
 render();
-status("Loading the geometry kernel (about 7 MB)…", "busy");
+status("common.kernelFirst", {}, "busy");
 startWorker();

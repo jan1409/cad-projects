@@ -65,6 +65,13 @@ Printer: Prusa XL (360 × 360 mm bed). Units: mm everywhere.
   - Card images: transparent Fusion screenshot, cropped and palette-quantised (~40 KB). For web-only models, export a
     coloured STEP (`R.exportSTEP([{shape, color}])`), import it into a temporary Fusion doc, then screenshot it.
   - Several models can share one app: `variant` in `site/models.json` → `model.json` next to the page (Gridfinity boxes).
+  - English and German: `site/shared/i18n.js` (→ `vendor/i18n.js`) picks the language (`?lang=`, stored choice, browser)
+    and re-renders in place on `langchange`. Every visible text is `{en, de}`: in `models.json`, the spec labels, and the
+    `strings.js` dictionaries (`site/portal/`, `Gridfinity/web/src/`). German uses "du"; Rugged Case/Baseplate/Box stay.
+    - Write whole sentences with `{placeholders}` (`{v:1}` = 1 decimal, comma in German), never glued fragments, and
+      only literal keys: `npm test` checks that every key exists, is used, and has both languages.
+    - File names stay English; build sheets are written at download time in the page's language.
+    - Don't name a local `t`: it shadows the translator (an empty file list was the result once).
 - Gridfinity boxes: official dimensions in `Gridfinity/spec/gridfinity_standard.md` (from gridfinity-rebuilt's
   `standard.scad`; the spec site only has drawings). Jan's Onshape box templates match them to 4 µm.
 - Gridfinity baseplates: `Gridfinity/spec/baseplate_spec.md`. Check boxes against baseplates with `plate_fit.mjs`;

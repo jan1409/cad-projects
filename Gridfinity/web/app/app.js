@@ -1,10 +1,15 @@
 // Gridfinity Rugged Case generator - UI. Geometry runs in worker.js; the datasheet uses the same spec formulas.
+// Texts: src/strings.js (English, German); the language switch re-renders the page and later downloads in place.
 import * as THREE from "three";
 import { OrbitControls } from "./vendor/OrbitControls.js";
 import { zipSync } from "./vendor/fflate.js";
+import { translator, applyDom, mountLangSwitch, num } from "./vendor/i18n.js";
 import { caseEnv } from "./src/expr.js";
+import { windowSVG, buildSheet } from "./src/case.js";
+import S from "./src/strings.js";
 
 const $ = (id) => document.getElementById(id);
+const t = translator(S);
 const spec = await (await fetch(new URL("./case_params.json", import.meta.url))).json();
 const P = spec.parameters;
 const KEYS = ["x_count", "y_count", "z_count", "window_t", "window_gap"];
@@ -16,10 +21,10 @@ try {
   const saved = JSON.parse(localStorage.getItem(STORE) || "{}");
   for (const k of KEYS) if (typeof saved[k] === "number" && saved[k] >= P[k].min && saved[k] <= P[k].max) inputs[k] = saved[k];
 } catch { /* storage unavailable: defaults */ }
-let built = null; // { tag, env, parts: {Base: {stl, volume}}, svg, sheet }
+let built = null; // { tag, env, sizes, parts: {Base: {stl, volume}} }
 let building = false;
 
-const fmt = (v, d = 1) => v.toFixed(d);
+const fmt = (v, d = 1) => num(v, d);
 const tagOf = (i) => `${i.x_count}x${i.y_count}x${i.z_count}` +
   (Math.abs(i.window_t - 1.6) < 1e-9 ? "" : `_w${String(i.window_t).replace(".", "")}`) +
   (Math.abs(i.window_gap - P.window_gap.default) < 1e-9 ? "" : `_g${String(i.window_gap).replace(".", "")}`);
@@ -59,23 +64,23 @@ function render() {
   drawFootprint(env);
   const outer = [env.Li + 8.52, env.Wi + 22.52, env.top + 3.2];
   const rows = [
-    ["Inner space", `${env.Li} × ${env.Wi} mm`],
-    ["Clear height above floor", `${fmt(env.top - 5.5)} mm`],
-    ["Gridfinity boxes", `up to ${inputs.z_count} units high`], // lip clears the closed lid by 1 mm (node/bin_case_fit.mjs)
-    ["Outside, closed", `${outer.map((v) => fmt(v)).join(" × ")} mm`],
-    ["Base / lid height", `${fmt(env.split + 6.6)} / ${fmt(env.top - env.split + 3.4)} mm`],
-    ["Window (plexiglass)", `${env.Li - 4} × ${env.Wi - 4} × ${inputs.window_t.toFixed(2)} mm`],
-    ["Hardware", "6 × M3 × 30 screws"],
+    [t("case.rowInner"), `${env.Li} × ${env.Wi} mm`],
+    [t("case.rowClear"), `${fmt(env.top - 5.5)} mm`],
+    [t("case.rowBoxes"), t("case.valBoxes", { n: inputs.z_count })], // lip clears the closed lid by 1 mm (node/bin_case_fit.mjs)
+    [t("case.rowOutside"), `${outer.map((v) => fmt(v)).join(" × ")} mm`],
+    [t("case.rowHeights"), `${fmt(env.split + 6.6)} / ${fmt(env.top - env.split + 3.4)} mm`],
+    [t("case.rowWindow"), `${env.Li - 4} × ${env.Wi - 4} × ${fmt(inputs.window_t, 2)} mm`],
+    [t("case.rowHardware"), t("case.valHardware")],
   ];
   $("sheet").replaceChildren(...rows.flatMap(([k, v]) => [Object.assign(document.createElement("dt"), { textContent: k }),
     Object.assign(document.createElement("dd"), { textContent: v })]));
   const fits = outer[0] <= 360 && outer[1] <= 360;
   $("chips").replaceChildren(
-    chip(fits ? "ok" : "signal", fits ? "Fits a 360 × 360 bed" : "Larger than a 360 × 360 bed"),
-    chip("signal", `Print pause at ${(1.2 + inputs.window_t + inputs.window_gap).toFixed(2)} mm`));
-  $("footprint-text").textContent = `${inputs.x_count} × ${inputs.y_count} cells of 42 × 42 mm. Any Gridfinity bin fits the floor, and the case itself stands on a Gridfinity baseplate.`;
+    chip(fits ? "ok" : "signal", t(fits ? "common.bedFits" : "common.bedTooBig", { x: 360, y: 360 })),
+    chip("signal", t("case.chipPause", { z: 1.2 + inputs.window_t + inputs.window_gap })));
+  $("footprint-text").textContent = t("case.footprint", { x: inputs.x_count, y: inputs.y_count });
   const current = built && built.tag === tagOf(inputs);
-  $("build").textContent = building ? "Building…" : current ? "Rebuild case" : "Build case";
+  $("build").textContent = building ? t("common.building") : current ? t("case.rebuild") : t("case.build");
   renderFiles();
 }
 const chip = (kind, text) => Object.assign(document.createElement("span"), { className: `chip ${kind}`, textContent: text });
@@ -111,15 +116,15 @@ if (inArtifact) getDownloads().then(() => renderFiles());
 
 function files() {
   if (!built) return [];
-  const t = built.tag, name = `Gridfinity_Rugged_Case_${t}`;
+  const name = `Gridfinity_Rugged_Case_${built.tag}`;
   const list = [
-    { key: "zip", label: "Print set (.zip)", sub: "base, lid, latch (print 2), TPU seal as STL, window SVG, build sheet", primary: true },
-    { key: "svg", label: "Window cut file (.svg)", sub: `${built.env.Li - 4} × ${built.env.Wi - 4} mm, cut on the red line`, file: `${name}_Window_${built.env.window_t.toFixed(2)}mm.svg` },
-    { key: "md", label: "Build sheet (.md)", sub: "orientation, print pause, screws", file: `${name}_BUILD_SHEET.md` },
+    { key: "zip", label: t("common.printSet"), sub: t("case.zipSub"), primary: true },
+    { key: "svg", label: t("case.svg"), sub: t("case.svgSub", { w: built.env.Li - 4, h: built.env.Wi - 4 }), file: `${name}_Window_${built.env.window_t.toFixed(2)}mm.svg` },
+    { key: "md", label: t("common.buildSheet"), sub: t("case.mdSub"), file: `${name}_BUILD_SHEET.md` },
   ];
   if (!inArtifact) // single STLs are offered only where plain downloads work (STL is not on the artifact download list)
-    for (const [part, file] of [["Base", "Base"], ["Lid", "Lid"], ["Latch", "Latch_x2"], ["Seal", "Seal_TPU"]])
-      list.push({ key: part, label: `${part} (.stl)`, sub: `${fmt(built.parts[part].volume, 1)} cm³${part === "Latch" ? ", print 2" : ""}`, file: `${name}_${file}.stl` });
+    for (const [part, file, label] of [["Base", "Base", "case.fileBase"], ["Lid", "Lid", "case.fileLid"], ["Latch", "Latch_x2", "case.fileLatch"], ["Seal", "Seal_TPU", "case.fileSeal"]])
+      list.push({ key: part, label: t(label), sub: t(part === "Latch" ? "case.latchSub" : "case.partSub", { v: built.parts[part].volume }), file: `${name}_${file}.stl` });
   return list;
 }
 function renderFiles() {
@@ -127,7 +132,7 @@ function renderFiles() {
   $("files-for").textContent = built ? `· ${built.tag.replace(/x/g, " × ").split("_")[0]}` : "";
   $("files").replaceChildren(...list.map((f) => {
     const row = Object.assign(document.createElement("div"), { className: `file${f.primary ? " primary" : ""}` });
-    const btn = Object.assign(document.createElement("button"), { type: "button", textContent: "Download" });
+    const btn = Object.assign(document.createElement("button"), { type: "button", textContent: t("common.download") });
     btn.disabled = building || (inArtifact && downloads === null);
     btn.addEventListener("click", () => download(f));
     row.append(Object.assign(document.createElement("strong"), { textContent: f.label }), btn,
@@ -135,31 +140,33 @@ function renderFiles() {
     return row;
   }));
   const stale = built && built.tag !== tagOf(inputs);
-  $("files-note").textContent = !built ? "The files appear once the case is built."
-    : inArtifact && downloads === null ? "Downloads are not available in this view."
-      : stale ? "These files are for the last build; build again to get the current settings." : "";
+  $("files-note").textContent = !built ? t("case.empty")
+    : inArtifact && downloads === null ? t("case.noDownloads")
+      : stale ? t("common.stale") : "";
 }
 
 async function download(f) {
   let filename = f.file, data;
+  // window SVG and build sheet are written now, in the page's current language
+  const svg = () => windowSVG(built.env, t), sheet = () => buildSheet(built.env, built.tag, built.sizes, t);
   if (f.key === "zip") {
     filename = `Gridfinity_Rugged_Case_${built.tag}.zip`;
     const enc = new TextEncoder(), entries = {};
     for (const [part, file] of [["Base", "Base"], ["Lid", "Lid"], ["Latch", "Latch_x2"], ["Seal", "Seal_TPU"]])
       entries[`Gridfinity_Rugged_Case_${built.tag}_${file}.stl`] = new Uint8Array(built.parts[part].stl);
-    entries[`Gridfinity_Rugged_Case_${built.tag}_Window_${built.env.window_t.toFixed(2)}mm.svg`] = enc.encode(built.svg);
-    entries["BUILD_SHEET.md"] = enc.encode(built.sheet);
+    entries[`Gridfinity_Rugged_Case_${built.tag}_Window_${built.env.window_t.toFixed(2)}mm.svg`] = enc.encode(svg());
+    entries["BUILD_SHEET.md"] = enc.encode(sheet());
     data = new Blob([zipSync(entries, { level: 6 })]);
-  } else if (f.key === "svg") data = new Blob([built.svg]);
-  else if (f.key === "md") data = new Blob([built.sheet]);
+  } else if (f.key === "svg") data = new Blob([svg()]);
+  else if (f.key === "md") data = new Blob([sheet()]);
   else data = new Blob([built.parts[f.key].stl]);
   const cap = await getDownloads();
   if (cap) {
     try {
       await cap.save({ filename, data });
-      toast(`Saved ${filename}`);
+      toast(t("case.saved", { file: filename }));
     } catch (err) {
-      toast(err?.code === "declined" ? "Download cancelled" : err?.code === "rate_limited" ? "A save is already waiting for confirmation" : `Could not save: ${err?.message ?? err}`);
+      toast(err?.code === "declined" ? t("case.cancelled") : err?.code === "rate_limited" ? t("case.waiting") : t("case.saveFailed", { error: err?.message ?? err }));
     }
     return;
   }
@@ -258,9 +265,17 @@ resize();
 renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
 
 // ---------- build ----------
-const status = (text, kind = "") => { const el = $("status"); el.textContent = text; el.className = `status ${kind}`; };
+// status line as [key, vars, kind], so a language switch can show it again; function vars are evaluated when shown
+let shown = null;
+const status = (key, vars = {}, kind = "") => { shown = [key, vars, kind]; showStatus(); };
+function showStatus() {
+  const [key, vars, kind] = shown, el = $("status");
+  el.textContent = t(key, Object.fromEntries(Object.entries(vars).map(([k, v]) => [k, typeof v === "function" ? v() : v])));
+  el.className = `status ${kind}`;
+}
+const workerError = (msg) => () => (msg.code === "kernel" ? t("common.kernelError", { status: msg.status }) : msg.message);
 let worker = null, pending = null, t0 = 0, kernelReady = false, firstBuild = true, queued = false;
-const NAMES = { Base: "base", Lid: "lid", Latch: "latches", Seal: "seal", Window: "window" };
+const PROGRESS = { Base: "case.buildingBase", Lid: "case.buildingLid", Latch: "case.buildingLatch", Seal: "case.buildingSeal", Window: "case.buildingWindow" };
 
 // OpenCascade's WASM heap only grows, and many builds in one worker eventually run out of memory. So every build
 // gets a fresh worker; the replacement loads the kernel (from the browser cache) while the user looks at the result.
@@ -271,7 +286,7 @@ function startWorker() {
   worker.onerror = (e) => {
     building = false;
     $("build").disabled = false;
-    status(`The geometry worker stopped: ${e.message || "unknown error"}`, "err");
+    status("common.workerStopped", { error: () => e.message || t("common.unknownError") }, "err");
     render();
   };
 }
@@ -288,21 +303,21 @@ function onWorkerMessage({ data: msg }) {
       build();
     }
   } else if (msg.type === "progress") {
-    status(`Building the ${NAMES[msg.part]}…`, "busy");
+    status(PROGRESS[msg.part], {}, "busy");
   } else if (msg.type === "part") {
     pending.parts[msg.part] = { stl: msg.stl, volume: msg.volume };
     setPart(msg.part, msg, caseEnv(spec, pending.inputs));
   } else if (msg.type === "done") {
-    built = { ...pending, env: msg.env, svg: msg.svg, sheet: msg.sheet };
+    built = { ...pending, env: msg.env, sizes: msg.sizes };
     building = false;
     $("build").disabled = false;
-    status(`Built ${built.tag.split("_")[0].replace(/x/g, " × ")} in ${((performance.now() - t0) / 1000).toFixed(1)} s`);
+    status("common.built", { size: built.tag.split("_")[0].replace(/x/g, " × "), s: (performance.now() - t0) / 1000 });
     render();
     recycleWorker();
   } else if (msg.type === "error") {
     building = false;
     $("build").disabled = false;
-    status(`Build failed: ${msg.message}`, "err");
+    status("common.failed", { error: workerError(msg) }, "err");
     render();
     recycleWorker();
   }
@@ -312,7 +327,7 @@ function build() {
   if (building) return;
   if (!kernelReady) {
     queued = true;
-    status("Loading the geometry kernel…", "busy");
+    status("common.kernel", {}, "busy");
     return;
   }
   building = true;
@@ -320,11 +335,18 @@ function build() {
   t0 = performance.now();
   pending = { tag: tagOf(inputs), inputs: { ...inputs }, parts: {} };
   frame(caseEnv(spec, inputs));
-  status("Starting…", "busy");
+  status("common.starting", {}, "busy");
   render();
   worker.postMessage({ type: "build", inputs: { ...inputs }, tag: pending.tag });
 }
 $("build").addEventListener("click", build);
+applyDom(t);
+mountLangSwitch();
+document.addEventListener("langchange", () => {
+  applyDom(t);
+  render();
+  showStatus();
+});
 render();
-status("Loading the geometry kernel (about 7 MB)…", "busy");
+status("common.kernelFirst", {}, "busy");
 startWorker();

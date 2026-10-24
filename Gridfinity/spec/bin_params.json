@@ -1,6 +1,7 @@
 {
  "name": "Gridfinity Boxes (bins)",
  "units": "mm",
+ "_texts": "variant titles and parameter labels and help are {en, de} objects; the page shows the visitor's language (German uses du)",
  "frame": "Box centred in X/Y; z = 0 is the underside of the feet; the label (if any) sits on the +Y wall and runs along X.",
  "source": {
   "standard": "Onshape 'TemplateBox_HeightAdjust' (aee95cbe04963c37301ca12a, version 1709bdbec751f2c8b82e4d11, Part Studio 'Template'); same tree as 'TemplateBox' 009f11a5d6c90faddac6565f but with height in 7 mm units",
@@ -49,22 +50,33 @@
  },
  "variants": {
   "standard": {
-   "title": "Gridfinity Standard Box",
+   "title": {"en": "Gridfinity Standard Box", "de": "Gridfinity Standard-Box"},
    "parameters": {
-    "x_count": {"type": "int", "min": 1, "max": 10, "default": 2, "label": "Width", "help": "X, 42 mm per unit"},
-    "y_count": {"type": "int", "min": 1, "max": 10, "default": 2, "label": "Length", "help": "Y, 42 mm per unit"},
-    "z_count": {"type": "int", "min": 2, "max": 30, "default": 6, "label": "Height", "help": "7 mm per unit"},
-    "magnets": {"type": "bool", "default": true, "label": "Magnet holes", "help": "6 × 2 mm, 4 per cell"}
+    "x_count": {"type": "int", "min": 1, "max": 10, "default": 2,
+                "label": {"en": "Width", "de": "Breite"}, "help": {"en": "X, 42 mm per unit", "de": "X, 42 mm pro Einheit"}},
+    "y_count": {"type": "int", "min": 1, "max": 10, "default": 2,
+                "label": {"en": "Length", "de": "Länge"}, "help": {"en": "Y, 42 mm per unit", "de": "Y, 42 mm pro Einheit"}},
+    "z_count": {"type": "int", "min": 2, "max": 30, "default": 6,
+                "label": {"en": "Height", "de": "Höhe"}, "help": {"en": "7 mm per unit", "de": "7 mm pro Einheit"}},
+    "magnets": {"type": "bool", "default": true,
+                "label": {"en": "Magnet holes", "de": "Magnetlöcher"}, "help": {"en": "6 × 2 mm, 4 per cell", "de": "6 × 2 mm, 4 pro Zelle"}}
    }
   },
   "label": {
-   "title": "Gridfinity Box with Label",
+   "title": {"en": "Gridfinity Box with Label", "de": "Gridfinity Box mit Beschriftung"},
    "parameters": {
-    "x_count": {"type": "int", "min": 1, "max": 10, "default": 2, "label": "Width", "help": "X, 42 mm per unit; the label runs along it"},
-    "y_count": {"type": "int", "min": 1, "max": 10, "default": 2, "label": "Length", "help": "Y, 42 mm per unit"},
-    "z_count": {"type": "int", "min": 3, "max": 30, "default": 6, "label": "Height", "help": "7 mm per unit"},
-    "magnets": {"type": "bool", "default": true, "label": "Magnet holes", "help": "6 × 2 mm, 4 per cell"},
-    "plate_gap": {"type": "float", "min": 0, "max": 0.5, "default": 0, "step": 0.05, "label": "Plate clearance", "help": "per side, mm; makes the label plate smaller"}
+    "x_count": {"type": "int", "min": 1, "max": 10, "default": 2,
+                "label": {"en": "Width", "de": "Breite"},
+                "help": {"en": "X, 42 mm per unit; the label runs along it", "de": "X, 42 mm pro Einheit; die Beschriftung läuft entlang"}},
+    "y_count": {"type": "int", "min": 1, "max": 10, "default": 2,
+                "label": {"en": "Length", "de": "Länge"}, "help": {"en": "Y, 42 mm per unit", "de": "Y, 42 mm pro Einheit"}},
+    "z_count": {"type": "int", "min": 3, "max": 30, "default": 6,
+                "label": {"en": "Height", "de": "Höhe"}, "help": {"en": "7 mm per unit", "de": "7 mm pro Einheit"}},
+    "magnets": {"type": "bool", "default": true,
+                "label": {"en": "Magnet holes", "de": "Magnetlöcher"}, "help": {"en": "6 × 2 mm, 4 per cell", "de": "6 × 2 mm, 4 pro Zelle"}},
+    "plate_gap": {"type": "float", "min": 0, "max": 0.5, "default": 0, "step": 0.05,
+                  "label": {"en": "Plate clearance", "de": "Schildspiel"},
+                  "help": {"en": "per side, mm; makes the label plate smaller", "de": "pro Seite, mm; macht das Beschriftungsschild kleiner"}}
    }
   }
  },
