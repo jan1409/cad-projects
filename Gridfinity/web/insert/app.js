@@ -7,7 +7,7 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
 import { zipSync } from "./vendor/fflate.js";
 import ClipperLib from "./vendor/clipper.js";
 import { translator, applyDom, mountLangSwitch, num, pick } from "./vendor/i18n.js";
-import { setClipper, cleanOutline, offset, place, bounds, circle, rect, autoFingers, arrange, flatRotation } from "./src/outline.js";
+import { setClipper, cleanOutline, offset, place, bounds, circle, rect, autoFingers, arrange, flatRotation, simplify } from "./src/outline.js";
 import { insertEnv, insertSvg, insertBuildSheet, ERRORS } from "./src/insert.js";
 import { PAPERS } from "./src/trace.js";
 import S from "./src/strings.js";
@@ -32,6 +32,7 @@ const fileBase = "Gridfinity_Tool_Insert";
 const defaults = () => ({ ...Object.fromEntries(Object.entries(P).map(([k, p]) => [k, p.default])), auto_size: true, auto_height: true });
 let project = { inputs: defaults(), tools: [] }; // tools: {id, name, outline, height, depth, x, y, rot, fingers, shape?}
 let nextId = 1, selected = null, selFinger = null, selVertex = null, editOutline = false, arranged = true;
+const simplifyEps = new Map(); // tool id -> tolerance of the last "fewer points" click
 let env = null, built = null, building = false;
 
 const finite = (v) => typeof v === "number" && Number.isFinite(v);
@@ -113,7 +114,9 @@ function arrangeAll(tools) {
 }
 
 // ---------- photo ----------
-const photo = { img: null, w: 0, h: 0, corners: null, found: false, traced: null, stage: "none" };
+// strokes: brush corrections on the traced sheet [{add, r (mm), points: [[x, y] mm, y up]}], kept across re-traces
+const photo = { img: null, w: 0, h: 0, corners: null, found: false, traced: null, stage: "none", strokes: [] };
+let brush = "pick", traceSeq = 0;
 let tracer = null, tracerReady = false;
 const tracerQueue = [];
 function startTracer() {
@@ -136,10 +139,14 @@ function onTracer({ data: msg }) {
     status(msg.found ? "tool.sheetFound" : "tool.sheetMissing", {}, msg.found ? "" : "err");
     renderPhoto();
   } else if (msg.type === "traced") {
-    const c = el("canvas", { width: msg.width, height: msg.height });
-    c.getContext("2d").putImageData(new ImageData(new Uint8ClampedArray(msg.data), msg.width, msg.height), 0, 0);
+    if (msg.seq !== traceSeq) return; // a newer trace is on its way
+    let c = photo.traced?.canvas;
+    if (msg.data) { // the sheet changed (new photo, corners or paper)
+      c = el("canvas", { width: msg.width, height: msg.height });
+      c.getContext("2d").putImageData(new ImageData(new Uint8ClampedArray(msg.data), msg.width, msg.height), 0, 0);
+    }
     const keep = photo.traced?.tools ?? [];
-    photo.traced = { ...msg, canvas: c, tools: msg.tools.map((tr, i) => ({ ...tr, use: keep[i]?.use ?? true })) };
+    photo.traced = { ...msg, data: null, canvas: c, tools: msg.tools.map((tr, i) => ({ ...tr, use: keep[i]?.use ?? true })) };
     photo.stage = "traced";
     status("tool.traced", { n: msg.tools.length }, msg.tools.length ? "" : "err");
     renderPhoto();
@@ -162,7 +169,7 @@ async function loadPhoto(file) {
   g.drawImage(bmp, 0, 0, w, h);
   bmp.close?.();
   const data = g.getImageData(0, 0, w, h);
-  Object.assign(photo, { img: c, w, h, corners: null, found: false, traced: null, stage: "loading" });
+  Object.assign(photo, { img: c, w, h, corners: null, found: false, traced: null, stage: "loading", strokes: [] });
   if (!tracer) startTracer();
   status(tracerReady ? "tool.findingSheet" : "tool.loadingCv", {}, "busy");
   sendTracer({ type: "photo", width: w, height: h, data: data.data.buffer }, [data.data.buffer]);
@@ -173,21 +180,21 @@ const paper = () => PAPERS[$("paper").value] ?? PAPERS.A4;
 function trace() {
   if (!photo.corners) return;
   status("tool.tracing", {}, "busy");
-  sendTracer({ type: "trace", corners: photo.corners, paper: paper(), sensitivity: Number($("sens").value) });
+  sendTracer({ type: "trace", seq: ++traceSeq, corners: photo.corners, paper: paper(), sensitivity: Number($("sens").value), strokes: photo.strokes });
 }
 function addTraced() {
-  const tr = photo.traced;
-  const list = tr.tools.filter((p) => p.use).map((p) => {
-    const grown = offset([p.outline], tr.halfPixel, 0.05)[0] ?? p.outline; // the contour runs half a pixel inside the edge
-    return { outline: cleanOutline(grown, { eps: 0.15 }) };
-  }).filter((x) => x.outline);
+  const list = photo.traced.tools.filter((p) => p.use).map((p) => ({ outline: cleanOutline(p.outline, { eps: 0.1 }) })).filter((x) => x.outline);
   if (list.length) addTools(list);
 }
 $("photo-file").addEventListener("change", (e) => { if (e.target.files[0]) loadPhoto(e.target.files[0]); e.target.value = ""; });
 $("trace").addEventListener("click", trace);
-$("corners").addEventListener("click", () => { photo.stage = "corners"; renderPhoto(); setMode("photo"); });
+$("corners").addEventListener("click", () => { photo.stage = "corners"; photo.strokes = []; renderPhoto(); setMode("photo"); });
 $("add").addEventListener("click", addTraced);
-$("paper").addEventListener("change", () => { if (photo.stage === "traced") trace(); });
+$("paper").addEventListener("change", () => { photo.strokes = []; if (photo.stage === "traced") trace(); });
+for (const b of $("brush-mode").querySelectorAll("button")) b.addEventListener("click", () => { brush = b.dataset.brush; renderPhoto(); });
+$("brush-size").addEventListener("input", renderPhoto);
+$("brush-undo").addEventListener("click", () => { photo.strokes.pop(); trace(); renderPhoto(); });
+const brushR = () => Number($("brush-size").value) / 2; // the slider sets the diameter
 let sensTimer = 0;
 $("sens").addEventListener("input", () => { clearTimeout(sensTimer); sensTimer = setTimeout(trace, 250); });
 
@@ -196,6 +203,11 @@ function renderPhoto() {
   $("trace-row").hidden = !photo.corners;
   $("corners").hidden = !traced;
   $("sens-row").hidden = !traced;
+  $("brush-row").hidden = !traced;
+  for (const b of $("brush-mode").querySelectorAll("button")) b.setAttribute("aria-pressed", String(b.dataset.brush === brush));
+  $("brush-size").disabled = brush === "pick";
+  $("brush-size-v").textContent = t("tool.brushMm", { d: Number($("brush-size").value) });
+  $("brush-undo").disabled = !photo.strokes.length;
   $("add-row").hidden = !traced || !photo.traced.tools.length;
   if (traced) $("add").textContent = t("tool.addPieces", { n: photo.traced.tools.filter((p) => p.use).length });
   $("add").disabled = traced && !photo.traced.tools.some((p) => p.use);
@@ -221,7 +233,8 @@ for (const b of $("modes").querySelectorAll("button")) b.addEventListener("click
 const redraw = () => (mode === "photo" ? drawPhoto() : mode === "layout" ? drawLayout() : null);
 function renderHint() {
   $("hint").textContent = mode === "photo"
-    ? (photo.stage === "traced" ? t("tool.hintPieces") : photo.corners ? t("tool.hintCorners") : t("tool.photoEmpty"))
+    ? (photo.stage === "traced" ? (brush === "pick" ? t("tool.hintPieces") : t("tool.hintBrush"))
+      : photo.corners ? t("tool.hintCorners") : t("tool.photoEmpty"))
     : mode === "layout" ? (project.tools.length ? (editOutline ? t("tool.hintOutline") : t("tool.hintLayout")) : t("tool.hintEmpty"))
     : t("tool.hint3d");
   $("hint").parentElement.hidden = !$("hint").textContent;
@@ -265,6 +278,25 @@ function drawPhoto() {
       g.textAlign = "center";
       g.fillText(String(i + 1), lx, ly + 5);
     });
+    // brush strokes (kept faint) and the brush under the pointer
+    const px = tr.ppm * s;
+    for (const st of [...photo.strokes, ...(painting ? [painting] : [])]) {
+      g.strokeStyle = st.add ? "rgba(46, 125, 79, .45)" : "rgba(179, 38, 30, .45)";
+      g.lineWidth = 2 * st.r * px;
+      g.lineCap = g.lineJoin = "round";
+      g.beginPath();
+      st.points.forEach((q, j) => { const [x, y] = toS(q); j ? g.lineTo(x, y) : g.moveTo(x, y); });
+      if (st.points.length === 1) { const [x, y] = toS(st.points[0]); g.lineTo(x + 0.01, y); }
+      g.stroke();
+    }
+    if (brush !== "pick" && hover) {
+      const [x, y] = toS(hover);
+      g.beginPath();
+      g.arc(x, y, brushR() * px, 0, 2 * Math.PI);
+      g.strokeStyle = brush === "add" ? css("--ok") : css("--err");
+      g.lineWidth = 1.5;
+      g.stroke();
+    }
     return;
   }
   const s = Math.min((w - 2 * pad) / photo.w, (h - top - 40) / photo.h);
@@ -289,7 +321,8 @@ function drawPhoto() {
     g.stroke();
   });
 }
-let dragCorner = -1;
+let dragCorner = -1, painting = null, hover = null; // painting: the stroke in progress; hover: brush position (mm)
+const sheetMm = (e) => { const [px, py] = photoPoint(e), tr = photo.traced; return [px / tr.ppm, tr.hMm - py / tr.ppm]; };
 const photoPoint = (e) => {
   const r = $("photo-view").getBoundingClientRect(), { s, ox, oy } = photoView;
   return [(e.clientX - r.left - ox) / s, (e.clientY - r.top - oy) / s];
@@ -297,10 +330,16 @@ const photoPoint = (e) => {
 $("photo-view").addEventListener("pointerdown", (e) => {
   if (!photoView) return;
   const [px, py] = photoPoint(e);
-  if (photo.stage === "traced") { // toggle a piece
-    const tr = photo.traced, mm = [px / tr.ppm, tr.hMm - py / tr.ppm];
-    const hit = tr.tools.findIndex((p) => inside(mm, p.outline));
-    if (hit >= 0) { tr.tools[hit].use = !tr.tools[hit].use; renderPhoto(); }
+  if (photo.stage === "traced") {
+    const tr = photo.traced, mm = sheetMm(e);
+    if (brush === "pick") { // toggle a piece
+      const hit = tr.tools.findIndex((p) => inside(mm, p.outline));
+      if (hit >= 0) { tr.tools[hit].use = !tr.tools[hit].use; renderPhoto(); }
+      return;
+    }
+    painting = { add: brush === "add", r: brushR(), points: [mm] };
+    $("photo-view").setPointerCapture(e.pointerId);
+    drawPhoto();
     return;
   }
   if (!photo.corners) return;
@@ -313,12 +352,30 @@ $("photo-view").addEventListener("pointerdown", (e) => {
   drawPhoto();
 });
 $("photo-view").addEventListener("pointermove", (e) => {
+  if (photo.stage === "traced" && photoView) {
+    hover = sheetMm(e);
+    if (painting) {
+      const last = painting.points.at(-1);
+      if (Math.hypot(hover[0] - last[0], hover[1] - last[1]) > painting.r / 3) painting.points.push(hover);
+    }
+    if (brush !== "pick") drawPhoto();
+    return;
+  }
   if (dragCorner < 0) return;
   const [px, py] = photoPoint(e);
   photo.corners[dragCorner] = [Math.max(0, Math.min(photo.w, px)), Math.max(0, Math.min(photo.h, py))];
   drawPhoto();
 });
-$("photo-view").addEventListener("pointerup", () => { if (dragCorner >= 0) { dragCorner = -1; drawPhoto(); } });
+$("photo-view").addEventListener("pointerup", () => {
+  if (painting) {
+    photo.strokes.push(painting);
+    painting = null;
+    trace();
+    renderPhoto();
+  }
+  if (dragCorner >= 0) { dragCorner = -1; drawPhoto(); }
+});
+$("photo-view").addEventListener("pointerleave", () => { if (hover && !painting) { hover = null; drawPhoto(); } });
 
 function inside([x, y], poly) { // even-odd point in polygon
   let c = false;
@@ -331,6 +388,8 @@ function inside([x, y], poly) { // even-odd point in polygon
 
 // ---------- layout view (box frame, mm, y up) ----------
 let view = null; // {s, ox, oy}: screen = (ox + x s, oy - y s)
+let fit = null; // the view that shows everything, plus the canvas centre {s, w, midY, cx, cy}
+let zoom = null; // while editing an outline: {k (1 = fit), wx, wy (world point at the canvas centre)}
 let drag = null; // {kind: "tool" | "finger" | "vertex", id, index, start: [x, y], orig, moved}
 const toScreen = ([x, y]) => [view.ox + x * view.s, view.oy - y * view.s];
 const placedOutline = (tl, dx = 0, dy = 0) => place(tl.outline, tl).map(([x, y]) => [x + env.shift[0] + dx, y + env.shift[1] + dy]);
@@ -345,8 +404,10 @@ function drawLayout() {
   const top = 56, pad = 18, hw = env.W / 2, hd = env.D / 2;
   let b = { x0: -hw, y0: -hd, x1: hw, y1: hd };
   for (const it of env.items) { const r = bounds(it.region); b = { x0: Math.min(b.x0, r.x0), y0: Math.min(b.y0, r.y0), x1: Math.max(b.x1, r.x1), y1: Math.max(b.y1, r.y1) }; }
-  const s = Math.min((w - 2 * pad) / (b.x1 - b.x0), (h - top - 44) / (b.y1 - b.y0));
-  view = { s, ox: w / 2 - ((b.x0 + b.x1) / 2) * s, oy: top + (h - top - 44) / 2 + ((b.y0 + b.y1) / 2) * s };
+  const s0 = Math.min((w - 2 * pad) / (b.x1 - b.x0), (h - top - 44) / (b.y1 - b.y0)), midY = top + (h - top - 44) / 2;
+  fit = { s: s0, w, midY, cx: (b.x0 + b.x1) / 2, cy: (b.y0 + b.y1) / 2 };
+  const k = zoom && editOutline ? zoom.k : 1, [wx, wy] = zoom && editOutline ? [zoom.wx, zoom.wy] : [fit.cx, fit.cy], s = s0 * k;
+  view = { s, ox: w / 2 - wx * s, oy: midY + wy * s };
   const path = (poly) => { g.beginPath(); poly.forEach((p, i) => { const [x, y] = toScreen(p); i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.closePath(); };
   const rrect = (x0, y0, x1, y1, r) => { const [a, bb] = toScreen([x0, y1]); g.beginPath(); g.roundRect(a, bb, (x1 - x0) * s, (y1 - y0) * s, r * s); };
   // cells, box outline, opening, allowed area
@@ -490,22 +551,35 @@ $("layout-view").addEventListener("pointerdown", (e) => {
       return;
     }
   }
-  // 3. tools: inside the pocket region (topmost = last drawn)
-  for (let i = env.items.length - 1; i >= 0; i--) {
+  // 3. tools: inside the pocket region (topmost = last drawn); not while editing an outline (dragging pans then)
+  for (let i = editOutline ? -1 : env.items.length - 1; i >= 0; i--) {
     if (env.items[i].region.some((poly) => inside([p.x, p.y], poly))) {
       const hit = project.tools[i];
-      if (selected !== hit.id) { selected = hit.id; selFinger = selVertex = null; editOutline = false; renderTools(); }
+      if (selected !== hit.id) { selected = hit.id; selFinger = selVertex = null; editOutline = false; zoom = null; renderTools(); }
       drag = { kind: "tool", id: hit.id, start: [p.x, p.y], orig: { x: hit.x, y: hit.y }, delta: [0, 0] };
       $("layout-view").setPointerCapture(e.pointerId);
       drawLayout();
       return;
     }
   }
+  if (editOutline) { // empty space while editing: pan the zoomed view
+    zoom ??= { k: 1, wx: fit.cx, wy: fit.cy };
+    drag = { kind: "pan", start: [p.sx, p.sy], orig: { ...zoom } };
+    $("layout-view").setPointerCapture(e.pointerId);
+    return;
+  }
   if (selected != null) { selected = null; selFinger = selVertex = null; editOutline = false; renderTools(); drawLayout(); renderHint(); }
 });
 $("layout-view").addEventListener("pointermove", (e) => {
   if (!drag) return;
-  const p = layoutPoint(e), tl = toolById(drag.id), dx = p.x - drag.start[0], dy = p.y - drag.start[1];
+  const p = layoutPoint(e);
+  if (drag.kind === "pan") {
+    zoom.wx = drag.orig.wx - (p.sx - drag.start[0]) / view.s;
+    zoom.wy = drag.orig.wy + (p.sy - drag.start[1]) / view.s;
+    drawLayout();
+    return;
+  }
+  const tl = toolById(drag.id), dx = p.x - drag.start[0], dy = p.y - drag.start[1];
   if (Math.hypot(dx, dy) * view.s > 2) drag.moved = true;
   if (drag.kind === "tool") drag.delta = [dx, dy];
   else if (drag.kind === "finger") {
@@ -517,6 +591,7 @@ $("layout-view").addEventListener("pointermove", (e) => {
 });
 $("layout-view").addEventListener("pointerup", () => {
   if (!drag) return;
+  if (drag.kind === "pan") { drag = null; return; }
   const tl = toolById(drag.id);
   if (drag.kind === "tool" && drag.moved) {
     tl.x = drag.orig.x + drag.delta[0];
@@ -528,9 +603,17 @@ $("layout-view").addEventListener("pointerup", () => {
 });
 $("layout-view").addEventListener("wheel", (e) => {
   const tl = toolById(selected);
-  if (!tl || mode !== "layout") return;
+  if (!tl || mode !== "layout" || !view) return;
   e.preventDefault();
-  rotate(tl, (e.deltaY > 0 ? 1 : -1) * (e.shiftKey ? 1 : 5));
+  if (!editOutline) return rotate(tl, (e.deltaY > 0 ? 1 : -1) * (e.shiftKey ? 1 : 5));
+  // zoom around the pointer: the point under it stays there
+  const p = layoutPoint(e);
+  zoom ??= { k: 1, wx: fit.cx, wy: fit.cy };
+  zoom.k = Math.min(30, Math.max(1, zoom.k * (e.deltaY > 0 ? 1 / 1.25 : 1.25)));
+  const s2 = fit.s * zoom.k;
+  zoom.wx = (fit.w / 2 - p.sx) / s2 + p.x;
+  zoom.wy = (p.sy - fit.midY) / s2 + p.y;
+  drawLayout();
 }, { passive: false });
 window.addEventListener("keydown", (e) => {
   const tl = toolById(selected);
@@ -652,9 +735,18 @@ function renderTools() {
     }
     body.append(el("span", { textContent: t("tool.fingers") }), fRow);
     const edit = el("button", { type: "button", className: `btn small ${editOutline ? "primary" : "quiet"}`, textContent: t(editOutline ? "tool.editDone" : "tool.editOutline") });
-    edit.addEventListener("click", () => { editOutline = !editOutline; selVertex = null; setMode("layout"); render(); });
+    edit.addEventListener("click", () => { editOutline = !editOutline; selVertex = null; zoom = null; setMode("layout"); render(); });
     const row = el("div", { className: "row" }, edit);
     if (!tl.shape) {
+      const fewer = el("button", { type: "button", className: "btn small quiet", textContent: t("tool.fewerPoints") });
+      fewer.addEventListener("click", () => { // each click simplifies more coarsely (0.45, 0.8, 1.5 mm ...)
+        const eps = (simplifyEps.get(tl.id) ?? 0.25) * 1.8;
+        simplifyEps.set(tl.id, eps);
+        tl.outline = simplify([tl.outline], eps)[0] ?? tl.outline;
+        selVertex = null;
+        update();
+      });
+      row.append(fewer);
       const mirror = el("button", { type: "button", className: "btn small quiet", textContent: t("tool.mirror") });
       mirror.addEventListener("click", () => {
         tl.outline = tl.outline.map(([x, y]) => [-x, y]).reverse();
@@ -663,6 +755,7 @@ function renderTools() {
       });
       row.append(mirror);
     }
+    row.append(el("small", { className: "note", textContent: t("tool.points", { n: tl.outline.length }) }));
     body.append(el("span", { textContent: t("tool.outline") }), row);
     box.append(body);
     return box;

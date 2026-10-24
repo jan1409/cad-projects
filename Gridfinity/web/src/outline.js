@@ -188,25 +188,29 @@ export function convexHull(pts) { // monotone chain, counter-clockwise
   return [...lo.slice(0, -1), ...hi.slice(0, -1)];
 }
 
-// rotation (degrees) for the automatic layout, long side along X: the outline as photographed (tools usually lie
-// along the sheet), turned 90 degrees if needed; a tilted minimum-area orientation only if it needs fewer grid cells
-// (cells: size -> grid cells of a pocket of that size)
-export function flatRotation(pts, cells = (w, h) => w * h) {
-  const h = convexHull(pts);
-  const cand = [0, 90];
-  for (let i = 0; i < h.length; i++) {
-    const [x0, y0] = h[i], [x1, y1] = h[(i + 1) % h.length];
-    const rot = (-Math.atan2(y1 - y0, x1 - x0) * 180) / Math.PI;
-    cand.push(rot, rot + 90);
+// rotation (degrees) for the automatic layout, long side along X, straight: as photographed when the tool's principal
+// axis is within 4 degrees of the sheet's axes (tools usually lie along the sheet), otherwise along its principal axis
+// (straightens a tool that lay askew). Diagonal (minimum-area) placements only when no straight one fits:
+// fits(w, h) says whether a pocket of that size fits the printer.
+export function flatRotation(pts, fits = () => true) {
+  const h = convexHull(pts), norm = (r) => ((r % 360) + 360) % 360;
+  const pa = (-moments(pts).angle * 180) / Math.PI, off = Math.abs(((pa % 90) + 135) % 90 - 45);
+  const straight = off < 4 ? [0, 90, pa, pa + 90] : [pa, pa + 90, 0, 90];
+  for (const rot of straight) {
+    const b = bounds([place(h, { rot })]);
+    if (b.w >= b.h * 0.995 && fits(b.w, b.h)) return norm(rot); // long side along X (round shapes: either way, keep 0)
   }
   let best = null;
-  for (const rot of cand) {
-    const b = bounds([place(h, { rot })]);
-    if (b.w < b.h * 0.995) continue; // long side along X only (round shapes: either way, so they keep 0)
-    const c = cells(b.w, b.h);
-    if (!best || c < best.c - 1e-9) best = { c, rot };
+  for (let i = 0; i < h.length; i++) {
+    const [x0, y0] = h[i], [x1, y1] = h[(i + 1) % h.length], e = (-Math.atan2(y1 - y0, x1 - x0) * 180) / Math.PI;
+    for (const rot of [e, e + 90]) {
+      const b = bounds([place(h, { rot })]);
+      if (b.w < b.h * 0.995) continue;
+      const score = [fits(b.w, b.h) ? 0 : 1, b.w * b.h];
+      if (!best || score[0] < best.score[0] || (score[0] === best.score[0] && score[1] < best.score[1])) best = { score, rot };
+    }
   }
-  return (((best?.rot ?? 0) % 360) + 360) % 360;
+  return norm(best?.rot ?? 0);
 }
 
 // automatic layout: every tool turned flat, then shelf-packed (tallest first) into rows; tries every row width from
@@ -214,9 +218,9 @@ export function flatRotation(pts, cells = (w, h) => w * h) {
 // given box width (rowUnits, for a manual footprint). Spacing uses the whole pocket (outline + clearance + finger
 // cutouts) plus gap. Returns copies of the tools with x, y, rot set.
 export function arrange(tools, { clearance, fingerD, gap, pitch = 42, pad = 8.1, maxUnits = 8, rowUnits = null }) {
-  const cells = (w, h) => Math.ceil((w + 2 * clearance + pad) / pitch) * Math.ceil((h + 2 * clearance + pad) / pitch);
+  const fits = (w, h) => Math.max(w, h) + 2 * clearance + pad <= maxUnits * pitch;
   const parts = tools.map((tool) => {
-    const rot = flatRotation(tool.outline, cells), placed = { ...tool, rot, x: 0, y: 0 };
+    const rot = flatRotation(tool.outline, fits), placed = { ...tool, rot, x: 0, y: 0 };
     const circles = toolFingers(placed, fingerD).map((f) => circle(f.x, f.y, f.d / 2, 0.2));
     const b = bounds([...toolRegion(placed, clearance, 0.1), ...circles]);
     return { tool, rot, b, w: b.w + gap, h: b.h + gap };

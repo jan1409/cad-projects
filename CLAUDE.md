@@ -83,6 +83,8 @@ Printer: Prusa XL (360 × 360 mm bed). Units: mm everywhere.
   sheet of paper, entirely in the browser.
   - OpenCV.js (`@techstark/opencv-js`, one 13 MB file with embedded WASM): the module worker does
     `await import("./vendor/opencv.js")`, then `await globalThis.cv`. Node must `require` it (its Node branch calls require).
+    `Mat.clone()` (5.0.0-release.1) shares the pixels with the original: copy with `src.copyTo(new cv.Mat())`.
+  - Polished metal is about as bright as the paper: the tracer finds it through edges (Canny, closed into regions), not tone.
   - 2D offsets: `clipper-lib` 6.4.2. `clipper2-js` 1.2.4 returns broken offsets. The site ships it as
     `vendor/clipper.js` with `export default globalThis.ClipperLib` appended; modules get it through `setClipper()`.
   - Test the tracing on synthetic photos (`trace_check.mjs`), not only by eye: it found a 0.6 px corner bias.

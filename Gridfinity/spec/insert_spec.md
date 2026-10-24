@@ -36,8 +36,9 @@ Parameters: variant `insert` and block `insert` of `bin_params.json`. Code: `Gri
   or height too small, a pocket outside the allowed area, more than 30 height units.
 
 ## Automatic layout
-Each tool keeps its photographed orientation (or turned 90°) with the long side along X, unless a tilted
-minimum-area orientation needs fewer grid cells. Shelf packing, tallest first; every row length from the widest
+Each tool lies straight with the long side along X: as photographed when its principal axis is within 4° of the
+sheet's axes, otherwise along its principal axis (straightens a tool that lay askew). A diagonal minimum-area
+orientation only when the tool doesn't fit the printer straight. Shelf packing, tallest first; every row length from the widest
 tool up to 8 cells is tried and the one with the fewest cells wins (then the squarest). Spacing: whole pockets
 (including finger cutouts) plus `min_wall` + 1 mm.
 
@@ -47,13 +48,22 @@ tool up to 8 cells is tried and the one with the fewest cells wins (then the squ
    line through the contour points along its middle 80 % and moved half a pixel outward (the contour runs through
    the outermost paper pixels). The corners stay draggable on the page.
 3. Rectified at 5 px/mm (A4: 1050 × 1485 px), keeping the sheet's orientation in the photo.
-4. Tools: lightness against a quadratic paper-brightness model fitted to the paper pixels (lighting gradients), or
-   colour distance from the paper's colour cast, whichever is larger; Otsu threshold (at least 15 % darker than the
-   paper), moved by the sensitivity slider; opening 3 px, closing 1 mm; a 4 mm border is ignored; outer contours of
-   at least 80 mm², simplified to 0.12 mm, grown by half a pixel.
-5. On the page: pieces can be left out, outlines edited (points), mirrored and scaled to a measured length.
+4. Tools, two cues joined:
+   - tone: lightness against a quadratic paper-brightness model fitted to the paper pixels (lighting gradients), or
+     colour distance from the paper's colour cast, whichever is larger; Otsu threshold (at least 15 % darker than the
+     paper), moved by the sensitivity slider; opening 3 px.
+   - edges: polished metal reflects the paper and has nearly its tone, but a clear outline. Canny on the blurred
+     lightness, thresholds 2.3 / 5.5 × the 90th percentile of the paper's own gradient noise (moved by the slider).
+   - Joined, the 4 mm border cleared (the sheet's edge must not form a loop), closed into regions: dilate 1 mm, fill
+     the outer contours, erode 1 mm. Notches narrower than 2 mm get bridged, which a pocket doesn't mind.
+5. Brush strokes (Add / Erase, round dabs along the stroke) are painted into the mask; they survive re-traces with
+   another sensitivity. The worker keeps the rectified sheet and the mask, so a stroke re-traces in milliseconds.
+6. Outer contours of at least 80 mm²; the mask is smoothed first (Gaussian 0.35 mm), the outline simplified to
+   0.25 mm (the wrench photo: 65 points, the pliers: 147). No half-pixel correction: edge pixels lie on the boundary.
+7. On the page: pieces can be left out, outlines edited (points, with zoom and pan), simplified further ("Fewer
+   points": 0.45, 0.8, 1.5 mm …), mirrored and scaled to a measured length.
 
-Accuracy on synthetic photos (`node/trace_check.mjs`): outlines come out 0.10–0.21 mm larger on average; the sides
-away from a drop shadow are within ±0.1 mm, the shadow side grows by up to 0.4 mm (diffuse light) or 0.55 mm (hard
-light). Real photos add parallax: a tool's top edge looks larger by its height over the camera distance (20 mm at
+Accuracy on synthetic photos (`node/trace_check.mjs`): outlines come out 0.05–0.18 mm larger on average; the sides
+away from a drop shadow are within ±0.2 mm, the shadow side grows by up to 0.3 mm. Real photos (`fixtures/photos/`):
+the pliers and the chrome wrench come out as one piece each. Real photos add parallax: a tool's top edge looks larger by its height over the camera distance (20 mm at
 50 cm: 4 %), so the page asks for photos from far away with zoom and offers the length correction.

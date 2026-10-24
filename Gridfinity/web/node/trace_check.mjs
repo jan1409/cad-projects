@@ -134,7 +134,7 @@ if (args[0] && !args[0].startsWith("--")) {
   const { sheet, rect, res } = traceScene(photo, PAPERS[opt("--paper") ?? "A4"]);
   console.log(`sheet ${sheet.found ? "found" : "NOT found"} (${(sheet.area * 100).toFixed(0)} % of the photo), ${rect.wMm} × ${rect.hMm} mm`);
   for (const t of res.tools) {
-    const o = offset([t.outline], res.halfPixel, 0.05)[0] ?? t.outline, b = bounds([o]);
+    const o = t.outline, b = bounds([o]);
     console.log(`  tool: ${b.w.toFixed(1)} × ${b.h.toFixed(1)} mm (axis-aligned on the sheet), area ${area(o).toFixed(0)} mm²`);
   }
   if (pngDir) { fs.mkdirSync(pngDir, { recursive: true }); writePng(path.join(pngDir, "sheet.png"), rect.mat); writePng(path.join(pngDir, "mask.png"), res.mask); }
@@ -157,7 +157,7 @@ if (args[0] && !args[0].startsWith("--")) {
       const tp = land ? t.poly.map(([X, Y]) => [Y, 210 - X]) : t.poly;
       const tb = bounds([tp]);
       // traced piece whose centre is closest to the drawn tool
-      const cand = res.tools.map((r) => ({ r, o: offset([r.outline], res.halfPixel, 0.02)[0] ?? r.outline }))
+      const cand = res.tools.map((r) => ({ r, o: r.outline }))
         .map((c) => ({ ...c, b: bounds([c.o]) }))
         .sort((p, q) => Math.hypot(p.b.x0 + p.b.w / 2 - tb.x0 - tb.w / 2, p.b.y0 + p.b.h / 2 - tb.y0 - tb.h / 2) -
           Math.hypot(q.b.x0 + q.b.w / 2 - tb.x0 - tb.w / 2, q.b.y0 + q.b.h / 2 - tb.y0 - tb.h / 2))[0];
@@ -166,11 +166,11 @@ if (args[0] && !args[0].startsWith("--")) {
       else {
         // limits (normal / hard light, where the shadow side grows): size within 0.5 / 0.8 mm, mean offset (area
         // difference per perimeter length) within 0.25 / 0.4 mm, 95 % of the outline within 0.45 / 0.6 mm, nothing
-        // beyond 1.5 mm (sharp concave corners get rounded by the closing)
+        // beyond 2.5 mm (the 1 mm closing bridges notches narrower than 2 mm, like the caliper's V between its jaws)
         const perim = tp.reduce((s, a, i) => s + Math.hypot(tp[(i + 1) % tp.length][0] - a[0], tp[(i + 1) % tp.length][1] - a[1]), 0);
         const mean = (area(cand.o) - area(tp)) / perim, [p95, max] = deviation(cand.o, tp), lim = sc.hard ? [0.8, 0.4, 0.6] : [0.5, 0.25, 0.45];
         const ok = Math.abs(cand.b.w - tb.w) <= lim[0] && Math.abs(cand.b.h - tb.h) <= lim[0] && Math.abs(mean) <= lim[1] &&
-          p95 <= lim[2] && max <= 1.5;
+          p95 <= lim[2] && max <= 2.5;
         if (!ok) failures++;
         const edges = [tb.x0 - cand.b.x0, cand.b.x1 - tb.x1, tb.y0 - cand.b.y0, cand.b.y1 - tb.y1].map((v) => v.toFixed(2)).join(" ");
         row = [`${cand.b.w.toFixed(2)} × ${cand.b.h.toFixed(2)}`, edges, mean.toFixed(2), `${p95.toFixed(2)} / ${max.toFixed(2)}`, ok ? "ok" : "WRONG"];
@@ -179,6 +179,22 @@ if (args[0] && !args[0].startsWith("--")) {
     }
     console.log(`| ${name} | (sheet ${sheet.found ? "found" : "NOT FOUND"}, ${res.tools.length} piece(s), ${((Date.now() - t0) / 1000).toFixed(1)} s) | | | | | | |`);
     if (!sheet.found || res.tools.length !== truth.length) failures++;
+    photo.delete(); rect.mat.delete(); res.mask.delete();
+  }
+  // real photos (fixtures/photos/photos.json): one piece, an editable number of points, the size as recorded / measured
+  const photos = JSON.parse(fs.readFileSync(new URL("./fixtures/photos/photos.json", import.meta.url))).photos;
+  console.log("\n| photo | tool | pieces | points | size mm | expected mm | result |\n|---|---|---|---|---|---|---|");
+  const jpeg = require("jpeg-js");
+  for (const ph of photos) {
+    const img = jpeg.decode(fs.readFileSync(new URL(`./fixtures/photos/${ph.file}`, import.meta.url)), { useTArray: true, maxMemoryUsageInMB: 1024 });
+    const photo = cv.matFromImageData({ data: img.data, width: img.width, height: img.height });
+    const { sheet, rect, res } = traceScene(photo, PAPERS[ph.paper]);
+    const t = res.tools[0], b = t ? bounds([t.outline]) : null;
+    const want = ph.measured ?? ph.recorded, tol = (v) => (ph.measured ? 0.015 * v : 1.5);
+    const ok = sheet.found && res.tools.length === 1 && t.outline.length <= 200 && [b.w, b.h].every((v, i) => Math.abs(v - want[i]) <= tol(want[i]));
+    if (!ok) failures++;
+    console.log(`| ${ph.file} | ${ph.tool} | ${res.tools.length} | ${t?.outline.length ?? "-"} | ${b ? `${b.w.toFixed(1)} × ${b.h.toFixed(1)}` : "-"} | ` +
+      `${want.join(" × ")} (${ph.measured ? "measured" : "recorded"}) | ${ok ? "ok" : "WRONG"} |`);
     photo.delete(); rect.mat.delete(); res.mask.delete();
   }
   console.log(`\n${failures ? `${failures} problem(s)` : "all ok"}`);

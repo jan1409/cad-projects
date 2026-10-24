@@ -59,13 +59,14 @@ of them lying on a sheet of paper, all in the browser (OpenCV.js). Variant `inse
 |---|---|
 | `src/outline.js` | 2D in mm on Clipper (`setClipper`): offsets, booleans, finger cutouts, automatic layout (`arrange`) |
 | `src/insert.js` | `insertEnv` (size, fill top, pockets, problems; no kernel), `makeInsert` (box from `src/bin.js` with `fill_top` minus pockets), check SVG, build sheet |
-| `src/trace.js` | OpenCV pipeline: `findSheet` (corners), `rectify` (5 px/mm), `traceTools` (tool outlines in mm) |
+| `src/trace.js` | OpenCV pipeline: `findSheet` (corners), `rectify` (5 px/mm), `toolMask` (tone + edges), `paintMask` (brush), `maskTools` (outlines in mm) |
 | `src/occ.js` | boolean helpers with the raw-boolean fallback, shared by `bin.js` and `insert.js` |
 | `insert/index.html`, `app.js`, `worker.js`, `trace-worker.js`, `card.png` | the page (photo, layout editor, box, 3-D), geometry worker, OpenCV worker |
 | `node/insert_build.mjs` | `node node/insert_build.mjs mixed [--x 7 --y 3] [--z 8] [--out dir]` builds a fixture set; `--sweep` runs 16 configurations |
 | `node/stack_fit.mjs` | a box set onto standard, label and insert boxes: free when lifted 0.01 mm, on the lip when lowered 0.05 mm |
 | `node/trace_check.mjs` | synthetic photos (perspective, shadows, light gradient, noise) traced and compared; `<photo.jpg>` traces a real one |
 | `node/fixtures/tools.json` | hand-made tool outlines and sets for the checks |
+| `node/fixtures/photos/` | Jan's photos (upright, 3000 px) with the expected sizes in `photos.json` |
 
 ## Validation
 `python -I Gridfinity/fusion/validate.py --web` builds every reference configuration with `node/build.mjs`, imports

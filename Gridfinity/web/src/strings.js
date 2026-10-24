@@ -187,8 +187,19 @@ export default {
     de: "Prüf, ob die vier Ecken auf den Ecken des Blatts liegen, und lass dann die Werkzeuge erkennen.",
   },
   "tool.pickPieces": {
-    en: "Click a piece in the picture to leave it out or take it in again. Move the sensitivity slider if parts are missing or shadows are included.",
-    de: "Klick ein Teil im Bild an, um es wegzulassen oder wieder aufzunehmen. Verschieb den Regler für die Empfindlichkeit, wenn Teile fehlen oder Schatten dazugehören.",
+    en: "Click a piece in the picture to leave it out or take it in again. If a part is missing or a shadow belongs to the outline, paint over it with Add or Erase, or move the sensitivity slider.",
+    de: "Klick ein Teil im Bild an, um es wegzulassen oder wieder aufzunehmen. Fehlt ein Stück oder gehört ein Schatten zum Umriss, mal mit Hinzufügen oder Radieren darüber, oder verschieb den Regler für die Empfindlichkeit.",
+  },
+  "tool.brush": { en: "Brush", de: "Pinsel" },
+  "tool.brushPick": { en: "Select", de: "Auswählen" },
+  "tool.brushAdd": { en: "Add", de: "Hinzufügen" },
+  "tool.brushErase": { en: "Erase", de: "Radieren" },
+  "tool.brushSize": { en: "Brush size", de: "Pinselgröße" },
+  "tool.brushMm": { en: "{d:1} mm", de: "{d:1} mm" },
+  "tool.undo": { en: "Undo", de: "Rückgängig" },
+  "tool.hintBrush": {
+    en: "Paint over the picture: Add makes it part of the tool, Erase makes it paper.",
+    de: "Mal über das Bild: Hinzufügen macht es zum Teil des Werkzeugs, Radieren macht es zu Papier.",
   },
   "tool.reading": { en: "Reading the photo…", de: "Foto wird gelesen…" },
   "tool.photoError": {
@@ -220,8 +231,8 @@ export default {
     de: "Zieh ein Werkzeug, um es zu verschieben; Mausrad oder R dreht es, die Pfeiltasten schieben es ein Stück.",
   },
   "tool.hintOutline": {
-    en: "Drag a point to move it, click an edge to add one; the red mark removes the selected point.",
-    de: "Zieh einen Punkt, um ihn zu verschieben, klick eine Kante an, um einen hinzuzufügen; die rote Marke entfernt den gewählten Punkt.",
+    en: "Mouse wheel zooms, dragging the background moves the view. Drag a point to move it, click an edge to add one; the red mark removes the selected point.",
+    de: "Das Mausrad zoomt, Ziehen am Hintergrund verschiebt die Ansicht. Zieh einen Punkt, um ihn zu verschieben, klick eine Kante an, um einen hinzuzufügen; die rote Marke entfernt den gewählten Punkt.",
   },
   "tool.hintEmpty": { en: "Add tools from a photo or as a simple shape.", de: "Füg Werkzeuge aus einem Foto oder als einfache Form hinzu." },
   "tool.hint3d": { en: "The dark parts are your tools in their pockets.", de: "Die dunklen Teile sind deine Werkzeuge in ihren Taschen." },
@@ -256,6 +267,11 @@ export default {
   "tool.editOutline": { en: "Edit outline", de: "Umriss bearbeiten" },
   "tool.editDone": { en: "Done", de: "Fertig" },
   "tool.mirror": { en: "Mirror", de: "Spiegeln" },
+  "tool.fewerPoints": { en: "Fewer points", de: "Weniger Punkte" },
+  "tool.points": {
+    en: { one: "{n} point", other: "{n} points" },
+    de: { one: "{n} Punkt", other: "{n} Punkte" },
+  },
   "tool.toolsEmpty": { en: "No tools yet.", de: "Noch keine Werkzeuge." },
   "tool.toolsNeedHeight": {
     en: { one: "Enter the height of {n} tool to build the box.", other: "Enter the height of {n} tools to build the box." },

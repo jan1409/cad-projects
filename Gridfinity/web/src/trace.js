@@ -1,7 +1,8 @@
 // Tool tracing from a photo of tools lying on a sheet of paper (OpenCV.js; runs in the trace worker and in Node).
 // 1. findSheet: the paper's 4 corners in the photo (bright, unsaturated region; sides fitted as lines)
 // 2. rectify: perspective-corrected image of the sheet at ppm pixels per mm
-// 3. traceTools: tool silhouettes on the rectified sheet -> polygons in mm (sheet frame: origin bottom left, y up)
+// 3. traceTools: tool silhouettes on the rectified sheet (tone + edges, brush corrections) -> polygons in mm
+//    (sheet frame: origin bottom left, y up)
 // The cv module is passed in (the worker loads ./vendor/opencv.js, Node requires @techstark/opencv-js).
 // Every cv.Mat is freed here except the ones returned (documented per function).
 export const PAPERS = { A4: [210, 297], A3: [297, 420], Letter: [215.9, 279.4] };
@@ -140,26 +141,39 @@ export function rectify(cv, rgba, corners, paper, ppm = 5) {
 }
 
 // 3. sheet: rectified CV_8UC4 sheet image at ppm. Returns {tools: [{outline (mm, y up, as traced), area (mm²)}],
-// mask (CV_8UC1 at the sheet's size, the caller deletes it), threshold}.
-// sensitivity -1..1: higher finds fainter (lighter) parts and more shadow. margin: mm ignored along the sheet edges.
-export function traceTools(cv, sheet, { ppm = 5, sensitivity = 0, margin = 4, minArea = 80 } = {}) {
+// mask (CV_8UC1 at the sheet's size, the caller deletes it), threshold, edges: [low, high]}.
+// sensitivity -1..1: higher finds fainter (lighter) parts, weaker edges and more shadow. margin: mm ignored along the
+// sheet edges. strokes: brush corrections applied to the mask (see paintMask).
+export function traceTools(cv, sheet, { ppm = 5, sensitivity = 0, margin = 4, minArea = 80, strokes = [] } = {}) {
+  const { mask, threshold, edges } = toolMask(cv, sheet, { ppm, sensitivity, margin });
+  paintMask(cv, mask, strokes, ppm);
+  return { tools: maskTools(cv, mask, { ppm, minArea }), mask, threshold, edges };
+}
+
+// the tool mask (CV_8UC1, 255 = tool; the caller deletes it). Two cues, joined:
+// - tone: darker than the paper (against a quadratic brightness model, for lighting gradients) or a different colour
+// - edges: polished metal reflects the paper and has nearly its tone, but a clear outline. Canny edges (thresholds
+//   from the paper's own gradient noise) are closed into regions: dilate 1 mm, fill the outer contours, erode back.
+export function toolMask(cv, sheet, { ppm = 5, sensitivity = 0, margin = 4 } = {}) {
   const W = sheet.cols, H = sheet.rows;
   const mask = new cv.Mat();
-  const result = withMats((T) => {
+  const info = withMats((T) => {
     const rgb = T(new cv.Mat()), lab = T(new cv.Mat());
     cv.cvtColor(sheet, rgb, cv.COLOR_RGBA2RGB);
     cv.cvtColor(rgb, lab, cv.COLOR_RGB2Lab);
     const ch = T(new cv.MatVector());
     cv.split(lab, ch);
     const L = T(ch.get(0)), A = T(ch.get(1)), B = T(ch.get(2));
+    const Lb = T(new cv.Mat());
+    cv.GaussianBlur(L, Lb, new cv.Size(0, 0), 1.2);
     cv.GaussianBlur(L, L, new cv.Size(3, 3), 0);
 
     // paper model: a quadratic brightness surface fitted to paper pixels (smooth lighting gradients), plus the paper's
-    // colour cast (median a, b); two rounds, re-classifying paper pixels against the model
+    // colour cast (median a, b); three rounds, re-classifying paper pixels against the model
     const step = Math.max(2, Math.round(ppm * 2)), m0 = Math.round(margin * ppm);
     const samples = [];
     for (let y = m0; y < H - m0; y += step)
-      for (let x = m0; x < W - m0; x += step) samples.push([x / W, y / H, L.ucharAt(y, x), A.ucharAt(y, x), B.ucharAt(y, x)]);
+      for (let x = m0; x < W - m0; x += step) samples.push([x / W, y / H, L.ucharAt(y, x), A.ucharAt(y, x), B.ucharAt(y, x), x, y]);
     const Ls = samples.map((s) => s[2]).sort((a, b) => a - b);
     let model = { c: [Ls[Math.floor(Ls.length * 0.75)], 0, 0, 0, 0, 0] }; // start: flat at the 75th percentile
     for (let round = 0; round < 3; round++) {
@@ -170,7 +184,7 @@ export function traceTools(cv, sheet, { ppm = 5, sensitivity = 0, margin = 4, mi
     const med = (arr) => arr.sort((a, b) => a - b)[Math.floor(arr.length / 2)] ?? 128;
     const a0 = med(paperPx.map((s) => s[3])), b0 = med(paperPx.map((s) => s[4]));
 
-    // score: darkness against the paper model, or colour distance from the paper, 0..255
+    // tone score: darkness against the paper model, or colour distance from the paper, 0..255
     const score = T(new cv.Mat(H, W, cv.CV_8UC1));
     const Ld = L.data, Ad = A.data, Bd = B.data, Sd = score.data, c = model.c;
     for (let y = 0; y < H; y++) {
@@ -186,39 +200,89 @@ export function traceTools(cv, sheet, { ppm = 5, sensitivity = 0, margin = 4, mi
     const otsu = cv.threshold(score, tmp, 0, 255, cv.THRESH_BINARY | cv.THRESH_OTSU);
     const thr = Math.max(0.15 * 255, otsu) * (1 - 0.45 * sensitivity);
     cv.threshold(score, mask, thr, 255, cv.THRESH_BINARY);
-    const k1 = T(cv.getStructuringElement(cv.MORPH_ELLIPSE, new cv.Size(3, 3)));
-    const k2 = T(cv.getStructuringElement(cv.MORPH_ELLIPSE, new cv.Size(odd(1.0 * ppm), odd(1.0 * ppm))));
-    cv.morphologyEx(mask, mask, cv.MORPH_OPEN, k1);
-    cv.morphologyEx(mask, mask, cv.MORPH_CLOSE, k2);
-    if (m0 > 0) { // clear the margin band
-      const black = new cv.Scalar(0);
-      cv.rectangle(mask, new cv.Point(0, 0), new cv.Point(W - 1, m0), black, -1);
-      cv.rectangle(mask, new cv.Point(0, H - 1 - m0), new cv.Point(W - 1, H - 1), black, -1);
-      cv.rectangle(mask, new cv.Point(0, 0), new cv.Point(m0, H - 1), black, -1);
-      cv.rectangle(mask, new cv.Point(W - 1 - m0, 0), new cv.Point(W - 1, H - 1), black, -1);
-    }
+    cv.morphologyEx(mask, mask, cv.MORPH_OPEN, T(cv.getStructuringElement(cv.MORPH_ELLIPSE, new cv.Size(3, 3))));
 
-    // outer contours -> polygons in mm, y up (pixel centres sit at integer coordinates, the sheet spans 0..W x 0..H;
-    // the contour runs through the outermost tool pixels, so the true boundary lies half a pixel further out)
+    // edges: Canny on the blurred lightness; thresholds from the gradient noise on the paper (90th percentile of the
+    // Sobel magnitude, the same measure Canny uses)
+    const noise = [];
+    for (const s of paperPx) {
+      const x = s[5], y = s[6];
+      if (x < 1 || y < 1 || x >= W - 1 || y >= H - 1) continue;
+      const p = (dx, dy) => Lb.ucharAt(y + dy, x + dx);
+      const gx = p(1, -1) + 2 * p(1, 0) + p(1, 1) - p(-1, -1) - 2 * p(-1, 0) - p(-1, 1);
+      const gy = p(-1, 1) + 2 * p(0, 1) + p(1, 1) - p(-1, -1) - 2 * p(0, -1) - p(1, -1);
+      noise.push(Math.hypot(gx, gy));
+    }
+    noise.sort((a, b) => a - b);
+    const p90 = noise[Math.floor(noise.length * 0.9)] ?? 8, f = 1 - 0.4 * sensitivity;
+    const lo = Math.max(12, 2.3 * p90) * f, hi = Math.max(30, 5.5 * p90) * f;
+    const edges = T(new cv.Mat());
+    cv.Canny(Lb, edges, lo, hi, 3, true);
+
+    // join, clear the border band (the sheet's own edge must not become a loop), close into regions
+    cv.bitwise_or(mask, edges, mask);
+    clearBorder(cv, mask, m0);
+    const r = T(cv.getStructuringElement(cv.MORPH_ELLIPSE, new cv.Size(odd(2 * ppm + 1), odd(2 * ppm + 1)))); // 1 mm radius
+    const grown = T(new cv.Mat());
+    cv.dilate(mask, grown, r);
     const contours = T(new cv.MatVector()), hier = T(new cv.Mat());
-    const work = T(mask.clone());
-    cv.findContours(work, contours, hier, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE);
+    cv.findContours(grown, contours, hier, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+    mask.setTo(new cv.Scalar(0));
+    cv.drawContours(mask, contours, -1, new cv.Scalar(255), -1);
+    cv.erode(mask, mask, r);
+    clearBorder(cv, mask, m0);
+    return { threshold: thr, edges: [lo, hi] };
+  });
+  return { mask, ...info };
+}
+
+function clearBorder(cv, mask, m0) {
+  if (m0 <= 0) return;
+  const W = mask.cols, H = mask.rows, black = new cv.Scalar(0);
+  cv.rectangle(mask, new cv.Point(0, 0), new cv.Point(W - 1, m0), black, -1);
+  cv.rectangle(mask, new cv.Point(0, H - 1 - m0), new cv.Point(W - 1, H - 1), black, -1);
+  cv.rectangle(mask, new cv.Point(0, 0), new cv.Point(m0, H - 1), black, -1);
+  cv.rectangle(mask, new cv.Point(W - 1 - m0, 0), new cv.Point(W - 1, H - 1), black, -1);
+}
+
+// brush corrections on the mask: strokes [{add: bool, r (mm), points: [[x, y], ...] (mm, sheet frame, y up)}];
+// each stroke paints round dabs along its points (add = tool, else paper)
+export function paintMask(cv, mask, strokes, ppm = 5) {
+  const H = mask.rows, toPx = ([x, y]) => new cv.Point(Math.round(x * ppm), Math.round(H - y * ppm));
+  for (const s of strokes ?? []) {
+    const color = new cv.Scalar(s.add ? 255 : 0), r = Math.max(1, Math.round(s.r * ppm)), pts = s.points ?? [];
+    for (let i = 0; i < pts.length; i++) {
+      cv.circle(mask, toPx(pts[i]), r, color, -1);
+      if (i) cv.line(mask, toPx(pts[i - 1]), toPx(pts[i]), color, 2 * r);
+    }
+  }
+}
+
+// outer contours of the mask -> polygons in mm, y up. The mask is smoothed first (Gaussian, 0.35 mm) so the outline
+// follows the shape, not the pixel steps, then simplified to 0.25 mm. Pixel centres sit at integer coordinates, the
+// sheet spans 0..W x 0..H. Edge pixels lie on the tool's boundary, so the contour needs no half-pixel correction.
+export function maskTools(cv, mask, { ppm = 5, minArea = 80, smooth = 0.35, simplify = 0.25 } = {}) {
+  const H = mask.rows;
+  return withMats((T) => {
+    const soft = T(new cv.Mat());
+    cv.GaussianBlur(mask, soft, new cv.Size(0, 0), Math.max(0.5, smooth * ppm));
+    cv.threshold(soft, soft, 127, 255, cv.THRESH_BINARY);
+    const contours = T(new cv.MatVector()), hier = T(new cv.Mat());
+    cv.findContours(soft, contours, hier, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE);
     const tools = [];
     for (let i = 0; i < contours.size(); i++) {
       const c = contours.get(i), a = cv.contourArea(c) / (ppm * ppm);
       if (a >= minArea) {
         const ap = new cv.Mat();
-        cv.approxPolyDP(c, ap, Math.max(0.5, 0.12 * ppm), true);
+        cv.approxPolyDP(c, ap, Math.max(0.5, simplify * ppm), true);
         const outline = Array.from({ length: ap.rows }, (_, j) => [ap.data32S[2 * j] / ppm, (H - ap.data32S[2 * j + 1]) / ppm]);
         ap.delete();
         if (outline.length >= 3) tools.push({ outline, area: a });
       }
       c.delete();
     }
-    tools.sort((p, q) => q.area - p.area);
-    return { tools, threshold: thr, halfPixel: 0.5 / ppm };
+    return tools.sort((p, q) => q.area - p.area);
   });
-  return { ...result, mask };
 }
 
 // quadratic surface c0 + c1 u + c2 v + c3 u² + c4 uv + c5 v² (u, v in 0..1), least squares via normal equations
