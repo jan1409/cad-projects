@@ -1,0 +1,51 @@
+{
+ "name": "Gridfinity Baseplates",
+ "units": "mm",
+ "frame": "Plate in the XY plane, z = 0 is its underside; front = -Y, left = -X. Every piece is modelled centred on its own origin.",
+ "official": {
+  "_source": "gridfinity.xyz/specification, as encoded in gridfinity-rebuilt-openscad src/core/gridfinity-baseplate.scad (_BASEPLATE_PROFILE, BASEPLATE_HEIGHT, BASEPLATE_OUTER_RADIUS) and standard.scad (magnets)",
+  "pitch": 42,
+  "outer_r": 4,
+  "pocket": {
+   "_note": "[z above the pocket floor, offset inward from the 42 mm cell outline], bottom up: 0.35 clearance, 0.7 @ 45 deg, 1.8 vertical, 2.15 @ 45 deg up to the knife edge on the cell outline. Corner radius = 4 - offset (1.15 at the opening). A box's foot rests on the floor and on both 45 deg faces.",
+   "sections": [[0, 2.85], [0.35, 2.85], [1.05, 2.15], [2.85, 2.15], [5, 0]],
+   "height": 5
+  },
+  "magnet": {"d": 6.5, "depth": 2.4, "offset": 13, "_note": "4 per cell at (+-13, +-13) from the cell centre, under the box magnets, cut into the bottom plate from its top face"}
+ },
+ "design": {
+  "_note": "Not defined by the standard.",
+  "min_strip": 0.5,
+  "_min_strip": "border strips narrower than this are dropped (the plate gets that much smaller); avoids sliver faces",
+  "box_top": 3.55,
+  "_box_top": "a box of n units is 7 n + 3.55 tall with its stacking lip (bin_params.json); it stands on the pocket floor",
+  "headroom": 0.5
+ },
+ "variants": {
+  "grid": {
+   "title": "Gridfinity Baseplate",
+   "parameters": {
+    "x_count": {"type": "int", "min": 1, "max": 24, "default": 4, "label": "Width", "help": "X, cells of 42 mm"},
+    "y_count": {"type": "int", "min": 1, "max": 24, "default": 4, "label": "Length", "help": "Y, cells of 42 mm"},
+    "bottom": {"type": "bool", "default": false, "label": "Generate bottom plate", "help": "solid floor under the grid, printed in one piece"},
+    "bottom_h": {"type": "float", "min": 3, "max": 8, "default": 4, "step": 0.5, "label": "Bottom plate height", "help": "mm, below the 5 mm grid", "requires": "bottom"},
+    "magnets": {"type": "bool", "default": false, "label": "Magnet holes", "help": "6 × 2 mm, 4 per cell, in the bottom plate", "requires": "bottom"}
+   }
+  },
+  "drawer": {
+   "title": "Gridfinity Drawer Baseplate",
+   "parameters": {
+    "width": {"type": "float", "min": 46, "max": 1000, "default": 350, "step": 0.5, "label": "Drawer width", "help": "X, inside, mm"},
+    "depth": {"type": "float", "min": 46, "max": 1000, "default": 250, "step": 0.5, "label": "Drawer depth", "help": "Y, inside, mm"},
+    "clearance": {"type": "float", "min": 0, "max": 2, "default": 0.5, "step": 0.1, "label": "Fit clearance", "help": "per side, mm; the plate is this much smaller than the drawer"},
+    "spare_x": {"type": "choice", "default": "center", "label": "Spare width", "help": "where the border strip goes", "options": [["left", "Left"], ["center", "Both sides"], ["right", "Right"]]},
+    "spare_y": {"type": "choice", "default": "front", "label": "Spare depth", "help": "where the border strip goes", "options": [["front", "Front"], ["center", "Both sides"], ["back", "Back"]]},
+    "bottom": {"type": "bool", "default": false, "label": "Generate bottom plate", "help": "solid floor under the grid, printed in one piece"},
+    "bottom_h": {"type": "float", "min": 3, "max": 8, "default": 4, "step": 0.5, "label": "Bottom plate height", "help": "mm, below the 5 mm grid", "requires": "bottom"},
+    "magnets": {"type": "bool", "default": false, "label": "Magnet holes", "help": "6 × 2 mm, 4 per cell, in the bottom plate", "requires": "bottom"},
+    "drawer_h": {"type": "float", "min": 0, "max": 1000, "default": 0, "step": 1, "label": "Drawer height", "help": "optional, inside, mm; shows the tallest box that fits"}
+   }
+  }
+ },
+ "bed": [360, 360]
+}

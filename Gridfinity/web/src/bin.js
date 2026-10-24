@@ -32,7 +32,7 @@ export function makeBin(R, spec, inputs) {
   const env = binEnv(spec, inputs);
   const o = spec.official, d = spec.design, lip = o.lip;
   const { W, D, T } = env;
-  const hw = W / 2, hd = D / 2;
+  const hw = W / 2, hd = D / 2, bridge = d.bridge_z;
 
   // ---------- helpers ----------
   const onXY = (drawing, z) => drawing.sketchOnPlane("XY", [0, 0, z]);
@@ -67,16 +67,17 @@ export function makeBin(R, spec, inputs) {
 
   // ---------- box ----------
   function box() {
-    // wall + stacking lip: one (s inward, z) profile swept along the outline; the lip apex gets the r 0.6 round
+    // wall + stacking lip: one (s inward, z) profile swept along the outline; the lip apex gets the r 0.6 round.
+    // Wall and floor start at the bridge height (5.0), above the baseplate ridges; the feet reach up to it.
     const wallProfile = [
-      [0, o.foot.height, 0],
+      [0, bridge, 0],
       [0, T + lip.height, lip.top_r],
       [lip.depth - lip.inner, T + lip.inner + lip.vertical, 0],
       [lip.depth - lip.inner, T + lip.inner, 0],
       [lip.depth, T, 0],
       [lip.depth, T - d.lip_support, 0],
       [d.wall, env.supportLow, 0],
-      [d.wall, o.foot.height, 0],
+      [d.wall, bridge, 0],
     ];
     const wall = step("wall", () => {
       const r = o.corner_r;
@@ -90,11 +91,12 @@ export function makeBin(R, spec, inputs) {
       return R.genericSweep(prof, spine, { frenet: true });
     });
     // floor slab, inset 0.6 so it overlaps the wall instead of sharing its outer face
-    let body = step("floor", () => fuse(wall, outline(0.6, o.foot.height, d.floor_top)));
+    let body = step("floor", () => fuse(wall, outline(0.6, bridge, d.floor_top)));
 
-    // feet: ruled lofts through the official sections, continued 0.75 up into the floor slab; disjoint, so one compound
+    // feet: ruled lofts through the official sections, vertical up to the bridge, then 0.75 up into the floor slab;
+    // disjoint, so one compound
     const feet = cells.map(([cx, cy]) => {
-      const sections = [...o.foot.sections, [o.foot.height + 0.75, 1.0]];
+      const sections = [...o.foot.sections, [bridge, o.foot.sections.at(-1)[1]], [bridge + 0.75, 1.0]];
       const sk = sections.map(([z, off]) => onXY(rrect(cx, cy, 42 - 2 * off, 42 - 2 * off, 4 - off), z));
       return sk[0].loftWith(sk.slice(1), { ruled: true });
     });

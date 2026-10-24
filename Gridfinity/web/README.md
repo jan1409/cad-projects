@@ -38,6 +38,17 @@ next to it. Spec: `../spec/bin_spec.md` and `bin_params.json`. Validation: [BIN_
 
 Run the box pages through the site: `npm run build` and `npm run serve` at the repo root.
 
+## Gridfinity baseplates
+Two site models, Baseplate (size in cells) and Drawer Baseplate (size of a drawer), share one page like the boxes.
+Spec: `../spec/baseplate_spec.md` and `baseplate_params.json`. Validation: [BASEPLATE_VALIDATION.md](BASEPLATE_VALIDATION.md).
+
+| Path | Purpose |
+|---|---|
+| `src/baseplate.js` | `plateEnv` (cells, border strips, split into bed-sized pieces, shared parts) and `makePiece` (slab minus official pockets, magnet holes) |
+| `baseplate/index.html`, `baseplate/app.js`, `baseplate/worker.js` | the page (controls generated from the spec, incl. segmented choices), worker, card images |
+| `node/plate_build.mjs` | `node node/plate_build.mjs drawer width=500 depth=400 bottom=1 [--out dir]` builds and checks every piece; `--sweep` runs 35 configurations |
+| `node/plate_fit.mjs` | boxes from `src/bin.js` on a baseplate: free when lifted 0.01 mm, both 45° faces hit when lowered 0.05 mm |
+
 ## Validation
 `python -I Gridfinity/fusion/validate.py --web` builds every reference configuration with `node/build.mjs`, imports
 `case.step` into Fusion and compares it exactly with the Onshape STEP (Fusion MCP server must be running).

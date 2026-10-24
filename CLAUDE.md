@@ -67,6 +67,8 @@ Printer: Prusa XL (360 × 360 mm bed). Units: mm everywhere.
   - Several models can share one app: `variant` in `site/models.json` → `model.json` next to the page (Gridfinity boxes).
 - Gridfinity boxes: official dimensions in `Gridfinity/spec/gridfinity_standard.md` (from gridfinity-rebuilt's
   `standard.scad`; the spec site only has drawings). Jan's Onshape box templates match them to 4 µm.
+- Gridfinity baseplates: `Gridfinity/spec/baseplate_spec.md`. Check boxes against baseplates with `plate_fit.mjs`;
+  it found that a box bridge from 4.75 hits the baseplate ridges (they reach 5.0), so boxes now bridge at 5.0.
 - Reference STEPs: `node Gridfinity/web/node/step2stl.mjs` splits solids; compare exactly with replicad booleans
   (`bin_check.mjs`) – no Fusion needed for web-only models.
 

@@ -1,6 +1,6 @@
 # Gridfinity boxes – validation
 
-Generated with `src/bin.js` on 2026-10-23. Spec and design notes: `../spec/bin_spec.md`.
+Generated with `src/bin.js` on 2026-10-23; checks re-run on 2026-10-24 after the bridge moved to z 5.0. Spec and design notes: `../spec/bin_spec.md`.
 
 ## Against the Onshape references (exact B-rep booleans)
 
@@ -10,14 +10,16 @@ frame and measures web − Onshape and Onshape − web. Volumes are in cm³.
 | reference | part | Onshape | web | diff | web − Onshape | Onshape − web |
 |---|---|---|---|---|---|---|
 | std_1x1x3 | box | 13.8390 | 13.8452 | 0.0062 | 0.0062 | 0.0000 |
-| std_3x2x6 (x 2, y 3) | box | 77.4004 | 77.4502 | 0.0499 | 0.0498 | 0.0000 |
-| label_L2xB1xH3 (x 1, y 2) | box | 32.2279 | 28.9745 | −3.2535 | 0.0117 | 3.2662 |
+| std_3x2x6 (x 2, y 3) | box | 77.4004 | 77.3987 | −0.0017 | 0.0167 | 0.0183 |
+| label_L2xB1xH3 (x 1, y 2) | box | 32.2279 | 28.9663 | −3.2617 | 0.0063 | 3.2690 |
 | label_L2xB1xH3 | plate | 0.6100 | 0.6106 | 0.0005 | 0.0008 | 0.0003 |
-| label_L4xB5xH6 (x 5, y 4) | box | 261.8198 | 262.9792 | 1.1593 | 1.1577 | 0.0001 |
+| label_L4xB5xH6 (x 5, y 4) | box | 261.8198 | 262.7603 | 0.9404 | 1.0189 | 0.0796 |
 | label_L4xB5xH6 | plate | 3.4367 | 3.4363 | −0.0003 | 0.0008 | 0.0011 |
 
 `node node/bin_diff.mjs` locates the differences:
-- **Bridge between the feet** (z 4.75–5.0): official; Onshape has a 0.25 mm groove there. 33 mm³ for 2×3, 139 mm³ for 5×4.
+- **Groove between the feet** (z 4.75–5.0): both have one, because the baseplate ridges reach z 5.0. Onshape's is V-shaped,
+  this one rectangular (0.5 × 0.25): 18 mm³ less material for 2×3, 80 mm³ for 5×4. Until 2026-10-23 the bridge started
+  at 4.75 and hit the baseplate ridges by 0.25 mm (found by `node/plate_fit.mjs`).
 - **Lip, its support and the 10° slope:** 2.6 deep instead of 2.596. 17 mm³ for 2×3.
 - **Scoop, 5×4×6:** tangent quarter round instead of the Onshape arc, which ends 3 mm short of the wall tangent. 995 mm³.
 - **Scoop, 1×2×3:** r 13.1 instead of 25. Onshape's scoop rises above the lip there. −3266 mm³.

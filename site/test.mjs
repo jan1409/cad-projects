@@ -1,6 +1,7 @@
 // Site checks, run by CI before every release (npm test):
-//   geometry  smallest, default and largest case and boxes build with watertight parts
-//             (Gridfinity/web/node/sweep.mjs --one, Gridfinity/web/node/bin_build.mjs)
+//   geometry  smallest, default and largest case, boxes and baseplates build with watertight parts
+//             (Gridfinity/web/node/sweep.mjs --one, bin_build.mjs, plate_build.mjs)
+//   layout    baseplate fitting and splitting (pieces fit the bed and add up, rotations dedupe)
 //   build     the site builds; every relative URL in the pages and modules points at a file that exists
 //   server    static serving: MIME types, redirects, ETag/304, gzip, no path traversal or dot files
 //   untar     archives made by the system tar unpack byte for byte; unsafe paths are refused
@@ -75,7 +76,68 @@ if (!args.includes("--skip-geometry")) {
       });
     }
   }
+  const plates = JSON.parse(fs.readFileSync(path.join(root, "Gridfinity/spec/baseplate_params.json"), "utf8")).variants;
+  for (const [variant, { parameters: B }] of Object.entries(plates)) {
+    for (const k of ["min", "default", "max"]) {
+      // min / max: smallest and largest size; max also with the thickest bottom plate and magnet holes
+      const pairs = variant === "grid" ? [`x_count=${B.x_count[k]}`, `y_count=${B.y_count[k]}`] : [`width=${B.width[k]}`, `depth=${B.depth[k]}`];
+      if (k === "max") pairs.push("bottom=1", `bottom_h=${B.bottom_h.max}`, "magnets=1");
+      await step(`geometry ${variant} baseplate ${pairs.join(" ")}`, () => {
+        const out = execFileSync(process.execPath, [path.join(root, "Gridfinity/web/node/plate_build.mjs"), variant, ...pairs],
+          { encoding: "utf8", maxBuffer: 1 << 26 });
+        const row = out.split("\n").find((l) => l.startsWith("|"));
+        assert.ok(row?.endsWith("| ok |"), row ?? out);
+      });
+    }
+  }
 }
+
+// ---------------------------------------------------------------- baseplate layout (no geometry kernel)
+await step("baseplate layout", async () => {
+  const { plateEnv } = await import("../Gridfinity/web/src/baseplate.js");
+  const spec = JSON.parse(fs.readFileSync(path.join(root, "Gridfinity/spec/baseplate_params.json"), "utf8"));
+  const near = (a, b, what) => assert.ok(Math.abs(a - b) < 1e-6, `${what}: ${a} != ${b}`);
+  const drawer = (width, depth, spare_x = "center", spare_y = "front", clearance = 0.5) =>
+    plateEnv(spec, { variant: "drawer", width, depth, clearance, spare_x, spare_y, bottom: false, bottom_h: 4, magnets: false, drawer_h: 0 });
+  const grid = (x_count, y_count) => plateEnv(spec, { variant: "grid", x_count, y_count, bottom: true, bottom_h: 4, magnets: true });
+  const check = (env, what) => {
+    for (const q of env.pieces) assert.ok(q.w <= spec.bed[0] + 1e-9 && q.d <= spec.bed[1] + 1e-9, `${what}: piece ${q.id} ${q.w} x ${q.d}`);
+    const cols = [...new Set(env.pieces.map((q) => q.col))], rows = [...new Set(env.pieces.map((q) => q.row))];
+    near(cols.reduce((s, c) => s + env.pieces.find((q) => q.col === c).w, 0), env.W, `${what}: piece widths`);
+    near(rows.reduce((s, r) => s + env.pieces.find((q) => q.row === r).d, 0), env.D, `${what}: piece depths`);
+    assert.equal(env.unique.reduce((s, u) => s + u.count, 0), env.pieces.length, `${what}: unique counts`);
+    assert.equal(env.unique.reduce((s, u) => s + u.count * u.cells, 0), env.nx * env.ny, `${what}: cells`);
+    // every placed piece is its unique piece turned by its quarter turns (same footprint)
+    for (const q of env.pieces) {
+      const u = env.unique.find((v) => v.id === q.id), [w, d] = q.quarter % 2 ? [u.d, u.w] : [u.w, u.d];
+      near(w, q.w, `${what}: piece ${q.id} width`);
+      near(d, q.d, `${what}: piece ${q.id} depth`);
+    }
+  };
+  let env = drawer(350, 250);
+  assert.deepEqual([env.nx, env.ny, env.pieces.length], [8, 5, 1]);
+  near(env.W, 349, "350 drawer width");
+  near(env.pad.left, 6.5, "left strip");
+  near(env.pad.right, 6.5, "right strip");
+  near(env.pad.front, 39, "front strip");
+  near(env.pad.back, 0, "back strip");
+  env = drawer(350, 250, "right", "back");
+  near(env.pad.right, 13, "right strip");
+  near(env.pad.back, 39, "back strip");
+  env = drawer(127.3, 85.3); // 0.3 mm spare: too narrow for a strip, left free
+  assert.deepEqual([env.nx, env.ny, env.pad.left, env.pad.front], [3, 2, 0, 0]);
+  near(env.dropped, 0.6, "dropped spare");
+  check(drawer(1000, 1000), "drawer 1000");
+  check(drawer(600, 380, "left", "back"), "drawer 600");
+  env = grid(24, 24);
+  check(env, "grid 24");
+  assert.deepEqual([env.pieces.length, env.unique.length, env.H], [9, 2, 9]); // 4 corners, 5 plain 8 x 8 pieces
+  env = grid(9, 9);
+  check(env, "grid 9");
+  assert.equal(env.unique.length, 4); // 5x5 corner, two mirrored 5x4 corners, 4x4 corner
+  env = grid(8, 8);
+  assert.deepEqual([env.pieces.length, env.magnetCount], [1, 256]);
+});
 
 // ---------------------------------------------------------------- build
 await step("site build", () => {

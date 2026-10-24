@@ -28,7 +28,8 @@ height in 7 mm units ("Hoehe"/slotHeight).
 **Official** (see `gridfinity_standard.md`):
 - **Outline:** 42·n − 0.5, r 3.75.
 - **Feet per cell:** 0.8 / 1.8 / 2.15, bottom 35.6.
-- **Bridge:** from z 4.75.
+- **Bridge:** the bottom between the feet starts at z 5.0. The feet continue vertically from 4.75 to 5.0, because the
+  baseplate ridges between cells reach 5.0 (`baseplate_params.json`, checked by `../web/node/plate_fit.mjs`).
 - **Stacking lip:** 0.7 / 1.8 / 1.9 above the wall top T = 7·h, apex r 0.6, so the top is at T + 3.55.
 - **Magnet holes:** Ø 6.5 × 2.4 at ±13.
 
@@ -54,7 +55,7 @@ Exact B-rep comparison: `../web/node/bin_check.mjs`, results in `../web/BIN_VALI
 | Where | Onshape | Generator | Why |
 |---|---|---|---|
 | Lip depth / lower lip step | 2.596 / 0.696 | 2.6 / 0.7 | official values; Onshape reuses the baseplate's 4.646 (0.004 mm) |
-| Between the feet, z 4.75–5.0 | 0.25 deep groove (body starts at 5) | solid from 4.75 | official bridge height |
+| Between the feet, z 4.75–5.0 | V groove (the feet's 45° faces continue to the cell line) | 0.5 wide rectangular groove | both clear the baseplate ridge; the rectangle keeps the feet disjoint for OpenCascade (18 mm³ for 2×3) |
 | Scoop | arc r 25 at every height, ending 3 mm short of tangent at the wall | tangent quarter round, r limited to T − 7.9 | Onshape's scoop reaches into the lip at 4 units and rises 3.9 mm above it at 3 units |
 
 Everything else matches to < 0.001 cm³.

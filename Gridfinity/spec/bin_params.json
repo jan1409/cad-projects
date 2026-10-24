@@ -31,6 +31,8 @@
   "_note": "Not defined by the standard; taken from the Onshape designs.",
   "wall": 1.2,
   "floor_top": 6.2,
+  "bridge_z": 5.0,
+  "_bridge_z": "the bottom between the feet of a multi-cell box: the feet continue vertically from 4.75 to 5.0 because the baseplate ridges between cells reach z = 5.0 (baseplate_params.json; node/plate_fit.mjs). Same 0.25 mm groove as the Onshape template.",
   "lip_support": 1.2,
   "support_angle": 10,
   "label": {

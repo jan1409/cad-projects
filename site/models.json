@@ -42,5 +42,35 @@
       "{z_count.min}–{z_count.max} height units of 7 mm",
       "Box and label plate as STL, build sheet"
     ]
+  },
+  {
+    "id": "gridfinity-baseplate",
+    "title": "Gridfinity Baseplate",
+    "summary": "Gridfinity baseplate to the official profile, sized in cells, with an optional solid bottom plate and magnet holes. Large plates are split into printable pieces.",
+    "variant": "grid",
+    "app": "../Gridfinity/web/baseplate",
+    "modules": "../Gridfinity/web/src",
+    "spec": "../Gridfinity/spec/baseplate_params.json",
+    "image": "../Gridfinity/web/baseplate/card_grid.png",
+    "facts": [
+      "{x_count.min}–{x_count.max} × {y_count.min}–{y_count.max} cells of 42 mm",
+      "Optional bottom plate {bottom_h.min}–{bottom_h.max} mm",
+      "STL per piece, build sheet"
+    ]
+  },
+  {
+    "id": "gridfinity-drawer-baseplate",
+    "title": "Gridfinity Drawer Baseplate",
+    "summary": "Enter the inside of a drawer: fits as many Gridfinity cells as possible and fills the rest with a flat border on the sides you choose, so the plate sits without play.",
+    "variant": "drawer",
+    "app": "../Gridfinity/web/baseplate",
+    "modules": "../Gridfinity/web/src",
+    "spec": "../Gridfinity/spec/baseplate_params.json",
+    "image": "../Gridfinity/web/baseplate/card_drawer.png",
+    "facts": [
+      "Drawers {width.min}–{width.max} mm",
+      "Optional bottom plate {bottom_h.min}–{bottom_h.max} mm",
+      "Split into pieces of at most 360 mm"
+    ]
   }
 ]
