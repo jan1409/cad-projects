@@ -10,7 +10,7 @@ Deployment and server setup: [DEPLOY.md](DEPLOY.md).
 | `models.json` | Registry of the models on the overview page (see below) |
 | `portal/` | Overview page (`index.html`, `portal.js`, `strings.js`): cards, site version, update panel |
 | `shared/i18n.js` | Languages (English, German) for every page: choice, translator, EN/DE switch; built to `vendor/i18n.js` |
-| `build.mjs` | Builds `dist/`: portal, `models/<id>/`, shared `vendor/` (replicad, gzipped OpenCascade kernel, three, fflate), `version.json` |
+| `build.mjs` | Builds `dist/`: portal, `models/<id>/`, shared `vendor/` (replicad, gzipped OpenCascade kernel, three, fflate, Clipper, OpenCV.js), `version.json` |
 | `test.mjs` | CI checks: geometry smoke builds, site build, static server, tar reader, updater against a fake GitHub API |
 | `server/server.mjs` | Static server + GitHub release updater (Node 22+, no dependencies) |
 | `server/Dockerfile`, `docker-compose.yml`, `.env.example` | Container for the home server |

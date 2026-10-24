@@ -1,6 +1,8 @@
 // Site checks, run by CI before every release (npm test):
 //   geometry  smallest, default and largest case, boxes and baseplates build with watertight parts
-//             (Gridfinity/web/node/sweep.mjs --one, bin_build.mjs, plate_build.mjs)
+//             (Gridfinity/web/node/sweep.mjs --one, bin_build.mjs, plate_build.mjs); tool inserts from fixture tools
+//             (insert_build.mjs), boxes stack on each other (stack_fit.mjs)
+//   tracing   tools on synthetic photos of a sheet are traced to within the limits of trace_check.mjs
 //   layout    baseplate fitting and splitting (pieces fit the bed and add up, rotations dedupe)
 //   i18n      every text in English and German with the same placeholders; every key used exists and every key is
 //             used; build sheets render in both languages; Accept-Language of the server's waiting page
@@ -67,7 +69,7 @@ if (!args.includes("--skip-geometry")) {
     });
   }
   const bins = JSON.parse(fs.readFileSync(path.join(root, "Gridfinity/spec/bin_params.json"), "utf8")).variants;
-  for (const [variant, { parameters: B }] of Object.entries(bins)) {
+  for (const [variant, { parameters: B }] of Object.entries(bins).filter(([v]) => v !== "insert")) {
     for (const k of ["min", "default", "max"]) {
       const cfg = [B.x_count[k], B.y_count[k], B.z_count[k]];
       await step(`geometry ${variant} box ${cfg.join("x")}`, () => {
@@ -92,6 +94,28 @@ if (!args.includes("--skip-geometry")) {
       });
     }
   }
+  // tool inserts: smallest (1 x 1 x 2), several tools with the automatic size, the tallest box
+  const B = bins.insert.parameters;
+  for (const cfg of [["coin", "--x", "1", "--y", "1", "--z", String(B.z_count.min)], ["mixed"], ["bit", "--z", String(B.z_count.max)]]) {
+    await step(`geometry tool insert ${cfg.join(" ")}`, () => {
+      const out = execFileSync(process.execPath, [path.join(root, "Gridfinity/web/node/insert_build.mjs"), ...cfg],
+        { encoding: "utf8", maxBuffer: 1 << 26 });
+      const row = out.split("\n").find((l) => l.startsWith("|"));
+      assert.ok(row?.endsWith("| ok |"), row ?? out);
+    });
+  }
+  await step("geometry boxes stack (standard, label, tool inserts)", () => {
+    const out = execFileSync(process.execPath, [path.join(root, "Gridfinity/web/node/stack_fit.mjs")], { encoding: "utf8", maxBuffer: 1 << 26 });
+    assert.ok(out.includes("all ok"), out.split("\n").filter((l) => /WRONG|problem/.test(l)).join("\n"));
+  });
+}
+
+// ---------------------------------------------------------------- tracing (OpenCV, synthetic photos)
+if (!args.includes("--skip-geometry")) {
+  await step("tracing synthetic photos", () => {
+    const out = execFileSync(process.execPath, [path.join(root, "Gridfinity/web/node/trace_check.mjs")], { encoding: "utf8", maxBuffer: 1 << 26 });
+    assert.ok(out.includes("all ok"), out.split("\n").filter((l) => /WRONG|NOT|problem/.test(l)).join("\n"));
+  });
 }
 
 // ---------------------------------------------------------------- baseplate layout (no geometry kernel)
@@ -181,13 +205,13 @@ await step("translations", async () => {
   // keys are only written as literals: "ns.key" in the code, data-i18n="key" and data-i18n-attr="attr:key;…" in pages
   const keysIn = (rel) => {
     const s = fs.readFileSync(path.join(root, rel), "utf8"), keys = new Set();
-    for (const m of s.matchAll(/["'](?:site|portal|update|common|case|box|plate|sheet)\.[A-Za-z]\w*["']/g)) keys.add(m[0].slice(1, -1));
+    for (const m of s.matchAll(/["'](?:site|portal|update|common|case|box|plate|tool|sheet)\.[A-Za-z]\w*["']/g)) keys.add(m[0].slice(1, -1));
     for (const [, attr] of s.matchAll(/data-i18n-attr="([^"]+)"/g)) for (const pair of attr.split(";")) keys.add(pair.split(":")[1].trim());
     return [...keys].filter((k) => !/\.(m?js|json|html|css|md|png)$/.test(k)); // not file names like "portal.js"
   };
   const files = (dir, re) => fs.readdirSync(path.join(root, dir)).filter((f) => re.test(f)).map((f) => `${dir}/${f}`);
   const users = {
-    grid: [...["app", "bin", "baseplate"].flatMap((d) => files(`Gridfinity/web/${d}`, /^(index\.html|app\.js|worker\.js)$/)),
+    grid: [...["app", "bin", "baseplate", "insert"].flatMap((d) => files(`Gridfinity/web/${d}`, /^(index\.html|.*\.js)$/)),
       ...files("Gridfinity/web/src", /\.js$/).filter((f) => !f.endsWith("strings.js"))],
     portal: ["site/portal/index.html", "site/portal/portal.js"],
     site: ["site/build.mjs"], // the nav bar
@@ -205,16 +229,24 @@ await step("translations", async () => {
   const { buildSheet, windowSVG } = await import("../Gridfinity/web/src/case.js");
   const { binEnv, binBuildSheet } = await import("../Gridfinity/web/src/bin.js");
   const { plateEnv, plateBuildSheet } = await import("../Gridfinity/web/src/baseplate.js");
+  const { setClipper, rect } = await import("../Gridfinity/web/src/outline.js");
+  const { insertEnv, insertBuildSheet, insertSvg } = await import("../Gridfinity/web/src/insert.js");
+  setClipper((await import("node:module")).createRequire(import.meta.url)("clipper-lib"));
   const spec = (f) => JSON.parse(fs.readFileSync(path.join(root, "Gridfinity/spec", f), "utf8"));
   const cs = spec("case_params.json"), bs = spec("bin_params.json"), ps = spec("baseplate_params.json");
   const caseIn = Object.fromEntries(Object.entries(cs.parameters).map(([k, p]) => [k, p.default]));
   const sizes = { Base: [1, 2, 3], Lid: [1, 2, 3], Latch: [1, 2, 3], Seal: [1, 2, 3] };
+  const toolIn = { ...Object.fromEntries(Object.entries(bs.variants.insert.parameters).map(([k, p]) => [k, p.default])), auto_size: true, auto_height: true };
+  const toolEnv = insertEnv(bs, toolIn, [{ name: "Caliper", outline: rect(-60, -10, 60, 10), height: 16, depth: null, x: 0, y: 0, rot: 0, fingers: "auto" }]);
+  assert.ok(toolEnv.ok, `tool insert env: ${toolEnv.problems.map((p) => p.code)}`);
   const sheets = (t) => [
     buildSheet(caseEnv(cs, caseIn), "5x4x6", sizes, t), windowSVG(caseEnv(cs, caseIn), t),
     binBuildSheet(binEnv(bs, { variant: "label", x_count: 3, y_count: 2, z_count: 6, magnets: true, plate_gap: 0 }), "3x2x6", "Box", "fit", t),
     plateBuildSheet(plateEnv(ps, { variant: "drawer", width: 600, depth: 380, clearance: 0.5, spare_x: "left", spare_y: "back", bottom: true,
       bottom_h: 4, magnets: true, drawer_h: 60 }), "600x380mm", "Plate", t),
     plateBuildSheet(plateEnv(ps, { variant: "grid", x_count: 4, y_count: 4, bottom: false, bottom_h: 4, magnets: false }), "4x4", "Plate", t),
+    insertBuildSheet(toolEnv, "3x2x4", "Tool Insert", t),
+    insertSvg(toolEnv, { title: t("sheet.toolSvgTitle", { tag: "3x2x4" }), scale: t("sheet.toolSvgScale") }),
   ];
   const out = Object.fromEntries(LANGS.map((l) => [l, sheets(translator(gridStrings, l))]));
   for (const l of LANGS) out[l].forEach((s, i) => {

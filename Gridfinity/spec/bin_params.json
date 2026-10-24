@@ -37,16 +37,31 @@
   "lip_support": 1.2,
   "support_angle": 10,
   "label": {
-   "_note": "Ledge along X on the +Y inner wall: top at T - plate_t, 13 deep from the inner wall, 0.95 front edge, supported at 60 deg from the wall. The plate fills the pocket between ledge front and lip, flush with the wall top.",
+   "_note": "Ledge along X on the +Y inner wall: top at T - plate_drop - plate_t, 13 deep from the inner wall, 0.95 front edge, supported at 60 deg from the wall. The plate fills the pocket between ledge front and lip, its top plate_drop below the wall top.",
    "depth": 13,
    "front": 0.95,
    "support_angle": 60,
-   "plate_t": 1.45
+   "plate_t": 1.45,
+   "plate_drop": 0.5,
+   "_plate_drop": "Changed 2026-10-24 (user decision; Onshape: 0, flush with T). A box stacked on top reaches T - 0.35 with its feet (node/stack_fit.mjs), so a flush plate carried it 0.35 mm high; at 0.5 the plate clears it by 0.15 mm."
   },
   "scoop": {
    "_note": "Concave fill between floor and the -Y inner wall (label box only). Onshape uses r 25 at every height, which pokes above the lip of boxes lower than 5 units; here r = min(25, T - floor_top - lip_support - 0.5).",
    "r": 25
   }
+ },
+ "insert": {
+  "_note": "Tool insert (variant insert, src/insert.js, spec insert_spec.md): a standard box whose floor slab is raised to the fill top, with one pocket per tool (tool outline + clearance + finger cutouts). A box stacked on top seats with its z = 0 at T + lip.height - foot.height = T - 0.35; fill and tool tops stay stack_gap below that.",
+  "stack_gap": 0.5,
+  "min_wall": 1.2,
+  "_min_wall": "fill material between a pocket and the opening under the lip (s = lip.depth), and between neighbouring pockets",
+  "depth_extra": 0.5,
+  "_depth_extra": "default pocket depth = tool height + depth_extra (the tool sits that much below the insert surface)",
+  "arc_tol": 0.02,
+  "simplify": 0.02,
+  "_tolerances": "mm: max deviation of the polygonised clearance rounds and finger circles, and of the pocket outline simplification",
+  "max_units": 8,
+  "_max_units": "footprint limit of the automatic size (8 x 42 = 336 mm fits the 360 mm bed)"
  },
  "variants": {
   "standard": {
@@ -77,6 +92,28 @@
     "plate_gap": {"type": "float", "min": 0, "max": 0.5, "default": 0, "step": 0.05,
                   "label": {"en": "Plate clearance", "de": "Schildspiel"},
                   "help": {"en": "per side, mm; makes the label plate smaller", "de": "pro Seite, mm; macht das Beschriftungsschild kleiner"}}
+   }
+  },
+  "insert": {
+   "title": {"en": "Gridfinity Tool Insert", "de": "Gridfinity Werkzeugeinsatz"},
+   "parameters": {
+    "x_count": {"type": "int", "min": 1, "max": 8, "default": 2,
+                "label": {"en": "Width", "de": "Breite"}, "help": {"en": "X, 42 mm per unit", "de": "X, 42 mm pro Einheit"}},
+    "y_count": {"type": "int", "min": 1, "max": 8, "default": 2,
+                "label": {"en": "Length", "de": "Länge"}, "help": {"en": "Y, 42 mm per unit", "de": "Y, 42 mm pro Einheit"}},
+    "z_count": {"type": "int", "min": 2, "max": 30, "default": 3,
+                "label": {"en": "Height", "de": "Höhe"}, "help": {"en": "7 mm per unit", "de": "7 mm pro Einheit"}},
+    "magnets": {"type": "bool", "default": true,
+                "label": {"en": "Magnet holes", "de": "Magnetlöcher"}, "help": {"en": "6 × 2 mm, 4 per cell", "de": "6 × 2 mm, 4 pro Zelle"}},
+    "clearance": {"type": "float", "min": 0, "max": 3, "default": 0.6, "step": 0.1,
+                  "label": {"en": "Clearance", "de": "Spiel"},
+                  "help": {"en": "per side, mm, between tool and pocket wall", "de": "pro Seite, mm, zwischen Werkzeug und Taschenwand"}},
+    "finger_d": {"type": "float", "min": 10, "max": 40, "default": 22, "step": 1,
+                 "label": {"en": "Finger cutout", "de": "Griffmulde"},
+                 "help": {"en": "diameter, mm", "de": "Durchmesser, mm"}},
+    "fill_lower": {"type": "float", "min": 0, "max": 100, "default": 0, "step": 0.5,
+                   "label": {"en": "Lower the insert", "de": "Einsatz absenken"},
+                   "help": {"en": "mm below the highest possible insert surface; saves material in tall boxes", "de": "mm unter der höchstmöglichen Einsatzoberfläche; spart Material in hohen Boxen"}}
    }
   }
  },

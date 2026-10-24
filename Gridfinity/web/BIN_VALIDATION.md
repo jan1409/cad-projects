@@ -1,6 +1,7 @@
 # Gridfinity boxes – validation
 
-Generated with `src/bin.js` on 2026-10-23; checks re-run on 2026-10-24 after the bridge moved to z 5.0. Spec and design notes: `../spec/bin_spec.md`.
+Generated with `src/bin.js` on 2026-10-23; checks re-run on 2026-10-24 after the bridge moved to z 5.0, and again after
+the label plate moved 0.5 mm down. Spec and design notes: `../spec/bin_spec.md`.
 
 ## Against the Onshape references (exact B-rep booleans)
 
@@ -11,9 +12,9 @@ frame and measures web − Onshape and Onshape − web. Volumes are in cm³.
 |---|---|---|---|---|---|---|
 | std_1x1x3 | box | 13.8390 | 13.8452 | 0.0062 | 0.0062 | 0.0000 |
 | std_3x2x6 (x 2, y 3) | box | 77.4004 | 77.3987 | −0.0017 | 0.0167 | 0.0183 |
-| label_L2xB1xH3 (x 1, y 2) | box | 32.2279 | 28.9663 | −3.2617 | 0.0063 | 3.2690 |
+| label_L2xB1xH3 (x 1, y 2) | box | 32.2279 | 29.0013 | −3.2267 | 0.2530 | 3.4803 |
 | label_L2xB1xH3 | plate | 0.6100 | 0.6106 | 0.0005 | 0.0008 | 0.0003 |
-| label_L4xB5xH6 (x 5, y 4) | box | 261.8198 | 262.7603 | 0.9404 | 1.0189 | 0.0796 |
+| label_L4xB5xH6 (x 5, y 4) | box | 261.8198 | 262.9129 | 1.0930 | 2.3583 | 1.2653 |
 | label_L4xB5xH6 | plate | 3.4367 | 3.4363 | −0.0003 | 0.0008 | 0.0011 |
 
 `node node/bin_diff.mjs` locates the differences:
@@ -24,8 +25,12 @@ frame and measures web − Onshape and Onshape − web. Volumes are in cm³.
 - **Scoop, 5×4×6:** tangent quarter round instead of the Onshape arc, which ends 3 mm short of the wall tangent. 995 mm³.
 - **Scoop, 1×2×3:** r 13.1 instead of 25. Onshape's scoop rises above the lip there. −3266 mm³.
 - **Ledge ends:** two specks of 0.06 mm³ where the ledge meets the side-wall slopes.
+- **Label ledge and plate 0.5 mm lower** (user decision 2026-10-24, `plate_drop`): a box stacked on a label box reaches
+  T − 0.35 with its feet, so the flush Onshape plate carried it 0.35 mm high (`node/stack_fit.mjs`). The pocket is
+  0.5 mm deeper (Onshape − web: 211 mm³ for 1×2, 1186 mm³ for 5×4 = plate area × 0.5) and the ledge underside
+  moved down with it (web − Onshape: about 247 mm³ and 1340 mm³). The plate is compared 0.5 mm lower.
 
-The foot profile, magnet holes, wall, floor, ledge and plate match Onshape exactly. Onshape's foot section is
+The foot profile, magnet holes, wall, floor, ledge profile and plate match Onshape exactly (ledge and plate 0.5 mm lower). Onshape's foot section is
 (−17.8, 0) (−18.6, 0.8) (−18.6, 2.6) (−20.75, 4.75), which is the official foot.
 
 ## Robustness sweep

@@ -53,6 +53,24 @@
     ]
   },
   {
+    "id": "gridfinity-tool-insert",
+    "title": { "en": "Gridfinity Tool Insert", "de": "Gridfinity Werkzeugeinsatz" },
+    "summary": {
+      "en": "Photograph your tools on a sheet of paper: a stackable Gridfinity box with a pocket and finger cutouts for each tool. The photo stays in your browser.",
+      "de": "Fotografiere deine Werkzeuge auf einem Blatt Papier: eine stapelbare Gridfinity-Box mit Tasche und Griffmulden für jedes Werkzeug. Das Foto bleibt in deinem Browser."
+    },
+    "variant": "insert",
+    "app": "../Gridfinity/web/insert",
+    "modules": "../Gridfinity/web/src",
+    "spec": "../Gridfinity/spec/bin_params.json",
+    "image": "../Gridfinity/web/insert/card.png",
+    "facts": [
+      { "en": "Tools traced from a photo on A4, A3 or Letter", "de": "Werkzeuge aus einem Foto auf A4, A3 oder Letter erkannt" },
+      { "en": "Up to {x_count.max} × {y_count.max} cells, {z_count.min}–{z_count.max} height units, sized automatically", "de": "Bis {x_count.max} × {y_count.max} Zellen, {z_count.min}–{z_count.max} Höheneinheiten, automatisch bemessen" },
+      { "en": "Box STL, 1:1 check print, build sheet, project file", "de": "Box-STL, Prüfausdruck 1:1, Bauanleitung, Projektdatei" }
+    ]
+  },
+  {
     "id": "gridfinity-baseplate",
     "title": { "en": "Gridfinity Baseplate", "de": "Gridfinity Baseplate" },
     "summary": {

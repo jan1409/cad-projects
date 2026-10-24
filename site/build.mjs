@@ -53,6 +53,10 @@ copy(path.join(pkgDir("three"), "build", "three.module.js"), "vendor/three.modul
 copy(path.join(pkgDir("three"), "examples", "jsm", "controls", "OrbitControls.js"), "vendor/OrbitControls.js");
 copy(path.join(pkgDir("fflate"), "esm", "browser.js"), "vendor/fflate.js");
 copy(path.join(site, "shared", "i18n.js"), "vendor/i18n.js");
+// tool insert: Clipper (polygon offsets; a script that sets globalThis.ClipperLib, exported here as an ES module) and
+// OpenCV.js (single file with embedded WASM; imported by the trace worker, sets globalThis.cv; the server gzips it)
+put("vendor/clipper.js", fs.readFileSync(path.join(pkgDir("clipper-lib"), "clipper.js"), "utf8") + "\nexport default globalThis.ClipperLib;\n");
+copy(path.join(pkgDir("@techstark/opencv-js"), "dist", "opencv.js"), "vendor/opencv.js");
 
 // ---------- models ----------
 // texts are {en, de}; "{param.field}" is filled from the spec in each language's number notation
@@ -80,7 +84,8 @@ for (const m of registry) {
   const out = `models/${m.id}`;
   const spec = JSON.parse(fs.readFileSync(path.resolve(site, m.spec), "utf8"));
   const rewrite = (s) => s.replaceAll("./vendor/", "../../vendor/"); // model files expect vendor next to them
-  for (const f of ["app.js", "worker.js"]) put(`${out}/${f}`, rewrite(fs.readFileSync(path.join(app, f), "utf8")));
+  // the app's scripts (app.js, worker.js, more workers) next to the page
+  for (const f of fs.readdirSync(app).filter((f) => f.endsWith(".js"))) put(`${out}/${f}`, rewrite(fs.readFileSync(path.join(app, f), "utf8")));
   put(`${out}/index.html`, page(rewrite(fs.readFileSync(path.join(app, "index.html"), "utf8")).replace("<!--site:nav-->", nav(fillAll(m.title)))));
   for (const f of fs.readdirSync(path.resolve(site, m.modules))) if (f.endsWith(".js")) copy(path.join(path.resolve(site, m.modules), f), `${out}/src/${f}`);
   put(`${out}/${path.basename(m.spec)}`, JSON.stringify(spec, null, 1));

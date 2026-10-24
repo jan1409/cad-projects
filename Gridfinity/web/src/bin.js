@@ -2,6 +2,7 @@
 // Gridfinity dimensions (feet, outline, stacking lip, magnet holes) plus the Onshape design's wall, floor, label ledge,
 // label plate and scoop. Frame: centred in X/Y, z = 0 under the feet; the label sits on the +Y wall and runs along X.
 import { polygonDrawing, primsToDrawing, roundPolygon } from "./geom2d.js";
+import { occHelpers } from "./occ.js";
 
 const C = Math.SQRT1_2;
 const rad = (deg) => (deg * Math.PI) / 180;
@@ -18,8 +19,9 @@ export function binEnv(spec, inputs) {
   const scoopR = label ? Math.min(d.scoop.r, T - d.floor_top - d.lip_support - 0.5) : 0;
   const L = d.label, gap = inputs.plate_gap ?? 0;
   const plate = label ? [W - 2 * lip.depth - 2 * gap, L.depth - (lip.depth - d.wall) - 2 * gap, L.plate_t] : null;
+  const plateTop = label ? T - L.plate_drop : null; // below the wall top: a stacked box's feet reach T - 0.35
   return {
-    ...inputs, label, W, D, T, top, supportLow, scoopR, plate,
+    ...inputs, label, W, D, T, top, supportLow, scoopR, plate, plateTop,
     floor: d.floor_top, wall: d.wall,
     inner: [W - 2 * d.wall, D - 2 * d.wall],
     opening: [W - 2 * lip.depth, D - 2 * lip.depth],
@@ -42,24 +44,7 @@ export function makeBin(R, spec, inputs) {
   // (y, z) polygon extruded along X over the whole box width (clipped to the outline afterwards)
   const prismX = (pts) => polygonDrawing(R.draw, pts).sketchOnPlane("YZ", [-hw - 1, 0, 0]).extrude(W + 2);
 
-  // replicad's fuse/cut end with UnifySameDomain, which can throw after a successful boolean: fall back to the raw one
-  const rawBool = (cls, a, b) => {
-    const bld = new (R.getOC()[cls])(a.wrapped, b.wrapped);
-    bld.Build();
-    const s = R.cast(bld.Shape());
-    bld.delete();
-    return s;
-  };
-  const fuse = (a, b) => { try { return a.fuse(b); } catch { return rawBool("BRepAlgoAPI_Fuse", a, b); } };
-  const cut = (a, b) => { try { return a.cut(b); } catch { return rawBool("BRepAlgoAPI_Cut", a, b); } };
-  const common = (a, b) => { try { return a.intersect(b); } catch { return rawBool("BRepAlgoAPI_Common", a, b); } };
-  const step = (label, fn) => {
-    try {
-      return fn();
-    } catch (e) {
-      throw new Error(`${label} failed (${e?.message || "geometry kernel exception"})`);
-    }
-  };
+  const { fuse, cut, common, step } = occHelpers(R);
 
   const cells = [];
   for (let i = 0; i < env.x_count; i++)
@@ -90,8 +75,9 @@ export function makeBin(R, spec, inputs) {
       const prof = polygonDrawing(R.draw, wallProfile.map(([s, z, rr]) => [hd - s, z, rr])).sketchOnPlane("YZ").wire;
       return R.genericSweep(prof, spine, { frenet: true });
     });
-    // floor slab, inset 0.6 so it overlaps the wall instead of sharing its outer face
-    let body = step("floor", () => fuse(wall, outline(0.6, bridge, d.floor_top)));
+    // floor slab, inset 0.6 so it overlaps the wall instead of sharing its outer face; the tool insert raises its top
+    // (inputs.fill_top) to fill the box up to just below the stacking line
+    let body = step("floor", () => fuse(wall, outline(0.6, bridge, inputs.fill_top ?? d.floor_top)));
 
     // feet: ruled lofts through the official sections, vertical up to the bridge, then 0.75 up into the floor slab;
     // disjoint, so one compound
@@ -103,8 +89,8 @@ export function makeBin(R, spec, inputs) {
     body = step("feet", () => fuse(body, R.makeCompound(feet)));
 
     if (env.label) {
-      // label ledge on the +Y inner wall, along X; pocket top at T - plate_t, back face = lip support plane
-      const L = d.label, yWall = hd - d.wall, yFront = yWall - L.depth, zt = T - L.plate_t, zb = zt - L.front;
+      // label ledge on the +Y inner wall, along X; ledge top (pocket floor) at plateTop - plate_t, back face = lip support plane
+      const L = d.label, yWall = hd - d.wall, yFront = yWall - L.depth, zt = env.plateTop - L.plate_t, zb = zt - L.front;
       const slope = Math.tan(rad(90 - L.support_angle)), yIn = hd - 0.6;
       const ledge = prismX([
         [yFront, zt, 0], [hd - lip.depth, zt, 0], [hd - lip.depth, T - d.lip_support, 0], [yIn, T - d.lip_support, 0],
@@ -129,10 +115,10 @@ export function makeBin(R, spec, inputs) {
     return body;
   }
 
-  // ---------- label plate (in place: in the pocket between ledge and lip, flush with the wall top) ----------
+  // ---------- label plate (in place: in the pocket between ledge and lip, its top plate_drop below the wall top) ----------
   function plate() {
     const [pl, pw, pt] = env.plate, yBack = hd - lip.depth - (inputs.plate_gap ?? 0);
-    return onXY(rrect(0, yBack - pw / 2, pl, pw, 0), T - pt).extrude(pt);
+    return onXY(rrect(0, yBack - pw / 2, pl, pw, 0), env.plateTop - pt).extrude(pt);
   }
 
   return { env, box, plate: env.label ? plate : null };
@@ -140,7 +126,7 @@ export function makeBin(R, spec, inputs) {
 
 // print orientation: the box prints as modelled; the plate lies flat on the bed
 export function plateToPrint(shape, env) {
-  return shape.clone().translate(0, 0, -(env.T - env.plate[2]));
+  return shape.clone().translate(0, 0, -(env.plateTop - env.plate[2]));
 }
 
 // title: the model title in the sheet's language; rugged: the translated Rugged Case fit; t: translator of src/strings.js
@@ -152,7 +138,7 @@ export function binBuildSheet(env, tag, title, rugged, t) {
     `- ${t("sheet.boxInside", { iw: env.inner[0], id: env.inner[1], depth: env.depth, ow: env.opening[0], od: env.opening[1] })}`,
     `- ${t("sheet.boxGrid", { x: env.x_count, y: env.y_count, z: env.z_count })}`,
     `- ${env.magnets ? t("sheet.magnets", { n: env.x_count * env.y_count * 4 }) : t("sheet.noMagnets")}`,
-    env.label ? `- ${t("sheet.boxPlate", { a: env.plate[0], b: env.plate[1], c: env.plate[2] })}` : null,
+    env.label ? `- ${t("sheet.boxPlate", { a: env.plate[0], b: env.plate[1], c: env.plate[2], drop: env.T - env.plateTop })}` : null,
     rugged ? `- ${t("sheet.boxRugged", { fit: rugged })}` : null,
     "",
     `## ${t("sheet.printing")}`,

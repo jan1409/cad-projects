@@ -13,6 +13,7 @@ Printer: Prusa XL (360 × 360 mm bed). Units: mm everywhere.
   - `stl_check.py` – size, volume, watertightness, bed contact (`--bed 360x360`)
   - `stl_section.py` – planar sections of STLs overlaid in a PNG, `--vertices` prints exact outlines (venv); use it to overlay generated parts on references
 - `<Object>/` – `onshape/` (source snapshots), `reference/` (ground-truth exports), `spec/`, `fusion/cad/`, `web/`, `export/` (git-ignored)
+- `Gridfinity/web/` – browser generators: Rugged Case (`app/`), boxes (`bin/`), baseplates (`baseplate/`), tool insert (`insert/`)
 - `.venv/` – uv venv (`.venv/Scripts/python.exe`): numpy, trimesh, manifold3d, shapely, networkx, scipy, rtree, matplotlib, ezdxf
 - `Gridfinity/fusion/` – the Fusion port of the case: `build.py <XxYxZ>`, `validate.py`, `print_export.py` (see its README)
 - `site/` – generator website: overview page, `models.json` registry, `build.mjs`, `test.mjs`, self-updating server + Docker (see its README and DEPLOY.md)
@@ -76,6 +77,15 @@ Printer: Prusa XL (360 × 360 mm bed). Units: mm everywhere.
   `standard.scad`; the spec site only has drawings). Jan's Onshape box templates match them to 4 µm.
 - Gridfinity baseplates: `Gridfinity/spec/baseplate_spec.md`. Check boxes against baseplates with `plate_fit.mjs`;
   it found that a box bridge from 4.75 hits the baseplate ridges (they reach 5.0), so boxes now bridge at 5.0.
+- Stacking: a box set on top seats at T − 0.35 (T = 7n), its feet dip into the opening; anything inside must stay
+  below that (`stack_fit.mjs`). That is why the label plate sits 0.5 mm below T (`plate_drop`; Onshape: flush).
+- Gridfinity tool insert (`Gridfinity/spec/insert_spec.md`, `Gridfinity/web/insert/`): tools traced from a photo on a
+  sheet of paper, entirely in the browser.
+  - OpenCV.js (`@techstark/opencv-js`, one 13 MB file with embedded WASM): the module worker does
+    `await import("./vendor/opencv.js")`, then `await globalThis.cv`. Node must `require` it (its Node branch calls require).
+  - 2D offsets: `clipper-lib` 6.4.2. `clipper2-js` 1.2.4 returns broken offsets. The site ships it as
+    `vendor/clipper.js` with `export default globalThis.ClipperLib` appended; modules get it through `setClipper()`.
+  - Test the tracing on synthetic photos (`trace_check.mjs`), not only by eye: it found a 0.6 px corner bias.
 - Reference STEPs: `node Gridfinity/web/node/step2stl.mjs` splits solids; compare exactly with replicad booleans
   (`bin_check.mjs`) – no Fusion needed for web-only models.
 

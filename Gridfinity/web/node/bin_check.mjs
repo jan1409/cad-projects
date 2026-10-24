@@ -35,7 +35,8 @@ async function one(name) {
   };
   const t0 = Date.now();
   compare("box", bin.box(), refBox);
-  if (bin.plate && refPlate) compare("plate", bin.plate(), refPlate);
+  // the plate sits plate_drop lower than in Onshape (flush there): compare its shape at the new height
+  if (bin.plate && refPlate) compare("plate", bin.plate(), refPlate.translate(0, 0, -spec.design.label.plate_drop));
   for (const r of rows) console.log(r);
   console.error(`${name}: ${((Date.now() - t0) / 1000).toFixed(1)} s`);
 }

@@ -38,11 +38,13 @@ height in 7 mm units ("Hoehe"/slotHeight).
 - **Under the lip:** a 1.2 high vertical support at the lip depth (2.6). Below it, the inner wall leans out at 10° to the
   1.2 wall (starting at T − 9.14).
 - **Label ledge**, along X on the +Y inner wall:
-  - Top at T − 1.45.
+  - Top at T − 1.95 (Onshape: T − 1.45; 0.5 lower since 2026-10-24, see the plate).
   - 13 deep from the inner wall, 0.95 front edge.
   - Supported at 60° from the wall.
   - It runs into the side walls; its back is the lip-support plane.
-- **Label plate:** fills the pocket between ledge front and lip, flush with the wall top.
+- **Label plate:** fills the pocket between ledge front and lip, its top 0.5 below the wall top (`plate_drop`).
+  - Onshape has it flush with T. A box stacked on top reaches T − 0.35 with its feet and rested on such a plate
+    0.35 mm high (`node/stack_fit.mjs`); at T − 0.5 it clears the plate by 0.15 mm (user decision 2026-10-24).
   - Size: (W − 5.2) × 11.6 × 1.45; for 1 cell 36.3 × 11.6.
   - Printed flat and UV-printed.
   - `plate_gap` (default 0, like the Onshape plate) shrinks it per side.

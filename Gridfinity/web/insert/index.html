@@ -1,0 +1,225 @@
+<title>Gridfinity Tool Insert</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Same workbench layout and tokens as the box page (../bin/index.html), plus the photo and layout editors. */
+:root {
+  --paper: #eef1f3;
+  --panel: #f8fafb;
+  --ink: #17202a;
+  --muted: #5a6571;
+  --line: #cdd4db;
+  --accent: #2357c6;
+  --accent-ink: #ffffff;
+  --signal: #b8700f;
+  --ok: #2e7d4f;
+  --err: #b3261e;
+  --grid-cell: #dbe4f3;
+  --pocket: rgba(35, 87, 198, .14);
+  --display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #101418; --panel: #161b21; --ink: #e3e8ee; --muted: #93a0ad; --line: #2a323b; --accent: #6e98f0;
+    --accent-ink: #0d1220; --signal: #e0a548; --ok: #5dbb83; --err: #f2867c; --grid-cell: #1f2b40; --pocket: rgba(110, 152, 240, .16); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #101418; --panel: #161b21; --ink: #e3e8ee; --muted: #93a0ad; --line: #2a323b; --accent: #6e98f0;
+  --accent-ink: #0d1220; --signal: #e0a548; --ok: #5dbb83; --err: #f2867c; --grid-cell: #1f2b40; --pocket: rgba(110, 152, 240, .16); color-scheme: dark;
+}
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body { background: var(--paper); color: var(--ink); font: 15px/1.5 var(--body); }
+.app {
+  display: grid; grid-template-columns: minmax(320px, 400px) 1fr; gap: 20px; min-height: 100%; box-sizing: border-box;
+  padding-block: 20px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.spec { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+h1 { font: 700 2.1rem/1 var(--display); letter-spacing: .01em; text-transform: uppercase; margin: 0; text-wrap: balance; hyphens: auto; }
+.title-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.lang { display: inline-flex; flex: none; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--panel); }
+.lang button { border: 0; background: none; color: var(--muted); padding: 3px 9px; font: 600 .78rem var(--body); letter-spacing: .04em; cursor: pointer; }
+.lang button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.lede { margin: 6px 0 0; color: var(--muted); max-width: 46ch; }
+.site-nav { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; font-size: .85rem; color: var(--muted); }
+.site-nav a { color: var(--accent); font-weight: 600; text-decoration: none; }
+.site-nav a:hover { text-decoration: underline; }
+.label { font: 600 .8rem/1.2 var(--display); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.label b { display: inline-grid; place-items: center; width: 1.35em; height: 1.35em; margin-right: 6px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); font-size: .9em; }
+section { display: flex; flex-direction: column; gap: 10px; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.params { display: grid; grid-template-columns: 1fr auto; gap: 12px 16px; align-items: center; }
+.param-name { display: flex; flex-direction: column; }
+.param-name small { color: var(--muted); font-size: .82rem; }
+.stepper { display: flex; align-items: center; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
+.stepper button { width: 34px; height: 34px; border: 0; background: none; color: var(--ink); font: 500 1.2rem var(--mono); cursor: pointer; }
+.stepper button:disabled { color: var(--line); cursor: default; }
+.stepper output { min-width: 2.2ch; text-align: center; font: 500 1.05rem var(--mono); font-variant-numeric: tabular-nums; }
+input[type="number"], input[type="text"], select {
+  height: 34px; box-sizing: border-box; padding: 0 8px; border: 1px solid var(--line); border-radius: 6px;
+  background: var(--panel); color: var(--ink); font: 500 .95rem var(--body);
+}
+input[type="number"] { width: 84px; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+input[type="number"].need { border-color: var(--err); box-shadow: 0 0 0 1px var(--err); }
+input[type="checkbox"] { width: 22px; height: 22px; margin: 0 7px; accent-color: var(--accent); }
+input[type="range"] { accent-color: var(--accent); flex: 1; min-width: 120px; }
+button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btn {
+  height: 34px; padding: 0 12px; border: 1px solid var(--accent); border-radius: 6px; background: none; color: var(--accent);
+  font: 600 .9rem var(--body); cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+}
+.btn.primary { background: var(--accent); color: var(--accent-ink); }
+.btn:disabled { border-color: var(--line); color: var(--muted); background: none; cursor: default; }
+.btn.small { height: 28px; padding: 0 8px; font-size: .82rem; }
+.btn.quiet { border-color: var(--line); color: var(--ink); }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--panel); }
+.seg button { border: 0; background: none; color: var(--muted); padding: 5px 10px; font: 600 .82rem var(--body); cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.build {
+  height: 44px; border: 0; border-radius: 6px; background: var(--accent); color: var(--accent-ink);
+  font: 700 1.05rem var(--display); text-transform: uppercase; letter-spacing: .06em; cursor: pointer;
+}
+.build:disabled { opacity: .55; cursor: not-allowed; }
+.tips { font-size: .86rem; color: var(--muted); }
+.tips summary { cursor: pointer; color: var(--accent); font-weight: 600; }
+.tips ul { margin: 6px 0 0; padding-left: 18px; }
+.tools { display: flex; flex-direction: column; gap: 6px; }
+.tool { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+.tool.sel { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.tool-head { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding: 8px 10px; cursor: pointer; }
+.tool-head strong { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tool-head small { color: var(--muted); font-family: var(--mono); font-size: .78rem; grid-column: 1; }
+.tool-head .warn { color: var(--err); }
+.tool-body { display: grid; grid-template-columns: auto 1fr; gap: 8px 12px; align-items: center; padding: 0 10px 10px; }
+.tool-body > span { color: var(--muted); font-size: .86rem; }
+.tool-body input[type="text"] { width: 100%; }
+.sheet { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; margin: 0; }
+.sheet dt { color: var(--muted); }
+.sheet dd { margin: 0; text-align: right; font-family: var(--mono); font-size: .92rem; font-variant-numeric: tabular-nums; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; gap: 6px; align-items: center; padding: 3px 10px; border-radius: 999px; border: 1px solid currentColor; font-size: .85rem; }
+.chip.ok { color: var(--ok); }
+.chip.signal { color: var(--signal); }
+.chip.err { color: var(--err); }
+.files { display: flex; flex-direction: column; gap: 8px; }
+.file { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; align-items: center; padding: 8px 0; border-top: 1px solid var(--line); }
+.file strong { font-weight: 600; }
+.file small { color: var(--muted); grid-column: 1; font-family: var(--mono); font-size: .8rem; }
+.file button {
+  grid-row: 1 / span 2; grid-column: 2; height: 32px; padding: 0 12px; border: 1px solid var(--accent); border-radius: 6px;
+  background: none; color: var(--accent); font: 600 .9rem var(--body); cursor: pointer;
+}
+.file button:disabled { border-color: var(--line); color: var(--muted); cursor: default; }
+.file.primary button { background: var(--accent); color: var(--accent-ink); }
+.note { color: var(--muted); font-size: .85rem; margin: 0; }
+.note.err { color: var(--err); }
+.stage {
+  position: sticky; top: calc(env(safe-area-inset-top, 0px) + 20px); align-self: start; height: calc(100dvh - 40px); min-height: 420px;
+  min-width: 0; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); overflow: hidden;
+}
+.stage canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+.hud { position: absolute; left: 14px; right: 14px; top: 12px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; pointer-events: none; }
+.hud > * { pointer-events: auto; }
+.status { font-family: var(--mono); font-size: .85rem; color: var(--muted); background: var(--panel); padding: 2px 8px; border-radius: 4px; max-width: 60ch; }
+.status.busy { color: var(--signal); }
+.status.err { color: var(--err); }
+.hint { position: absolute; left: 14px; right: 14px; bottom: 12px; font-size: .85rem; color: var(--muted); pointer-events: none; }
+.hint span { background: var(--panel); padding: 2px 8px; border-radius: 4px; }
+@media (max-width: 760px) {
+  .app { grid-template-columns: 1fr; }
+  .stage { position: relative; top: auto; order: -1; min-height: 0; height: 62vh; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="app">
+  <aside class="spec">
+    <header>
+      <!--site:nav-->
+      <div class="title-row"><h1 id="title">Gridfinity Tool Insert</h1><div class="lang" data-lang-switch></div></div>
+      <p class="lede" id="lede" data-i18n="tool.lede">Photograph your tools on a sheet of paper and get a Gridfinity box with a pocket for each of them.</p>
+    </header>
+
+    <section aria-labelledby="photo-h">
+      <div class="label" id="photo-h"><b>1</b><span data-i18n="tool.stepPhoto">Photo</span></div>
+      <div class="row">
+        <label class="btn primary" id="photo-pick"><span data-i18n="tool.choosePhoto">Take or choose a photo</span>
+          <input type="file" id="photo-file" accept="image/*" hidden></label>
+        <select id="paper" aria-label="Paper size" data-i18n-attr="aria-label:tool.paper">
+          <option value="A4">A4</option><option value="A3">A3</option><option value="Letter">Letter</option>
+        </select>
+      </div>
+      <details class="tips">
+        <summary data-i18n="tool.tipsTitle">How to take the photo</summary>
+        <ul>
+          <li data-i18n="tool.tip1">Lay the sheet on a dark, plain surface and the tools on the sheet, at least 1 cm from its edges.</li>
+          <li data-i18n="tool.tip2">Shoot straight from above, from at least 50 cm, zoomed in (2×) so the sheet fills the picture.</li>
+          <li data-i18n="tool.tip3">Use even, diffuse light and no flash: hard shadows make the outline larger on one side.</li>
+          <li data-i18n="tool.tip4">Shiny metal can reflect like paper: check the outline and correct it in the layout.</li>
+        </ul>
+      </details>
+      <div class="row" id="trace-row" hidden>
+        <button class="btn" id="trace" type="button" data-i18n="tool.trace">Trace tools</button>
+        <button class="btn quiet" id="corners" type="button" data-i18n="tool.adjustCorners" hidden>Adjust the corners</button>
+      </div>
+      <div class="row" id="sens-row" hidden>
+        <span class="note" data-i18n="tool.sensitivity">Sensitivity</span>
+        <input type="range" id="sens" min="-1" max="1" step="0.1" value="0" aria-label="Sensitivity" data-i18n-attr="aria-label:tool.sensitivity">
+      </div>
+      <div class="row" id="add-row" hidden><button class="btn primary" id="add" type="button"></button></div>
+      <p class="note" id="photo-note"></p>
+    </section>
+
+    <section aria-labelledby="tools-h">
+      <div class="label" id="tools-h"><b>2</b><span data-i18n="tool.stepTools">Tools</span></div>
+      <div class="tools" id="tools"></div>
+      <p class="note" id="tools-note"></p>
+      <div class="row">
+        <button class="btn small quiet" id="add-rect" type="button" data-i18n="tool.addRect">+ Rectangle</button>
+        <button class="btn small quiet" id="add-circle" type="button" data-i18n="tool.addCircle">+ Circle</button>
+        <button class="btn small quiet" id="arrange" type="button" data-i18n="tool.arrange">Arrange automatically</button>
+        <label class="btn small quiet"><span data-i18n="tool.loadProject">Open project…</span><input type="file" id="project-file" accept=".json,application/json" hidden></label>
+      </div>
+    </section>
+
+    <section aria-labelledby="box-h">
+      <div class="label" id="box-h"><b>3</b><span data-i18n="tool.stepBox">Box</span></div>
+      <div class="params" id="params"></div>
+      <button class="build" id="build" type="button">Build box</button>
+      <div class="chips" id="chips"></div>
+    </section>
+
+    <section aria-labelledby="data-h">
+      <div class="label" id="data-h" data-i18n="common.datasheet">Datasheet</div>
+      <dl class="sheet" id="sheet"></dl>
+    </section>
+
+    <section aria-labelledby="files-h">
+      <div class="label" id="files-h"><span data-i18n="common.printFiles">Print files</span> <span id="files-for"></span></div>
+      <div class="files" id="files"></div>
+      <p class="note" id="files-note"></p>
+    </section>
+  </aside>
+
+  <main class="stage" aria-label="Preview" data-i18n-attr="aria-label:common.previewMode">
+    <canvas id="photo-view" hidden></canvas>
+    <canvas id="layout-view"></canvas>
+    <canvas id="view3d" hidden></canvas>
+    <div class="hud">
+      <span class="status" id="status" role="status" aria-live="polite"></span>
+      <div class="seg" role="group" aria-label="View" data-i18n-attr="aria-label:common.previewMode" id="modes">
+        <button type="button" data-mode="photo" aria-pressed="false" data-i18n="tool.viewPhoto">Photo</button>
+        <button type="button" data-mode="layout" aria-pressed="true" data-i18n="tool.viewLayout">Layout</button>
+        <button type="button" data-mode="3d" aria-pressed="false" data-i18n="tool.view3d">3-D</button>
+      </div>
+    </div>
+    <div class="hint" aria-hidden="true"><span id="hint"></span></div>
+  </main>
+</div>
+
+<script type="importmap">{ "imports": { "three": "./vendor/three.module.js" } }</script>
+<script type="module" src="./app.js"></script>
