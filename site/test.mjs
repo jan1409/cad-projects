@@ -69,7 +69,7 @@ if (!args.includes("--skip-geometry")) {
     });
   }
   const bins = JSON.parse(fs.readFileSync(path.join(root, "Gridfinity/spec/bin_params.json"), "utf8")).variants;
-  for (const [variant, { parameters: B }] of Object.entries(bins).filter(([v]) => v !== "insert")) {
+  for (const [variant, { parameters: B }] of Object.entries(bins).filter(([v]) => !["insert", "jig"].includes(v))) {
     for (const k of ["min", "default", "max"]) {
       const cfg = [B.x_count[k], B.y_count[k], B.z_count[k]];
       await step(`geometry ${variant} box ${cfg.join("x")}`, () => {
@@ -99,6 +99,16 @@ if (!args.includes("--skip-geometry")) {
   for (const cfg of [["coin", "--x", "1", "--y", "1", "--z", String(B.z_count.min)], ["mixed"], ["bit", "--z", String(B.z_count.max)]]) {
     await step(`geometry tool insert ${cfg.join(" ")}`, () => {
       const out = execFileSync(process.execPath, [path.join(root, "Gridfinity/web/node/insert_build.mjs"), ...cfg],
+        { encoding: "utf8", maxBuffer: 1 << 26 });
+      const row = out.split("\n").find((l) => l.startsWith("|"));
+      assert.ok(row?.endsWith("| ok |"), row ?? out);
+    });
+  }
+  // label jigs: smallest, default and largest box width; watertight, the plates fit flush (jig_build.mjs)
+  const J = bins.jig.parameters;
+  for (const k of ["min", "default", "max"]) {
+    await step(`geometry label jig ${J.x_count[k]} units`, () => {
+      const out = execFileSync(process.execPath, [path.join(root, "Gridfinity/web/node/jig_build.mjs"), String(J.x_count[k])],
         { encoding: "utf8", maxBuffer: 1 << 26 });
       const row = out.split("\n").find((l) => l.startsWith("|"));
       assert.ok(row?.endsWith("| ok |"), row ?? out);
@@ -205,13 +215,13 @@ await step("translations", async () => {
   // keys are only written as literals: "ns.key" in the code, data-i18n="key" and data-i18n-attr="attr:key;…" in pages
   const keysIn = (rel) => {
     const s = fs.readFileSync(path.join(root, rel), "utf8"), keys = new Set();
-    for (const m of s.matchAll(/["'](?:site|portal|update|common|case|box|plate|tool|sheet)\.[A-Za-z]\w*["']/g)) keys.add(m[0].slice(1, -1));
+    for (const m of s.matchAll(/["'](?:site|portal|update|common|case|box|plate|tool|jig|sheet)\.[A-Za-z]\w*["']/g)) keys.add(m[0].slice(1, -1));
     for (const [, attr] of s.matchAll(/data-i18n-attr="([^"]+)"/g)) for (const pair of attr.split(";")) keys.add(pair.split(":")[1].trim());
     return [...keys].filter((k) => !/\.(m?js|json|html|css|md|png)$/.test(k)); // not file names like "portal.js"
   };
   const files = (dir, re) => fs.readdirSync(path.join(root, dir)).filter((f) => re.test(f)).map((f) => `${dir}/${f}`);
   const users = {
-    grid: [...["app", "bin", "baseplate", "insert"].flatMap((d) => files(`Gridfinity/web/${d}`, /^(index\.html|.*\.js)$/)),
+    grid: [...["app", "bin", "baseplate", "insert", "jig"].flatMap((d) => files(`Gridfinity/web/${d}`, /^(index\.html|.*\.js)$/)),
       ...files("Gridfinity/web/src", /\.js$/).filter((f) => !f.endsWith("strings.js"))],
     portal: ["site/portal/index.html", "site/portal/portal.js"],
     site: ["site/build.mjs"], // the nav bar
@@ -231,6 +241,7 @@ await step("translations", async () => {
   const { plateEnv, plateBuildSheet } = await import("../Gridfinity/web/src/baseplate.js");
   const { setClipper, rect } = await import("../Gridfinity/web/src/outline.js");
   const { insertEnv, insertBuildSheet, insertSvg } = await import("../Gridfinity/web/src/insert.js");
+  const { jigEnv, jigBuildSheet, jigSvg } = await import("../Gridfinity/web/src/jig.js");
   setClipper((await import("node:module")).createRequire(import.meta.url)("clipper-lib"));
   const spec = (f) => JSON.parse(fs.readFileSync(path.join(root, "Gridfinity/spec", f), "utf8"));
   const cs = spec("case_params.json"), bs = spec("bin_params.json"), ps = spec("baseplate_params.json");
@@ -247,6 +258,8 @@ await step("translations", async () => {
     plateBuildSheet(plateEnv(ps, { variant: "grid", x_count: 4, y_count: 4, bottom: false, bottom_h: 4, magnets: false }), "4x4", "Plate", t),
     insertBuildSheet(toolEnv, "3x2x4", "Tool Insert", t),
     insertSvg(toolEnv, { title: t("sheet.toolSvgTitle", { tag: "3x2x4" }), scale: t("sheet.toolSvgScale") }),
+    jigBuildSheet(jigEnv(bs, { x_count: 3, layout: "auto", plate_gap: 0, clearance: 0.15, base: 2.5 }), "3u_2col", "Label Jig", "UV", t),
+    jigBuildSheet(jigEnv(bs, { x_count: 10, layout: "auto", plate_gap: 0, clearance: 0.15, base: 2.5 }), "10u_1col", "Label Jig", "UV", t),
   ];
   const out = Object.fromEntries(LANGS.map((l) => [l, sheets(translator(gridStrings, l))]));
   for (const l of LANGS) out[l].forEach((s, i) => {

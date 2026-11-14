@@ -50,6 +50,16 @@ Spec: `../spec/baseplate_spec.md` and `baseplate_params.json`. Validation: [BASE
 | `node/plate_build.mjs` | `node node/plate_build.mjs drawer width=500 depth=400 bottom=1 [--out dir]` builds and checks every piece; `--sweep` runs 35 configurations |
 | `node/plate_fit.mjs` | boxes from `src/bin.js` on a baseplate: free when lifted 0.01 mm, both 45° faces hit when lowered 0.05 mm |
 
+## Gridfinity label jig
+UV printing jig for 10 label plates of the Box with Label, sized to the box width. Variant `jig` of `bin_params.json`,
+rules and validation in `../spec/label_jig_spec.md`.
+
+| Path | Purpose |
+|---|---|
+| `src/jig.js` | `jigEnv` (plate size, layout, printer fit; no kernel), `makeJig`, layout SVG, build sheet |
+| `jig/index.html`, `jig/app.js`, `jig/worker.js`, `jig/card.png` | the page, worker, card image |
+| `node/jig_build.mjs` | `node node/jig_build.mjs 3 [auto\|1\|2] [--gap mm] [--out dir]` builds and checks one jig (watertight, plates fit flush); `--sweep` runs 17 |
+
 ## Gridfinity tool insert
 A standard box filled up to just below the stacking line, with a pocket per tool. The tools are traced from a photo
 of them lying on a sheet of paper, all in the browser (OpenCV.js). Variant `insert` of `bin_params.json`, rules in

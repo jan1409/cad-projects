@@ -1,4 +1,4 @@
-// Texts of the Gridfinity generator pages (app/, bin/, baseplate/, insert/) and their build sheets, English and German side by
+// Texts of the Gridfinity generator pages (app/, bin/, baseplate/, insert/, jig/) and their build sheets, English and German side by
 // side. German uses "du"; the names Rugged Case, Baseplate and Box stay. {x} inserts a value, {x:2} a number with 2
 // decimals in the language's notation; {one, other} entries are plurals chosen by n. Keys are only used as literals.
 export default {
@@ -143,6 +143,45 @@ export default {
   "box.empty": { en: "The files appear once the box is built.", de: "Die Dateien erscheinen, sobald die Box erzeugt ist." },
   "box.buildingBox": { en: "Building the box…", de: "Box wird erzeugt…" },
   "box.buildingPlate": { en: "Building the label plate…", de: "Beschriftungsschild wird erzeugt…" },
+
+  // ---------- label jig (jig/) ----------
+  "jig.lede": {
+    en: "A jig that holds 10 label plates of the Box with Label flush for the UV printer. It follows the width of the box; download the jig and the 1:1 layout for the printer's software.",
+    de: "Eine Schablone, die 10 Beschriftungsschilder der Box mit Beschriftung bündig für den UV-Drucker hält. Sie richtet sich nach der Breite der Box; lade die Schablone und das Layout 1:1 für die Software des Druckers herunter.",
+  },
+  "jig.settings": { en: "Settings", de: "Einstellungen" },
+  "jig.build": { en: "Build jig", de: "Schablone erzeugen" },
+  "jig.rebuild": { en: "Rebuild jig", de: "Schablone neu erzeugen" },
+  "jig.buildingJig": { en: "Building the jig…", de: "Schablone wird erzeugt…" },
+  "jig.legendJig": { en: "Jig", de: "Schablone" },
+  "jig.legendPlates": { en: "Label plates", de: "Beschriftungsschilder" },
+  "jig.footprint": {
+    en: "Plates for a box {x} units wide, {cols} × {rows}. Label 1 is next to the chamfered corner.",
+    de: "Schilder für eine Box mit {x} Einheiten Breite, {cols} × {rows}. Schild 1 liegt an der abgeschrägten Ecke.",
+  },
+  "jig.rowPlate": { en: "Label plate", de: "Beschriftungsschild" },
+  "jig.rowLayout": { en: "Layout", de: "Anordnung" },
+  "jig.valLayout": {
+    en: { one: "{cols} column of {rows}", other: "{cols} columns of {rows}" },
+    de: { one: "{cols} Spalte mit {rows}", other: "{cols} Spalten mit je {rows}" },
+  },
+  "jig.rowSize": { en: "Jig", de: "Schablone" },
+  "jig.rowPocket": { en: "Pocket", de: "Tasche" },
+  "jig.rowVolume": { en: "Volume", de: "Volumen" },
+  "jig.valVolume": { en: "{v:1} cm³", de: "{v:1} cm³" },
+  "jig.uvFits": { en: "Fits the {name} ({a} × {b} mm)", de: "Passt in den {name} ({a} × {b} mm)" },
+  "jig.uvTooBig": { en: "Larger than the {name} ({a} × {b} mm)", de: "Größer als der {name} ({a} × {b} mm)" },
+  "jig.zipSub": { en: "jig STL, layout SVG, build sheet", de: "Schablonen-STL, Layout-SVG, Bauanleitung" },
+  "jig.fileJig": { en: "Jig (.stl)", de: "Schablone (.stl)" },
+  "jig.fileJigSub": { en: "{v:1} cm³, flat", de: "{v:1} cm³, flach" },
+  "jig.fileLayout": { en: "Layout 1:1 (.svg)", de: "Layout 1:1 (.svg)" },
+  "jig.fileLayoutSub": {
+    en: "the jig and the 10 plates with their numbers, for the UV printer's software",
+    de: "die Schablone und die 10 Schilder mit Nummern, für die Software des UV-Druckers",
+  },
+  "jig.mdSub": { en: "sizes, layout, printing and use", de: "Maße, Anordnung, Druck und Benutzung" },
+  "jig.empty": { en: "The files appear once the jig is built.", de: "Die Dateien erscheinen, sobald die Schablone erzeugt ist." },
+  "jig.svgTitle": { en: "Gridfinity Label Jig {tag}", de: "Gridfinity Druckschablone {tag}" },
 
   // ---------- tool insert (insert/) ----------
   "tool.lede": {
@@ -485,6 +524,29 @@ export default {
   "sheet.boxPrintPlate": {
     en: "Label plate: flat on the bed; UV-print or label the top face.",
     de: "Beschriftungsschild: flach auf dem Bett; die Oberseite per UV-Druck bedrucken oder beschriften.",
+  },
+  "sheet.jigPlates": {
+    en: "{n} label plates of a box {x} units wide: {a:1} × {b:1} × {c:2} mm each",
+    de: "{n} Beschriftungsschilder einer Box mit {x} Einheiten Breite: je {a:1} × {b:1} × {c:2} mm",
+  },
+  "sheet.jigSize": {
+    en: "Jig: {l:1} × {w:1} × {h:2} mm, {cols} × {rows} pockets; the plates lie flush with its top",
+    de: "Schablone: {l:1} × {w:1} × {h:2} mm, {cols} × {rows} Taschen; die Schilder liegen bündig mit der Oberseite",
+  },
+  "sheet.jigUvFits": { en: "Fits the {name} ({a} × {b} mm)", de: "Passt in den {name} ({a} × {b} mm)" },
+  "sheet.jigUvTooBig": { en: "Larger than the {name} ({a} × {b} mm)", de: "Größer als der {name} ({a} × {b} mm)" },
+  "sheet.jigClearance": { en: "Pocket clearance: {c:2} mm per side", de: "Taschenspiel: {c:2} mm pro Seite" },
+  "sheet.jigPrint": {
+    en: "Jig: flat on the bed, as exported, no supports. A flat top matters: the plates and the jig form the print surface.",
+    de: "Schablone: flach auf dem Bett, wie exportiert, ohne Stützen. Eine ebene Oberseite ist wichtig: Schilder und Schablone bilden die Druckfläche.",
+  },
+  "sheet.jigUse": {
+    en: "Lay the plates in face up; label 1 is next to the chamfered corner, the numbers run down the first column, then the second. The nail notches lift them out.",
+    de: "Leg die Schilder mit der Oberseite nach oben ein; Schild 1 liegt an der abgeschrägten Ecke, die Nummern laufen die erste Spalte hinunter, dann die zweite. Mit den Nagelkerben hebst du sie heraus.",
+  },
+  "sheet.jigLayout": {
+    en: "Import the layout SVG at 1:1 into the UV printer's software, align it with the jig and place each label's artwork on its plate.",
+    de: "Importiere das Layout-SVG in 1:1 in die Software des UV-Druckers, richte es an der Schablone aus und setz die Gestaltung jedes Schilds auf sein Feld.",
   },
   "sheet.toolSurface": {
     en: "Insert surface at {f:2} mm; a box stacked on top sits {gap:2} mm above it",

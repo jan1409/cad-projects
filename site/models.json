@@ -53,6 +53,24 @@
     ]
   },
   {
+    "id": "gridfinity-label-jig",
+    "title": { "en": "Gridfinity Label Jig", "de": "Gridfinity Druckschablone für Schilder" },
+    "summary": {
+      "en": "UV printing jig for the label plates of the Box with Label: 10 plates lie flush in it, sized to the box width, with a 1:1 layout for the printer's software.",
+      "de": "UV-Druckschablone für die Beschriftungsschilder der Box mit Beschriftung: 10 Schilder liegen bündig darin, passend zur Boxbreite, mit einem Layout 1:1 für die Software des Druckers."
+    },
+    "variant": "jig",
+    "app": "../Gridfinity/web/jig",
+    "modules": "../Gridfinity/web/src",
+    "spec": "../Gridfinity/spec/bin_params.json",
+    "image": "../Gridfinity/web/jig/card.png",
+    "facts": [
+      { "en": "10 plates for boxes {x_count.min}–{x_count.max} units wide", "de": "10 Schilder für Boxen mit {x_count.min}–{x_count.max} Einheiten Breite" },
+      { "en": "1 or 2 columns, checked against the xTool O1 Omni (330 × 420 mm)", "de": "1 oder 2 Spalten, geprüft für den xTool O1 Omni (330 × 420 mm)" },
+      { "en": "Jig STL, 1:1 layout SVG, build sheet", "de": "Schablonen-STL, Layout-SVG 1:1, Bauanleitung" }
+    ]
+  },
+  {
     "id": "gridfinity-tool-insert",
     "title": { "en": "Gridfinity Tool Insert", "de": "Gridfinity Werkzeugeinsatz" },
     "summary": {

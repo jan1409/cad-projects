@@ -63,6 +63,21 @@
   "max_units": 8,
   "_max_units": "footprint limit of the automatic size (8 x 42 = 336 mm fits the 360 mm bed)"
  },
+ "jig": {
+  "_note": "UV printing jig for the label plates of the Box with Label (variant jig, src/jig.js, spec label_jig_spec.md): a flat plate with 10 pockets, the plates lie flush with its top. Plate size from design.label and the box width (x_count) and plate_gap.",
+  "count": 10,
+  "web": 4,
+  "border_end": 9,
+  "border_side": 6,
+  "corner_r": 3,
+  "mark_chamfer": 8,
+  "_mark_chamfer": "the chamfered corner marks the jig's orientation: label 1 is next to it",
+  "relief_d": 1.4,
+  "_relief_d": "round reliefs at the pocket corners: the plates have sharp corners, a printed pocket has rounded ones",
+  "notch": {"w": 9, "out": 6, "in": 3, "extra_depth": 1.0, "_note": "nail notch at the outer short end of each pocket: reaches out beyond the pocket and 3 mm under the plate, 1 mm deeper than the pocket"},
+  "uv_area": [330, 420],
+  "_uv_area": "xTool O1 Omni, standard baseplate (mm)"
+ },
  "variants": {
   "standard": {
    "title": {"en": "Gridfinity Standard Box", "de": "Gridfinity Standard-Box"},
@@ -92,6 +107,25 @@
     "plate_gap": {"type": "float", "min": 0, "max": 0.5, "default": 0, "step": 0.05,
                   "label": {"en": "Plate clearance", "de": "Schildspiel"},
                   "help": {"en": "per side, mm; makes the label plate smaller", "de": "pro Seite, mm; macht das Beschriftungsschild kleiner"}}
+   }
+  },
+  "jig": {
+   "title": {"en": "Gridfinity Label Jig", "de": "Gridfinity Druckschablone für Schilder"},
+   "parameters": {
+    "x_count": {"type": "int", "min": 1, "max": 10, "default": 2,
+                "label": {"en": "Box width", "de": "Boxbreite"},
+                "help": {"en": "units of the Box with Label; the plates run along it", "de": "Einheiten der Box mit Beschriftung; die Schilder laufen entlang"}},
+    "layout": {"type": "choice", "default": "auto",
+               "label": {"en": "Layout", "de": "Anordnung"}, "help": {"en": "of the 10 plates", "de": "der 10 Schilder"},
+               "options": [["auto", {"en": "Automatic", "de": "Automatisch"}], ["1", {"en": "1 column", "de": "1 Spalte"}], ["2", {"en": "2 columns", "de": "2 Spalten"}]]},
+    "plate_gap": {"type": "float", "min": 0, "max": 0.5, "default": 0, "step": 0.05,
+                  "label": {"en": "Plate clearance", "de": "Schildspiel"},
+                  "help": {"en": "per side, mm; as set for the box", "de": "pro Seite, mm; wie bei der Box eingestellt"}},
+    "clearance": {"type": "float", "min": 0, "max": 0.5, "default": 0.15, "step": 0.05,
+                  "label": {"en": "Pocket clearance", "de": "Taschenspiel"},
+                  "help": {"en": "per side, mm, between plate and pocket", "de": "pro Seite, mm, zwischen Schild und Tasche"}},
+    "base": {"type": "float", "min": 1.5, "max": 5, "default": 2.5, "step": 0.5,
+             "label": {"en": "Base", "de": "Boden"}, "help": {"en": "mm under the plates", "de": "mm unter den Schildern"}}
    }
   },
   "insert": {

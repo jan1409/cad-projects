@@ -13,7 +13,8 @@ Printer: Prusa XL (360 × 360 mm bed). Units: mm everywhere.
   - `stl_check.py` – size, volume, watertightness, bed contact (`--bed 360x360`)
   - `stl_section.py` – planar sections of STLs overlaid in a PNG, `--vertices` prints exact outlines (venv); use it to overlay generated parts on references
 - `<Object>/` – `onshape/` (source snapshots), `reference/` (ground-truth exports), `spec/`, `fusion/cad/`, `web/`, `export/` (git-ignored)
-- `Gridfinity/web/` – browser generators: Rugged Case (`app/`), boxes (`bin/`), baseplates (`baseplate/`), tool insert (`insert/`)
+- `Gridfinity/web/` – browser generators: Rugged Case (`app/`), boxes (`bin/`), baseplates (`baseplate/`), tool insert (`insert/`),
+  label jig (`jig/`: UV printing jig for 10 label plates, xTool O1 Omni 330 × 420 mm)
 - `.venv/` – uv venv (`.venv/Scripts/python.exe`): numpy, trimesh, manifold3d, shapely, networkx, scipy, rtree, matplotlib, ezdxf
 - `Gridfinity/fusion/` – the Fusion port of the case: `build.py <XxYxZ>`, `validate.py`, `print_export.py` (see its README)
 - `site/` – generator website: overview page, `models.json` registry, `build.mjs`, `test.mjs`, self-updating server + Docker (see its README and DEPLOY.md)
