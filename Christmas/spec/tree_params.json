@@ -1,0 +1,58 @@
+{
+ "name": "christmas_tree",
+ "units": "mm",
+ "source": "Christmas/solidcraft/christmas_tree.sc (SolidCraft 0.45; Jan's Christmas_tree_v2.sc). Equations and the paint rule: tree_spec.md",
+ "title": { "en": "Christmas Tree", "de": "Weihnachtsbaum" },
+ "shape": {
+  "_comment": "shape ratios of the .sc (kw base radius / H, kt top tier tip / base radius, kp tier pitch / H, ks tier step at a flat underside / H, kr tip rounding / H); the tree has 3 tiers",
+  "kw": 0.30,
+  "kt": 0.46,
+  "kp": 0.23,
+  "ks": 0.04,
+  "kr": 0.0125
+ },
+ "colors": { "main": "#F330F9", "band": "#D4B1DD" },
+ "printers": { "Prusa XL": [360, 360, 360], "Bambu Lab X1C": [256, 256, 256] },
+ "parameters": {
+  "height": {
+   "type": "int", "min": 50, "max": 250, "default": 120, "step": 5,
+   "label": { "en": "Height", "de": "Höhe" },
+   "help": { "en": "mm; the base is 0.6 × as wide", "de": "mm; der Fuß ist 0,6-mal so breit" }
+  },
+  "fins": {
+   "type": "int", "min": 6, "max": 40, "default": 20, "step": 2,
+   "label": { "en": "Fins", "de": "Lamellen" },
+   "help": { "en": "around the trunk, an even number", "de": "rund um den Stamm, eine gerade Zahl" }
+  },
+  "fin_t": {
+   "type": "float", "min": 1.2, "max": 4, "default": 2, "step": 0.2,
+   "label": { "en": "Fin thickness", "de": "Lamellendicke" },
+   "help": { "en": "mm, stays the same at every height", "de": "mm, bleibt bei jeder Höhe gleich" }
+  },
+  "angle": {
+   "type": "int", "min": 0, "max": 60, "default": 30, "step": 5,
+   "label": { "en": "Underside angle", "de": "Winkel der Unterseite" },
+   "help": { "en": "degrees from the bed under each tier; steeper prints cleaner", "de": "Grad zum Druckbett unter jeder Stufe; steiler druckt sauberer" }
+  },
+  "bands": {
+   "type": "bool", "default": true,
+   "label": { "en": "Coloured bands", "de": "Farbige Bänder" },
+   "help": { "en": "filament 2 at the base and under each tier", "de": "Filament 2 am Fuß und unter jeder Stufe" }
+  },
+  "band_share": {
+   "type": "int", "min": 10, "max": 60, "default": 27, "step": 1,
+   "label": { "en": "Band height", "de": "Bandhöhe" },
+   "help": { "en": "% of the tier spacing", "de": "% des Stufenabstands" }
+  },
+  "slicer": {
+   "type": "choice", "default": "bambu",
+   "label": { "en": "Slicer", "de": "Slicer" },
+   "help": { "en": "the 3MF is made for it", "de": "die 3MF wird dafür gemacht" },
+   "options": [
+    ["bambu", { "en": "Bambu Studio", "de": "Bambu Studio" }],
+    ["orca", { "en": "OrcaSlicer", "de": "OrcaSlicer" }],
+    ["prusa", { "en": "PrusaSlicer", "de": "PrusaSlicer" }]
+   ]
+  }
+ }
+}

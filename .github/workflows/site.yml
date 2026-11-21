@@ -10,6 +10,8 @@ on:
       - "Gridfinity/web/**"
       - "Gridfinity/spec/**"
       - "Skadis/models/**"
+      - "Christmas/web/**"
+      - "Christmas/spec/**"
       - "package.json"
       - "package-lock.json"
       - ".github/workflows/site.yml"

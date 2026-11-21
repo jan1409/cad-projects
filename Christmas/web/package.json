@@ -1,0 +1,17 @@
+{
+  "name": "christmas-web",
+  "private": true,
+  "type": "module",
+  "description": "Browser generators for parametric Christmas models (replicad / OpenCascade WASM, painted 3MF)",
+  "scripts": {
+    "tree": "node node/tree_build.mjs",
+    "sweep": "node node/tree_build.mjs --sweep",
+    "check": "node node/tree_check.mjs"
+  },
+  "dependencies": {
+    "fflate": "0.8.2",
+    "replicad": "1.1.0",
+    "replicad-opencascadejs": "1.1.0",
+    "three": "0.160.0"
+  }
+}

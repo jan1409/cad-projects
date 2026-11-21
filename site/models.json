@@ -164,5 +164,23 @@
       { "en": "Gaps 5.1, 5.3 and 5.5 mm for the board", "de": "Spaltmaße 5,1, 5,3 und 5,5 mm für die Platte" },
       { "en": "STL, 3MF plate, build sheet", "de": "STL, 3MF-Druckplatte, Bauanleitung" }
     ]
+  },
+  {
+    "id": "christmas-tree",
+    "section": "christmas",
+    "title": { "en": "Christmas Tree", "de": "Weihnachtsbaum" },
+    "summary": {
+      "en": "A tiered tree of crossed fins with coloured bands at the base and under each tier. Choose the height, fins, fin thickness and underside angle; the 3MF comes with the two-colour paint for your slicer.",
+      "de": "Ein Stufenbaum aus gekreuzten Lamellen mit farbigen Bändern am Fuß und unter jeder Stufe. Wähl Höhe, Lamellen, Lamellendicke und den Winkel der Unterseite; die 3MF kommt mit der zweifarbigen Bemalung für deinen Slicer."
+    },
+    "app": "../Christmas/web/tree",
+    "modules": "../Christmas/web/src",
+    "spec": "../Christmas/spec/tree_params.json",
+    "image": "../Christmas/web/tree/card.png",
+    "facts": [
+      { "en": "{height.min}–{height.max} mm tall, {fins.min}–{fins.max} fins", "de": "{height.min}–{height.max} mm hoch, {fins.min}–{fins.max} Lamellen" },
+      { "en": "Two-colour paint for Bambu Studio, OrcaSlicer or PrusaSlicer", "de": "Zweifarbige Bemalung für Bambu Studio, OrcaSlicer oder PrusaSlicer" },
+      { "en": "Painted 3MF, STL, build sheet", "de": "Bemalte 3MF, STL, Bauanleitung" }
+    ]
   }
 ]

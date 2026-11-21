@@ -1,0 +1,12 @@
+{
+ "source": "Jan's print, sliced by hand: _input/Christmas_tree_plate_2.gcode.3mf (Bambu Studio 02.09.01.70, X1C + AMS, painted in the slicer; the file holds only G-code). Read with tools/slice_paint_check.py --gcode",
+ "model": { "height": 120, "fins": 20, "fin_t": 2, "angle": 30 },
+ "layer_height": 0.2,
+ "layers": 600,
+ "main_tool": 0,
+ "band_tool": 1,
+ "colors": { "T0": "#F330F9", "T1": "#D4B1DD" },
+ "band_layers": [[0, 36], [127, 163], [265, 301], [403, 439]],
+ "band_z": [[0, 7.4], [25.4, 32.8], [53.0, 60.4], [80.6, 88.0]],
+ "note": "The bands start at the base and at each tier underside (k p - dr = 25.36, 52.96, 80.56 mm) and are 7.34-7.50 mm tall: band_share 27 % of the pitch (7.45 mm) reproduces every layer."
+}

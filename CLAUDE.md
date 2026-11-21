@@ -1,7 +1,7 @@
 # CAD_Projects
 
 Workspace for 3D-printing designs. Each object lives in its own folder (`Gridfinity/`, …); `tools/` is shared.
-Printer: Prusa XL (360 × 360 mm bed). Units: mm everywhere.
+Printers: Prusa XL (360 × 360 mm bed) and Bambu Lab X1C with AMS (256 mm, colour prints). Units: mm everywhere.
 
 ## Layout
 - `tools/` – shared helpers (stdlib Python unless noted)
@@ -14,18 +14,23 @@ Printer: Prusa XL (360 × 360 mm bed). Units: mm everywhere.
   - `stl_section.py` – planar sections of STLs overlaid in a PNG, `--vertices` prints exact outlines (venv); use it to overlay generated parts on references
   - `fusion_view.py` – set the Fusion camera (eye/target, `--hide`, `--show-only`, `--ortho`) and take a screenshot (`--transparent`)
   - `card_image.py` – transparent screenshot → cropped, palette-quantised site image (venv, Pillow); `threemf.py` – minimal 3MF writer
+  - `slice_paint_check.py` – slices a painted 3MF with the PrusaSlicer / Bambu Studio / OrcaSlicer CLI and lists the filament per layer;
+    `--expect` a reference or `--bands`, `--gcode` reads a G-code or `.gcode.3mf`
 - `<Object>/` – `onshape/` (source snapshots), `reference/` (ground-truth exports), `spec/`, `fusion/cad/`, `web/`,
   `models/<slug>/` (tracked download files for the site), `export/` (git-ignored)
 - `Skadis/` – IKEA SKÅDIS accessories, hook tabs: `spec/skadis_spec.md` (grid research), `spec/*_params.json`,
   `fusion/` (script-built models, see its README), `models/` (roll holder, fit test)
-- `_input/` – design input from Jan (photos), git-ignored: phone photos carry GPS EXIF data
+- `Christmas/` – parametric Christmas models (site section `christmas`), designed in SolidCraft: `solidcraft/` (master
+  `.sc` snapshots), `spec/tree_spec.md` (equations, decoded paint rule, 3MF format), `reference/`, `web/` (npm workspace:
+  tree generator with painted 3MF, see its README)
+- `_input/` – design input from Jan (photos, sliced plates), git-ignored: phone photos carry GPS EXIF data
 - `Gridfinity/web/` – browser generators: Rugged Case (`app/`), boxes (`bin/`), baseplates (`baseplate/`), tool insert (`insert/`),
   label jig (`jig/`: UV printing jig for 10 label plates, xTool O1 Omni 330 × 420 mm)
 - `.venv/` – uv venv (`.venv/Scripts/python.exe`): numpy, trimesh, manifold3d, shapely, networkx, scipy, rtree, matplotlib, ezdxf
 - `Gridfinity/fusion/` – the Fusion port of the case: `build.py <XxYxZ>`, `validate.py`, `print_export.py` (see its README)
 - `site/` – generator website: overview page, `models.json` registry, `build.mjs`, `test.mjs`, self-updating server + Docker (see its README and DEPLOY.md)
 - `.github/workflows/` – `site.yml` (push to `main` → test → release `site-<version>`), `server-image.yml` (→ `ghcr.io/jan1409/cad-site`)
-- npm workspaces (`Gridfinity/web`, `site`): run `npm install`, `npm test`, `npm run build` and `npm run serve` at the repo root; packages are hoisted to the root `node_modules`
+- npm workspaces (`Gridfinity/web`, `Christmas/web`, `site`): run `npm install`, `npm test`, `npm run build` and `npm run serve` at the repo root; packages are hoisted to the root `node_modules`
 
 ## Fusion
 - Fusion exposes an MCP server at `http://127.0.0.1:27182/mcp`, registered user-wide as `fusion`. Its tools only load when Fusion runs
@@ -47,6 +52,27 @@ Printer: Prusa XL (360 × 360 mm bed). Units: mm everywhere.
   occurrences keeps its name after deletion ("Plug (1)"); in parametric designs `occ.transform2` needs a position
   snapshot (`design.snapshots.add()`); `Occurrence.boundingBox` is empty, use a proxy body's box.
 - Sketch axes: x-plane sketch x → −Z, y → +Y; y-plane sketch x → +X, y → −Z (text on the front face needs a 180° flip).
+
+## SolidCraft
+- Jan designs new parametric models in SolidCraft (`D:\CreativeProjects\Solidcraft_Models`); snapshots of the master `.sc`
+  go into `<Object>/solidcraft/`. MCP server `solidcraft` (app on 127.0.0.1:27878, tools load only when the app runs);
+  call `skill_reference {"skill":"solidcraft-modeling"}` before building.
+- `C:\Program Files\SolidCraft\solidcraft-cli.exe` runs headless: `run <script.json> --in design.sc --out x.step [--save y.sc]`
+  rebuilds with other parameters in ~2 s (`{"commands":[{"command":"parameters.change","params":{"changes":{"H":"150"}}}]}`),
+  `eval` measures, `script` dumps the timeline, `render ... --transparent` makes card images. `.sc` is a ZIP with `document.json`.
+- Browser generators port the `.sc` equations to replicad and are checked against `solidcraft-cli` STEPs with exact
+  booleans (`Christmas/web/node/tree_check.mjs`). SolidCraft writes no slicer paint.
+
+## Painted 3MF (multi-colour)
+- Paint per triangle, whole triangles only (split the mesh at the colour boundaries first): state n = filament n, code
+  1 `4`, 2 `8`, 3 `0C`, 4 `1C` (uppercase hex). Bambu Studio / Orca: `paint_color`; PrusaSlicer: `slic3rpe:mmu_segmentation`
+  (+ `slic3rpe:Version3mf`/`MmPaintingVersion` = 1), and it falls back to `paint_color`. Write no `Application` metadata and no
+  `Metadata/` configs (a partial config replaces the user's presets). Writer: `Christmas/web/src/paint3mf.js`.
+- Slicer CLIs: PrusaSlicer needs `--center 180,180` (objects at the origin are "outside"); Bambu's CLI cannot use its
+  system presets (inherited values stay unresolved, two filament files crash it), so `slice_paint_check.py` slices a copy
+  wrapped as a Bambu project with complete settings (`Christmas/reference/bambu_x1c_2pla_project_settings.config`).
+  OrcaSlicer is the Microsoft Store install (`C:\Program Files\WindowsApps\OrcaSlicer.OrcaSlicer_<version>_x64__…`): pass it
+  absolute paths (it does not start in the caller's folder) and tag projects as it does (`BambuStudio-02.08.01.55` + `OrcaSlicer`).
 
 ## Onshape
 - `onshape_api.py` reads `ONSHAPE_ACCESS_KEY` / `ONSHAPE_SECRET_KEY` from the env, or from the Windows user registry if VS Code wasn't restarted.
@@ -72,7 +98,7 @@ Printer: Prusa XL (360 × 360 mm bed). Units: mm everywhere.
   - Downloads need the `downloads` capability. Its allowlist has no STL/3MF, so offer a ZIP (fflate) plus SVG/MD.
 - Generator site (home server, `http://<server>:8642`): the GitHub repo is `jan1409/cad-projects` (private).
   - A push to `main` publishes a release, and the container installs it within 15 min (or via "Check for updates").
-  - The overview page has sections (`site/sections.json`: Gridfinity, SKÅDIS models; later SKÅDIS parametric); every
+  - The overview page has sections (`site/sections.json`: Gridfinity, SKÅDIS models, Christmas; later SKÅDIS parametric); every
     `models.json` entry names its `section` and a `kind`: `generator` (default) or `download`.
   - A generator page needs a `<!--site:nav-->` marker in its `index.html` and must reference the shared libraries as
     `./vendor/…`. Register it in `site/models.json` and add a smoke build to `site/test.mjs`.

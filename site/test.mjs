@@ -117,6 +117,17 @@ if (!args.includes("--skip-geometry")) {
       assert.ok(row?.endsWith("| ok |"), row ?? out);
     });
   }
+  // Christmas tree: smallest, default and largest tree, and one without bands; closed mesh before and after the band
+  // split, no triangle across a band plane, every 3MF flavour reads back (Christmas/web/node/tree_build.mjs)
+  const T = JSON.parse(fs.readFileSync(path.join(root, "Christmas/spec/tree_params.json"), "utf8")).parameters;
+  const treeKeys = ["height", "fins", "fin_t", "angle", "band_share"];
+  for (const cfg of [...["min", "default", "max"].map((k) => treeKeys.map((p) => `${p}=${T[p][k]}`)), ["bands=0"]]) {
+    await step(`geometry Christmas tree ${cfg.join(" ")}`, () => {
+      const out = execFileSync(process.execPath, [path.join(root, "Christmas/web/node/tree_build.mjs"), ...cfg], { encoding: "utf8", maxBuffer: 1 << 26 });
+      const row = out.split("\n").find((l) => l.startsWith("|"));
+      assert.ok(row?.endsWith("| ok |"), row ?? out);
+    });
+  }
   await step("geometry boxes stack (standard, label, tool inserts)", () => {
     const out = execFileSync(process.execPath, [path.join(root, "Gridfinity/web/node/stack_fit.mjs")], { encoding: "utf8", maxBuffer: 1 << 26 });
     assert.ok(out.includes("all ok"), out.split("\n").filter((l) => /WRONG|problem/.test(l)).join("\n"));
@@ -245,6 +256,7 @@ await step("translations", async () => {
   const gridStrings = (await import("../Gridfinity/web/src/strings.js")).default;
   const portalStrings = (await import("./portal/strings.js")).default;
   const dlStrings = (await import("./download/strings.js")).default;
+  const treeStrings = (await import("../Christmas/web/src/strings.js")).default;
   const { buildSheet: downloadSheet } = await import("./download/sheet.js");
   const problems = [];
   const holes = (s) => [...s.matchAll(/\{(\w+(?::\d)?)\}/g)].map((m) => m[1]);
@@ -261,7 +273,7 @@ await step("translations", async () => {
     const sets = LANGS.map((l) => [...new Set(forms(v[l]).flatMap(holes))].sort().join(" "));
     if (sets.some((s) => s !== sets[0])) problems.push(`${where}: placeholders ${LANGS.map((l, i) => `${l} {${sets[i]}}`).join(" vs ")}`);
   };
-  const dicts = { site: siteStrings, grid: gridStrings, portal: portalStrings, dl: dlStrings };
+  const dicts = { site: siteStrings, grid: gridStrings, portal: portalStrings, dl: dlStrings, tree: treeStrings };
   for (const [name, dict] of Object.entries(dicts)) for (const [k, v] of Object.entries(dict)) text(v, `${name} ${k}`);
   for (const m of readJson("models.json")) {
     text(m.title, `models.json ${m.id} title`);
@@ -291,10 +303,17 @@ await step("translations", async () => {
       }
     }
   }
+  const treeSpec = JSON.parse(fs.readFileSync(path.join(root, "Christmas/spec/tree_params.json"), "utf8"));
+  text(treeSpec.title, "tree_params.json title");
+  for (const [k, p] of Object.entries(treeSpec.parameters)) {
+    text(p.label, `tree_params.json ${k} label`);
+    text(p.help, `tree_params.json ${k} help`);
+    for (const [o, label] of p.options ?? []) text(label, `tree_params.json ${k} option ${o}`);
+  }
   // keys are only written as literals: "ns.key" in the code, data-i18n="key" and data-i18n-attr="attr:key;…" in pages
   const keysIn = (rel) => {
     const s = fs.readFileSync(path.join(root, rel), "utf8"), keys = new Set();
-    for (const m of s.matchAll(/["'](?:site|portal|update|common|case|box|plate|tool|jig|sheet|dl)\.[A-Za-z]\w*["']/g)) keys.add(m[0].slice(1, -1));
+    for (const m of s.matchAll(/["'](?:site|portal|update|common|case|box|plate|tool|jig|sheet|dl|tree)\.[A-Za-z]\w*["']/g)) keys.add(m[0].slice(1, -1));
     for (const [, attr] of s.matchAll(/data-i18n-attr="([^"]+)"/g)) for (const pair of attr.split(";")) keys.add(pair.split(":")[1].trim());
     return [...keys].filter((k) => !/\.(m?js|json|html|css|md|png)$/.test(k)); // not file names like "portal.js"
   };
@@ -304,6 +323,7 @@ await step("translations", async () => {
       ...files("Gridfinity/web/src", /\.js$/).filter((f) => !f.endsWith("strings.js"))],
     portal: ["site/portal/index.html", "site/portal/portal.js"],
     dl: files("site/download", /^(index\.html|.*\.js)$/).filter((f) => !f.endsWith("strings.js")),
+    tree: [...files("Christmas/web/tree", /^(index\.html|.*\.js)$/), ...files("Christmas/web/src", /\.js$/).filter((f) => !f.endsWith("strings.js"))],
     site: ["site/build.mjs"], // the nav bar
   };
   const used = new Set();
@@ -347,6 +367,18 @@ await step("translations", async () => {
     if (bad) problems.push(`sheet ${i} (${l}): "${bad[0]}"`);
   });
   out.de.forEach((s, i) => { if (s === out.en[i]) problems.push(`sheet ${i}: German = English`); });
+  { // Christmas tree build sheets: each slicer, and without bands
+    const { treeEnv, treeBuildSheet } = await import("../Christmas/web/src/tree.js");
+    const defaults = Object.fromEntries(Object.entries(treeSpec.parameters).map(([k, p]) => [k, p.default]));
+    const cases = [...treeSpec.parameters.slicer.options.map(([s]) => [defaults, s]), [{ ...defaults, bands: false }, "prusa"]];
+    const tsheets = (l) => cases.map(([inp, s]) => treeBuildSheet(treeEnv(treeSpec, inp), "Tree", s, treeSpec.colors, translator(treeStrings, l)));
+    const tout = Object.fromEntries(LANGS.map((l) => [l, tsheets(l)]));
+    for (const l of LANGS) tout[l].forEach((s, i) => {
+      const bad = /undefined|NaN|\{\w+(?::\d)?\}|\btree\.[a-z]\w*/.exec(s);
+      if (bad) problems.push(`tree sheet ${i} (${l}): "${bad[0]}"`);
+    });
+    tout.de.forEach((s, i) => { if (s === tout.en[i]) problems.push(`tree sheet ${i}: German = English`); });
+  }
   for (const m of dls) { // build sheets of the download pages
     const sh = Object.fromEntries(LANGS.map((l) => [l, downloadSheet(m, translator(dlStrings, l))]));
     for (const l of LANGS) {

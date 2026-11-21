@@ -14,5 +14,13 @@
       "en": "Ready-made accessories for the IKEA SKÅDIS pegboard, held by hook tabs. Download the print files and print them in PETG or PLA.",
       "de": "Fertiges Zubehör für die IKEA-Lochplatte SKÅDIS, gehalten von Hakenlaschen. Lade die Druckdateien herunter und druck sie in PETG oder PLA."
     }
+  },
+  {
+    "id": "christmas",
+    "title": { "en": "Christmas", "de": "Weihnachten" },
+    "lede": {
+      "en": "Parametric Christmas decorations, designed in SolidCraft. Set the size, and your browser builds a multi-colour 3MF with the paint already applied, for Bambu Studio, OrcaSlicer or PrusaSlicer. Nothing is uploaded.",
+      "de": "Parametrische Weihnachtsdeko, entworfen in SolidCraft. Stell die Größe ein, und dein Browser baut eine mehrfarbige 3MF mit fertiger Bemalung für Bambu Studio, OrcaSlicer oder PrusaSlicer. Nichts wird hochgeladen."
+    }
   }
 ]

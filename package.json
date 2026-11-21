@@ -4,6 +4,7 @@
   "description": "Parametric 3D-printing models: Fusion ports, browser generators and the generator site",
   "workspaces": [
     "Gridfinity/web",
+    "Christmas/web",
     "site"
   ],
   "scripts": {
