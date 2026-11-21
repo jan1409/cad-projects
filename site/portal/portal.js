@@ -1,4 +1,5 @@
-// Overview page: model cards from models.json, the site version, and the update panel of the self-updating
+// Overview page: model cards from models.json in sections (a heading and a card grid each; generators open a
+// generator, download models a download page), the site version, and the update panel of the self-updating
 // server (site/server/server.mjs: GET api/status, POST api/update). Without that server the panel stays hidden.
 // Texts: strings.js (English, German); the language switch re-renders everything in place.
 import { translator, pick, applyDom, mountLangSwitch, lang } from "./vendor/i18n.js";
@@ -6,7 +7,7 @@ import S from "./strings.js";
 
 const $ = (id) => document.getElementById(id);
 const t = translator(S);
-let models = null; // models.json, or the Error that loading it gave
+let models = null; // models.json ({sections}), or the Error that loading it gave
 let loaded = null; // version.json of the files this page came from
 let status = null; // last api/status answer
 let busy = false;
@@ -36,14 +37,21 @@ const when = (iso) => new Date(iso).toLocaleString(lang, { dateStyle: "medium", 
 function card(m) {
   const title = pick(m.title);
   const body = el("div", { class: "card-body" },
-    el("h2", {}, title),
+    el("h3", {}, title),
     el("p", {}, pick(m.summary)),
     el("ul", { class: "facts" }, ...m.facts.map((f) => el("li", {}, pick(f)))),
-    el("span", { class: "open", "aria-hidden": "true" }, t("portal.open")));
+    el("span", { class: "open", "aria-hidden": "true" }, m.kind === "download" ? t("portal.openFiles") : t("portal.open")));
   const a = el("a", { class: "card", href: m.href });
   if (m.image) a.append(el("div", { class: "plate" }, el("img", { src: m.image, alt: t("portal.imageAlt", { title }), loading: "lazy" })));
   a.append(body);
   return a;
+}
+
+function section(s) {
+  const id = `sec-${s.id}`;
+  return el("section", { class: "section", "aria-labelledby": id },
+    el("div", { class: "section-head" }, el("h2", { id }, pick(s.title)), ...(s.lede ? [el("p", {}, pick(s.lede))] : [])),
+    el("div", { class: "models" }, ...s.models.map(card)));
 }
 
 async function loadModels() {
@@ -56,8 +64,9 @@ async function loadModels() {
 }
 function showModels() {
   if (!models) return;
+  const list = models instanceof Error ? [] : models.sections.filter((s) => s.models.length);
   $("models").replaceChildren(...(models instanceof Error ? [el("p", { class: "empty" }, t("portal.loadFailed", { error: models.message }))]
-    : models.length ? models.map(card) : [el("p", { class: "empty" }, t("portal.none"))]));
+    : list.length ? list.map(section) : [el("p", { class: "empty" }, t("portal.none"))]));
 }
 
 // ---------- site version ----------

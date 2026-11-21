@@ -1,0 +1,16 @@
+{
+  "doc": "Shared IKEA SKÅDIS interface parameters in mm. Grid: Skadis/spec/skadis_spec.md. Tab values are set by the fit test (Skadis/models/fit-test).",
+  "parameters": {
+    "pitch": { "default": 40.0, "doc": "slot spacing within a row" },
+    "row": { "default": 20.0, "doc": "row spacing; every other row is shifted by pitch / 2" },
+    "slot_w": { "default": 5.0, "doc": "slot width" },
+    "slot_h": { "default": 15.0, "doc": "slot length (vertical), ends rounded with slot_w / 2" },
+    "board_t": { "default": 5.0, "doc": "board thickness (fibreboard, varies by a few tenths)" },
+    "tab_w": { "default": 4.8, "min": 4.0, "max": 4.9, "doc": "hook tab width across the slot (fit test 4.4 / 4.6 / 4.8; Jan's boards, PETG, 2026-11: 4.8 best)" },
+    "tab_gap": { "default": 5.1, "min": 4.8, "max": 6.0, "doc": "gap between the part's back face and the tab lip = board thickness + play (fit test 5.1 / 5.3 / 5.5; 5.1 best, 5.3 a bit loose)" },
+    "tab_shank_h": { "default": 7.0, "doc": "height of the tab shank that sits in the slot" },
+    "tab_lip_l": { "default": 6.0, "doc": "how far the lip reaches down behind the board; also the lift needed to mount" },
+    "tab_lip_t": { "default": 3.5, "doc": "lip thickness (behind the board)" },
+    "tab_chamfer": { "default": 1.0, "doc": "45 deg chamfer on the tab ends, so the 13 mm tab passes the rounded 15 mm slot" }
+  }
+}

@@ -1,17 +1,18 @@
 // Texts of the overview page (index.html, portal.js), English and German side by side. German uses "du".
 export default {
-  "portal.title": { en: "Parametric Models", de: "Parametrische Modelle" },
-  "portal.kicker": { en: "CAD projects · print generators", de: "CAD-Projekte · Druck-Generatoren" },
-  "portal.heading": { en: "Parametric models", de: "Parametrische Modelle" },
+  "portal.title": { en: "Print Models", de: "Druckmodelle" },
+  "portal.kicker": { en: "CAD projects · generators and downloads", de: "CAD-Projekte · Generatoren und Downloads" },
+  "portal.heading": { en: "Print models", de: "Druckmodelle" },
   "portal.lede": {
-    en: "Pick a model, set its size and download print-ready files. Every part is built in your browser with the OpenCascade kernel; nothing is uploaded.",
-    de: "Wähle ein Modell, stell die Größe ein und lade druckfertige Dateien herunter. Jedes Teil entsteht in deinem Browser mit dem OpenCascade-Kernel; nichts wird hochgeladen.",
+    en: "Pick a model and download print-ready files. Generators build every part in your browser, and nothing is uploaded. Ready-made models come as STL, 3MF and STEP.",
+    de: "Wähle ein Modell und lade druckfertige Dateien herunter. Generatoren bauen jedes Teil in deinem Browser, und nichts wird hochgeladen. Fertige Modelle gibt es als STL, 3MF und STEP.",
   },
   "portal.models": { en: "Models", de: "Modelle" },
   "portal.loading": { en: "Loading models…", de: "Modelle werden geladen…" },
   "portal.none": { en: "No models are published yet.", de: "Noch keine Modelle veröffentlicht." },
   "portal.loadFailed": { en: "The model list could not be loaded ({error}).", de: "Die Modellliste konnte nicht geladen werden ({error})." },
   "portal.open": { en: "Open generator →", de: "Generator öffnen →" },
+  "portal.openFiles": { en: "Download files →", de: "Dateien herunterladen →" },
   "portal.imageAlt": { en: "{title}, rendered", de: "{title}, gerendert" },
   "portal.siteVersion": { en: "Site version", de: "Website-Version" },
   "portal.built": { en: "built", de: "erstellt" },

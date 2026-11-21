@@ -12,7 +12,13 @@ Printer: Prusa XL (360 × 360 mm bed). Units: mm everywhere.
   - `onshape_sketches.py` – sketches of a feature tree in mm (entities, dimensions, plane); `--png` renders them (venv)
   - `stl_check.py` – size, volume, watertightness, bed contact (`--bed 360x360`)
   - `stl_section.py` – planar sections of STLs overlaid in a PNG, `--vertices` prints exact outlines (venv); use it to overlay generated parts on references
-- `<Object>/` – `onshape/` (source snapshots), `reference/` (ground-truth exports), `spec/`, `fusion/cad/`, `web/`, `export/` (git-ignored)
+  - `fusion_view.py` – set the Fusion camera (eye/target, `--hide`, `--show-only`, `--ortho`) and take a screenshot (`--transparent`)
+  - `card_image.py` – transparent screenshot → cropped, palette-quantised site image (venv, Pillow); `threemf.py` – minimal 3MF writer
+- `<Object>/` – `onshape/` (source snapshots), `reference/` (ground-truth exports), `spec/`, `fusion/cad/`, `web/`,
+  `models/<slug>/` (tracked download files for the site), `export/` (git-ignored)
+- `Skadis/` – IKEA SKÅDIS accessories, hook tabs: `spec/skadis_spec.md` (grid research), `spec/*_params.json`,
+  `fusion/` (script-built models, see its README), `models/` (roll holder, fit test)
+- `_input/` – design input from Jan (photos), git-ignored: phone photos carry GPS EXIF data
 - `Gridfinity/web/` – browser generators: Rugged Case (`app/`), boxes (`bin/`), baseplates (`baseplate/`), tool insert (`insert/`),
   label jig (`jig/`: UV printing jig for 10 label plates, xTool O1 Omni 330 × 420 mm)
 - `.venv/` – uv venv (`.venv/Scripts/python.exe`): numpy, trimesh, manifold3d, shapely, networkx, scipy, rtree, matplotlib, ezdxf
@@ -37,6 +43,10 @@ Printer: Prusa XL (360 × 360 mm bed). Units: mm everywhere.
 - Faces that end µm away from a fillet tangent leave sliver faces, and Fusion's STL is then not watertight.
   Let overlapping bodies end well inside each other.
 - Unsaved build documents are all called "Untitled": tag them with design attributes (`gridfinity/role`, `gridfinity/ref`) and find them by tag.
+- More gotchas (`Skadis/fusion/README.md`): hidden occurrences export as empty files; a component that had several
+  occurrences keeps its name after deletion ("Plug (1)"); in parametric designs `occ.transform2` needs a position
+  snapshot (`design.snapshots.add()`); `Occurrence.boundingBox` is empty, use a proxy body's box.
+- Sketch axes: x-plane sketch x → −Z, y → +Y; y-plane sketch x → +X, y → −Z (text on the front face needs a 180° flip).
 
 ## Onshape
 - `onshape_api.py` reads `ONSHAPE_ACCESS_KEY` / `ONSHAPE_SECRET_KEY` from the env, or from the Windows user registry if VS Code wasn't restarted.
@@ -62,8 +72,13 @@ Printer: Prusa XL (360 × 360 mm bed). Units: mm everywhere.
   - Downloads need the `downloads` capability. Its allowlist has no STL/3MF, so offer a ZIP (fflate) plus SVG/MD.
 - Generator site (home server, `http://<server>:8642`): the GitHub repo is `jan1409/cad-projects` (private).
   - A push to `main` publishes a release, and the container installs it within 15 min (or via "Check for updates").
-  - A model page needs a `<!--site:nav-->` marker in its `index.html` and must reference the shared libraries as `./vendor/…`.
-    Register it in `site/models.json` and add a smoke build to `site/test.mjs`.
+  - The overview page has sections (`site/sections.json`: Gridfinity, SKÅDIS models; later SKÅDIS parametric); every
+    `models.json` entry names its `section` and a `kind`: `generator` (default) or `download`.
+  - A generator page needs a `<!--site:nav-->` marker in its `index.html` and must reference the shared libraries as
+    `./vendor/…`. Register it in `site/models.json` and add a smoke build to `site/test.mjs`.
+  - Download models (ready-made, e.g. from Fusion) all use `site/download/`; their content is `<Object>/models/<slug>/`
+    (`model.json`, `card.png`, `images/`, `files/` with STL/3MF/STEP ≤ 10 MB, every file listed). The `model registry`
+    test checks them; see `site/README.md`.
   - Card images: transparent Fusion screenshot, cropped and palette-quantised (~40 KB). For web-only models, export a
     coloured STEP (`R.exportSTEP([{shape, color}])`), import it into a temporary Fusion doc, then screenshot it.
   - Several models can share one app: `variant` in `site/models.json` → `model.json` next to the page (Gridfinity boxes).
@@ -99,5 +114,7 @@ Printer: Prusa XL (360 × 360 mm bed). Units: mm everywhere.
 - Run stdlib tools with `python -I`. `-I` ignores PYTHONIOENCODING, so the tools call `sys.stdout.reconfigure(encoding="utf-8")`.
 - Bash heredocs mangle backslash escapes (Python and JS alike). Write non-trivial patch scripts with the Write tool first.
 - GNU tar (Git Bash) reads `D:/…` as a remote host, so pass relative paths (and `cwd`).
-- PrusaSlicer CLI: `--merge` segfaults, so build multi-object plate 3MFs yourself and slice with `--dont-arrange`; boolean options are bare flags.
+- PrusaSlicer CLI: `--merge` segfaults, so build multi-object plate 3MFs yourself (`tools/threemf.py`) and slice with `--dont-arrange`;
+  boolean options are bare flags (`--no-binary-gcode` for readable G-code; the XL writes binary G-code by default).
+  `--support-material --support-material-auto` + counting `;TYPE:Support material` finds overhangs. Profiles: see `Skadis/fusion/README.md`.
 - Validate every generated part against the references (`stl_check.py`, or trimesh volume/bbox diffs) before calling it done.

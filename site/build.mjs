@@ -1,7 +1,9 @@
 // Build the generator site into site/dist/:
-//   index.html + portal.js      overview page (cards from models.json)
-//   models.json                 registry as served (facts filled in from each model's spec)
-//   models/<id>/                each model's page, app, worker, modules and spec
+//   index.html + portal.js      overview page (cards from models.json, grouped by the sections of sections.json)
+//   models.json                 registry as served: {sections: [{id, title, lede, models: [...]}]}, facts filled in
+//   models/<id>/                kind "generator": the model's page, app, worker, modules and spec;
+//                               kind "download": the shared page site/download/ with the files listed in
+//                               <source>/model.json (files/, images/) and that content in model.json
 //   vendor/                     shared libraries + gzipped OpenCascade kernel + i18n.js (shared/i18n.js)
 //   version.json                {version, commit, builtAt}
 // Usage: node build.mjs [--version <v>] [--out <dir>]   (CI passes the release version; default: <date>-<git sha>-dev)
@@ -78,32 +80,64 @@ const nav = (title) =>
   `<span><span data-i18n-pick="${esc(JSON.stringify(title))}">${esc(pick(title, "en"))}</span> · ` +
   `<span data-i18n="site.version" data-version="${esc(version)}">site ${esc(version)}</span></span></nav>`;
 const registry = JSON.parse(fs.readFileSync(path.join(site, "models.json"), "utf8"));
+const sections = JSON.parse(fs.readFileSync(path.join(site, "sections.json"), "utf8"));
+const KINDS = ["generator", "download"];
+// download files: the server refuses dot segments, and the base names of files/ become ZIP entries
+const SAFE_FILE = /^(files|images)\/[A-Za-z0-9][\w.-]*$/; // same rule in test.mjs
+// files of a download model, listed in <source>/model.json; copied next to its page, sizes for the page
+function downloadContent(m, out) {
+  const src = path.resolve(site, m.source);
+  const content = JSON.parse(fs.readFileSync(path.join(src, "model.json"), "utf8"));
+  const rels = [...new Set([...content.images.map((i) => i.file), ...content.parts.flatMap((p) => p.files), ...(content.files ?? []).map((f) => f.file)])];
+  const sizes = {}, names = new Set();
+  for (const rel of rels) {
+    if (!SAFE_FILE.test(rel)) throw new Error(`${m.id}: unsafe file name "${rel}"`);
+    const buf = fs.readFileSync(path.join(src, rel));
+    if (!buf.length) throw new Error(`${m.id}: ${rel} is empty`);
+    if (rel.startsWith("files/")) {
+      if (names.has(path.basename(rel))) throw new Error(`${m.id}: two files named ${path.basename(rel)}`);
+      names.add(path.basename(rel));
+    }
+    put(`${out}/${rel}`, buf);
+    sizes[rel] = buf.length;
+  }
+  return { ...content, sizes };
+}
 const served = [];
 for (const m of registry) {
-  const app = path.resolve(site, m.app);
+  const kind = m.kind ?? "generator";
+  if (!KINDS.includes(kind)) throw new Error(`${m.id}: unknown kind "${kind}"`);
+  if (!sections.some((s) => s.id === m.section)) throw new Error(`${m.id}: unknown section "${m.section}"`);
+  if (!m.app && kind !== "download") throw new Error(`${m.id}: a generator needs "app"`);
+  const app = path.resolve(site, m.app ?? "download"); // download models share one page
   const out = `models/${m.id}`;
-  const spec = JSON.parse(fs.readFileSync(path.resolve(site, m.spec), "utf8"));
+  const spec = m.spec ? JSON.parse(fs.readFileSync(path.resolve(site, m.spec), "utf8")) : null;
   const rewrite = (s) => s.replaceAll("./vendor/", "../../vendor/"); // model files expect vendor next to them
   // the app's scripts (app.js, worker.js, more workers) next to the page
   for (const f of fs.readdirSync(app).filter((f) => f.endsWith(".js"))) put(`${out}/${f}`, rewrite(fs.readFileSync(path.join(app, f), "utf8")));
   put(`${out}/index.html`, page(rewrite(fs.readFileSync(path.join(app, "index.html"), "utf8")).replace("<!--site:nav-->", nav(fillAll(m.title)))));
-  for (const f of fs.readdirSync(path.resolve(site, m.modules))) if (f.endsWith(".js")) copy(path.join(path.resolve(site, m.modules), f), `${out}/src/${f}`);
-  put(`${out}/${path.basename(m.spec)}`, JSON.stringify(spec, null, 1));
-  // the page reads its variant here (several models can share one app, e.g. the Gridfinity boxes)
+  if (m.modules) for (const f of fs.readdirSync(path.resolve(site, m.modules))) if (f.endsWith(".js")) copy(path.join(path.resolve(site, m.modules), f), `${out}/src/${f}`);
+  if (spec) put(`${out}/${path.basename(m.spec)}`, JSON.stringify(spec, null, 1));
+  // the page reads its variant here (several models can share one app, e.g. the Gridfinity boxes); download pages
+  // read their whole content here
   const title = fillAll(m.title);
-  put(`${out}/model.json`, JSON.stringify({ id: m.id, title, variant: m.variant ?? null }, null, 1));
+  const content = kind === "download"
+    ? { kind, summary: fillAll(m.summary), facts: m.facts.map((f) => fillAll(f)), ...downloadContent(m, out) } : {};
+  put(`${out}/model.json`, JSON.stringify({ id: m.id, title, variant: m.variant ?? null, ...content }, null, 1));
   let image = null;
   if (m.image && fs.existsSync(path.resolve(site, m.image))) {
     image = `models/${m.id}/card${path.extname(m.image)}`;
     copy(path.resolve(site, m.image), image);
   }
-  const params = spec.parameters ?? spec.variants?.[m.variant]?.parameters;
+  const params = spec?.parameters ?? spec?.variants?.[m.variant]?.parameters;
   served.push({
-    id: m.id, title: fillAll(m.title), summary: fillAll(m.summary), href: `models/${m.id}/`, image,
+    id: m.id, section: m.section, kind, title, summary: fillAll(m.summary), href: `models/${m.id}/`, image,
     facts: m.facts.map((f) => fillAll(f, params)),
   });
 }
-put("models.json", JSON.stringify(served, null, 1));
+put("models.json", JSON.stringify({
+  sections: sections.map((s) => ({ ...s, models: served.filter((m) => m.section === s.id).map(({ section, ...m }) => m) })),
+}, null, 1));
 
 // ---------- overview page ----------
 put("index.html", fs.readFileSync(path.join(site, "portal", "index.html"), "utf8").replace("<!--site:icon-->", `<link rel="icon" href="${ICON}">`));

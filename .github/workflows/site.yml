@@ -9,6 +9,7 @@ on:
       - "site/**"
       - "Gridfinity/web/**"
       - "Gridfinity/spec/**"
+      - "Skadis/models/**"
       - "package.json"
       - "package-lock.json"
       - ".github/workflows/site.yml"

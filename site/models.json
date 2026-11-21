@@ -1,6 +1,7 @@
 [
   {
     "id": "gridfinity-rugged-case",
+    "section": "gridfinity",
     "title": { "en": "Gridfinity Rugged Case", "de": "Gridfinity Rugged Case" },
     "summary": {
       "en": "Sealed, latching case whose floor is a Gridfinity baseplate, with a plexiglass window in the lid. Prints as base, lid, two latches and a TPU seal.",
@@ -18,6 +19,7 @@
   },
   {
     "id": "gridfinity-standard-box",
+    "section": "gridfinity",
     "title": { "en": "Gridfinity Standard Box", "de": "Gridfinity Standard-Box" },
     "summary": {
       "en": "Plain Gridfinity box to the official dimensions: stacking lip, magnet holes and 7 mm height units. Shows which Rugged Case it fits.",
@@ -36,6 +38,7 @@
   },
   {
     "id": "gridfinity-label-box",
+    "section": "gridfinity",
     "title": { "en": "Gridfinity Box with Label", "de": "Gridfinity Box mit Beschriftung" },
     "summary": {
       "en": "Gridfinity box with a label ledge on the back wall, a separate label plate for UV printing, and a scoop at the front.",
@@ -54,6 +57,7 @@
   },
   {
     "id": "gridfinity-label-jig",
+    "section": "gridfinity",
     "title": { "en": "Gridfinity Label Jig", "de": "Gridfinity Druckschablone für Schilder" },
     "summary": {
       "en": "UV printing jig for the label plates of the Box with Label: 10 plates lie flush in it, sized to the box width, with a 1:1 layout for the printer's software.",
@@ -72,6 +76,7 @@
   },
   {
     "id": "gridfinity-tool-insert",
+    "section": "gridfinity",
     "title": { "en": "Gridfinity Tool Insert", "de": "Gridfinity Werkzeugeinsatz" },
     "summary": {
       "en": "Photograph your tools on a sheet of paper: a stackable Gridfinity box with a pocket and finger cutouts for each tool. The photo stays in your browser.",
@@ -90,6 +95,7 @@
   },
   {
     "id": "gridfinity-baseplate",
+    "section": "gridfinity",
     "title": { "en": "Gridfinity Baseplate", "de": "Gridfinity Baseplate" },
     "summary": {
       "en": "Gridfinity baseplate to the official profile, sized in cells, with an optional solid bottom plate and magnet holes. Large plates are split into printable pieces.",
@@ -108,6 +114,7 @@
   },
   {
     "id": "gridfinity-drawer-baseplate",
+    "section": "gridfinity",
     "title": { "en": "Gridfinity Drawer Baseplate", "de": "Gridfinity Schubladen-Baseplate" },
     "summary": {
       "en": "Enter the inside of a drawer: fits as many Gridfinity cells as possible and fills the rest with a flat border on the sides you choose, so the plate sits without play.",
@@ -122,6 +129,40 @@
       { "en": "Drawers {width.min}–{width.max} mm", "de": "Schubladen {width.min}–{width.max} mm" },
       { "en": "Optional bottom plate {bottom_h.min}–{bottom_h.max} mm", "de": "Bodenplatte optional, {bottom_h.min}–{bottom_h.max} mm" },
       { "en": "Split into pieces of at most 360 mm", "de": "In Teile von höchstens 360 mm zerlegt" }
+    ]
+  },
+  {
+    "id": "skadis-roll-holder",
+    "section": "skadis",
+    "kind": "download",
+    "title": { "en": "SKÅDIS Roll Holder", "de": "SKÅDIS Rollenhalter" },
+    "summary": {
+      "en": "Holder for a roll of cleaning cloths: two brackets with hook tabs, and two plugs with a quarter-turn bayonet that the roll runs freely on. Turn the plugs and pull them out to change the roll.",
+      "de": "Halter für eine Rolle Reinigungstücher: zwei Halter mit Hakenlaschen und zwei Zapfen mit Bajonettverschluss, auf denen die Rolle frei läuft. Zum Rollenwechsel drehst du die Zapfen und ziehst sie heraus."
+    },
+    "source": "../Skadis/models/roll-holder",
+    "image": "../Skadis/models/roll-holder/card.png",
+    "facts": [
+      { "en": "Rolls up to 310 mm long and 130 mm across, core 30 mm", "de": "Rollen bis 310 mm lang und 130 mm dick, Kern 30 mm" },
+      { "en": "Brackets 8 slots (320 mm) apart in one row", "de": "Halter 8 Schlitze (320 mm) auseinander in einer Reihe" },
+      { "en": "STL, 3MF plate, STEP, build sheet", "de": "STL, 3MF-Druckplatte, STEP, Bauanleitung" }
+    ]
+  },
+  {
+    "id": "skadis-fit-test",
+    "section": "skadis",
+    "kind": "download",
+    "title": { "en": "SKÅDIS Fit Test", "de": "SKÅDIS Passungstest" },
+    "summary": {
+      "en": "Nine small tokens with one hook tab each, in three tab widths and three gaps for the board. Print them, try them on your board, and find the fit for your board and printer.",
+      "de": "Neun kleine Probestücke mit je einer Hakenlasche, in drei Laschenbreiten und drei Spaltmaßen für die Platte. Druck sie, probier sie an deiner Platte aus und finde die Passung für deine Platte und deinen Drucker."
+    },
+    "source": "../Skadis/models/fit-test",
+    "image": "../Skadis/models/fit-test/card.png",
+    "facts": [
+      { "en": "Tab widths 4.4, 4.6 and 4.8 mm", "de": "Laschenbreiten 4,4, 4,6 und 4,8 mm" },
+      { "en": "Gaps 5.1, 5.3 and 5.5 mm for the board", "de": "Spaltmaße 5,1, 5,3 und 5,5 mm für die Platte" },
+      { "en": "STL, 3MF plate, build sheet", "de": "STL, 3MF-Druckplatte, Bauanleitung" }
     ]
   }
 ]

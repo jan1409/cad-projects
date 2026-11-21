@@ -1,0 +1,43 @@
+{
+  "images": [
+    { "file": "images/holder.png", "alt": { "en": "Roll holder with a cloth roll on a SKÅDIS board", "de": "Rollenhalter mit Tuchrolle an einer SKÅDIS-Platte" } },
+    { "file": "images/roll-change.png", "alt": { "en": "Roll change: the plug turned back and pulled out of the hub", "de": "Rollenwechsel: der Zapfen zurückgedreht und aus der Nabe gezogen" } },
+    { "file": "images/bracket.png", "alt": { "en": "A bracket from behind: two hook tabs, the hub and the plug", "de": "Ein Halter von hinten: zwei Hakenlaschen, die Nabe und der Zapfen" } }
+  ],
+  "parts": [
+    {
+      "name": { "en": "Bracket, left", "de": "Halter links" }, "qty": 1,
+      "orient": { "en": "Inner side down (the flat side facing the roll), no supports", "de": "Innenseite nach unten (die flache Seite zur Rolle), ohne Stützen" },
+      "files": ["files/Skadis_Roll_Holder_Bracket_L.stl", "files/Skadis_Roll_Holder_Bracket_L.step"]
+    },
+    {
+      "name": { "en": "Bracket, right", "de": "Halter rechts" }, "qty": 1,
+      "orient": { "en": "Inner side down (the flat side facing the roll), no supports", "de": "Innenseite nach unten (die flache Seite zur Rolle), ohne Stützen" },
+      "files": ["files/Skadis_Roll_Holder_Bracket_R.stl", "files/Skadis_Roll_Holder_Bracket_R.step"]
+    },
+    {
+      "name": { "en": "Plug", "de": "Zapfen" }, "qty": 2,
+      "orient": { "en": "Standing on the knob, no supports", "de": "Auf dem Knauf stehend, ohne Stützen" },
+      "files": ["files/Skadis_Roll_Holder_Plug.stl", "files/Skadis_Roll_Holder_Plug.step"]
+    }
+  ],
+  "files": [
+    { "file": "files/Skadis_Roll_Holder_Plate.3mf", "label": { "en": "All four parts on one Prusa XL plate (3MF)", "de": "Alle vier Teile auf einer Prusa-XL-Druckplatte (3MF)" } }
+  ],
+  "print": {
+    "material": { "en": "PETG (recommended) or PLA", "de": "PETG (empfohlen) oder PLA" },
+    "layer": 0.2, "walls": 4, "infill": 25, "supports": false, "minutes": 398, "grams": 153,
+    "notes": [
+      { "en": "All parts print without supports. The brackets lie on their flat inner side, so the hook tabs are printed in their strongest direction.", "de": "Alle Teile werden ohne Stützen gedruckt. Die Halter liegen auf ihrer flachen Innenseite, so entstehen die Hakenlaschen in ihrer stabilsten Richtung." },
+      { "en": "The hook tabs are 4.8 mm wide with a 5.1 mm gap for the board, tested on IKEA boards with PETG. If they are too tight or too loose on your board, print the SKÅDIS Fit Test first.", "de": "Die Hakenlaschen sind 4,8 mm breit, mit 5,1 mm Spalt für die Platte, getestet an IKEA-Platten mit PETG. Sitzen sie an deiner Platte zu stramm oder zu locker, druck zuerst den SKÅDIS Passungstest." },
+      { "en": "The roll runs freely: the plugs are 28 mm thick, so a 30 mm core has 1 mm of play all round.", "de": "Die Rolle läuft frei: Die Zapfen sind 28 mm dick, so hat ein 30-mm-Kern rundum 1 mm Spiel." },
+      { "en": "Print time and filament are the PrusaSlicer estimate for the plate on a Prusa XL with a 0.4 mm nozzle and PETG.", "de": "Druckzeit und Filament sind die Schätzung von PrusaSlicer für die Druckplatte auf einem Prusa XL mit 0,4-mm-Düse und PETG." }
+    ]
+  },
+  "steps": [
+    { "en": "Pick two slots in the same row, 8 slots (320 mm) apart. Leave about 60 mm free next to each bracket, so you can pull the plugs out.", "de": "Such dir zwei Schlitze in derselben Reihe, 8 Schlitze (320 mm) auseinander. Lass neben jedem Halter etwa 60 mm frei, damit du die Zapfen herausziehen kannst." },
+    { "en": "Hold a bracket about 6 mm higher than its final place, push both hook tabs through the slots and lower it until it sits on the board. Mount the other bracket the same way.", "de": "Halte einen Halter etwa 6 mm höher als seine Endposition, steck beide Hakenlaschen durch die Schlitze und senk ihn ab, bis er auf der Platte sitzt. Den anderen Halter montierst du genauso." },
+    { "en": "Hold the roll between the brackets. Push a plug through each hub into the core, lugs up and down, and turn it clockwise by a quarter turn until it clicks.", "de": "Halte die Rolle zwischen die Halter. Schieb einen Zapfen durch jede Nabe in den Kern, die Nasen oben und unten, und dreh ihn eine Vierteldrehung im Uhrzeigersinn, bis er einrastet." },
+    { "en": "To change the roll, turn both plugs back and pull them out: the roll comes free. To take a bracket off the board, lift it and pull it towards you.", "de": "Zum Rollenwechsel drehst du beide Zapfen zurück und ziehst sie heraus: Dann ist die Rolle frei. Einen Halter nimmst du ab, indem du ihn anhebst und zu dir ziehst." }
+  ]
+}

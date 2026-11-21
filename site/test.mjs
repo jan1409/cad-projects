@@ -4,9 +4,12 @@
 //             (insert_build.mjs), boxes stack on each other (stack_fit.mjs)
 //   tracing   tools on synthetic photos of a sheet are traced to within the limits of trace_check.mjs
 //   layout    baseplate fitting and splitting (pieces fit the bed and add up, rotations dedupe)
+//   registry  models.json and sections.json fit together; download models list existing, valid, unique files
+//             (STL/3MF/STEP/PNG/JPG without EXIF, at most 10 MB) and every file in their files/ folder
 //   i18n      every text in English and German with the same placeholders; every key used exists and every key is
 //             used; build sheets render in both languages; Accept-Language of the server's waiting page
-//   build     the site builds; every relative URL in the pages and modules points at a file that exists
+//   build     the site builds; every relative URL in the pages and modules points at a file that exists; the files
+//             of download pages are there with the listed sizes
 //   server    static serving: MIME types, redirects, ETag/304, gzip, no path traversal or dot files
 //   untar     archives made by the system tar unpack byte for byte; unsafe paths are refused
 //   updater   server.mjs against a fake GitHub API: first install, update, bad checksum, pruning, restart
@@ -175,11 +178,74 @@ await step("baseplate layout", async () => {
   assert.deepEqual([env.pieces.length, env.magnetCount], [1, 256]);
 });
 
+// ---------------------------------------------------------------- registry (no geometry kernel)
+const SAFE_FILE = /^(files|images)\/[A-Za-z0-9][\w.-]*$/; // same rule as build.mjs (the server refuses dot segments)
+const readJson = (rel) => JSON.parse(fs.readFileSync(path.join(site, rel), "utf8"));
+const downloadModels = () => readJson("models.json").filter((m) => m.kind === "download")
+  .map((m) => ({ ...m, ...readJson(path.join(m.source, "model.json")), src: path.resolve(site, m.source) }));
+// a download file by its extension: the right format, not empty, at most 10 MB (the server keeps served files in RAM)
+function fileProblem(rel, buf) {
+  const ext = path.extname(rel).toLowerCase();
+  if (!buf.length) return `${rel}: empty`;
+  if (buf.length > 10 * 1048576) return `${rel}: ${(buf.length / 1048576).toFixed(1)} MB, more than 10 MB`;
+  if (ext === ".stl") {
+    const ascii = buf.subarray(0, 6).toString("latin1") === "solid " && buf.includes("endsolid");
+    const n = buf.length >= 84 ? buf.readUInt32LE(80) : 0;
+    if (!ascii && !(n > 0 && buf.length === 84 + 50 * n)) return `${rel}: not a valid STL`;
+  } else if (ext === ".3mf") {
+    if (buf.readUInt32LE(0) !== 0x04034b50) return `${rel}: not a 3MF (ZIP) file`;
+  } else if (ext === ".step" || ext === ".stp") {
+    if (!buf.subarray(0, 13).toString("latin1").startsWith("ISO-10303-21;")) return `${rel}: not a STEP file`;
+  } else if (ext === ".png") {
+    if (buf.readUInt32BE(0) !== 0x89504e47) return `${rel}: not a PNG`;
+  } else if (ext === ".jpg") {
+    if (buf[0] !== 0xff || buf[1] !== 0xd8) return `${rel}: not a JPEG`;
+    if (buf.includes(Buffer.from("Exif\0\0", "latin1"))) return `${rel}: has EXIF data (photos can carry GPS positions; strip it)`;
+  } else return `${rel}: unexpected file type`;
+  return null;
+}
+await step("model registry", () => {
+  const sections = readJson("sections.json"), registry = readJson("models.json");
+  const problems = [], ids = new Set();
+  for (const m of registry) {
+    if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(m.id) || ids.has(m.id)) problems.push(`${m.id}: not a unique slug`);
+    ids.add(m.id);
+    if (!sections.some((s) => s.id === m.section)) problems.push(`${m.id}: unknown section "${m.section}"`);
+    const kind = m.kind ?? "generator";
+    if (kind === "generator" && !(m.app && m.spec)) problems.push(`${m.id}: a generator needs app and spec`);
+    if (!["generator", "download"].includes(kind)) problems.push(`${m.id}: unknown kind "${kind}"`);
+  }
+  for (const s of sections) if (!registry.some((m) => m.section === s.id)) problems.push(`section ${s.id}: no models`);
+  for (const m of downloadModels()) {
+    if (!m.images?.length || !m.parts?.length || !m.steps?.length || !m.print) problems.push(`${m.id}: needs images, parts, print and steps`);
+    for (const p of m.parts) {
+      if (!Number.isInteger(p.qty) || p.qty < 1) problems.push(`${m.id}: ${p.name.en}: qty must be a whole number >= 1`);
+      if (!p.files?.length) problems.push(`${m.id}: ${p.name.en}: no files`);
+    }
+    const listed = [...new Set([...m.images.map((i) => i.file), ...m.parts.flatMap((p) => p.files), ...(m.files ?? []).map((f) => f.file)])];
+    for (const rel of listed) {
+      if (!SAFE_FILE.test(rel)) { problems.push(`${m.id}: unsafe file name "${rel}"`); continue; }
+      if (!fs.existsSync(path.join(m.src, rel))) { problems.push(`${m.id}: ${rel} is missing`); continue; }
+      const p = fileProblem(rel, fs.readFileSync(path.join(m.src, rel)));
+      if (p) problems.push(`${m.id}: ${p}`);
+    }
+    if (m.images.some((i) => !i.file.startsWith("images/"))) problems.push(`${m.id}: pictures belong in images/`);
+    const downloads = listed.filter((r) => !m.images.some((i) => i.file === r));
+    if (downloads.some((r) => !r.startsWith("files/"))) problems.push(`${m.id}: downloads belong in files/`);
+    if (new Set(downloads.map((r) => path.basename(r))).size !== downloads.length) problems.push(`${m.id}: two downloads share a file name`);
+    if (fs.existsSync(path.join(m.src, "files"))) // a forgotten or stale export
+      for (const f of fs.readdirSync(path.join(m.src, "files"))) if (!listed.includes(`files/${f}`)) problems.push(`${m.id}: files/${f} is not listed`);
+  }
+  assert.deepEqual(problems, [], `registry problems:\n${problems.join("\n")}`);
+});
+
 // ---------------------------------------------------------------- translations (no geometry kernel)
 await step("translations", async () => {
   const { LANGS, translator, siteStrings } = await import("./shared/i18n.js");
   const gridStrings = (await import("../Gridfinity/web/src/strings.js")).default;
   const portalStrings = (await import("./portal/strings.js")).default;
+  const dlStrings = (await import("./download/strings.js")).default;
+  const { buildSheet: downloadSheet } = await import("./download/sheet.js");
   const problems = [];
   const holes = (s) => [...s.matchAll(/\{(\w+(?::\d)?)\}/g)].map((m) => m[1]);
   const forms = (v) => (v && typeof v === "object" ? Object.values(v) : [v]);
@@ -195,12 +261,25 @@ await step("translations", async () => {
     const sets = LANGS.map((l) => [...new Set(forms(v[l]).flatMap(holes))].sort().join(" "));
     if (sets.some((s) => s !== sets[0])) problems.push(`${where}: placeholders ${LANGS.map((l, i) => `${l} {${sets[i]}}`).join(" vs ")}`);
   };
-  const dicts = { site: siteStrings, grid: gridStrings, portal: portalStrings };
+  const dicts = { site: siteStrings, grid: gridStrings, portal: portalStrings, dl: dlStrings };
   for (const [name, dict] of Object.entries(dicts)) for (const [k, v] of Object.entries(dict)) text(v, `${name} ${k}`);
-  for (const m of JSON.parse(fs.readFileSync(path.join(site, "models.json"), "utf8"))) {
+  for (const m of readJson("models.json")) {
     text(m.title, `models.json ${m.id} title`);
     text(m.summary, `models.json ${m.id} summary`);
     m.facts.forEach((f, i) => text(f, `models.json ${m.id} fact ${i}`));
+  }
+  for (const s of readJson("sections.json")) {
+    text(s.title, `sections.json ${s.id} title`);
+    if (s.lede) text(s.lede, `sections.json ${s.id} lede`);
+  }
+  const dls = downloadModels();
+  for (const m of dls) {
+    m.images.forEach((im, i) => text(im.alt, `${m.id} image ${i} alt`));
+    m.parts.forEach((p, i) => { text(p.name, `${m.id} part ${i} name`); text(p.orient, `${m.id} part ${i} orient`); });
+    (m.files ?? []).forEach((f, i) => text(f.label, `${m.id} file ${i} label`));
+    text(m.print.material, `${m.id} print material`);
+    (m.print.notes ?? []).forEach((n, i) => text(n, `${m.id} print note ${i}`));
+    m.steps.forEach((s, i) => text(s, `${m.id} step ${i}`));
   }
   for (const f of ["bin_params.json", "baseplate_params.json"]) {
     for (const [name, v] of Object.entries(JSON.parse(fs.readFileSync(path.join(root, "Gridfinity/spec", f), "utf8")).variants)) {
@@ -215,7 +294,7 @@ await step("translations", async () => {
   // keys are only written as literals: "ns.key" in the code, data-i18n="key" and data-i18n-attr="attr:key;…" in pages
   const keysIn = (rel) => {
     const s = fs.readFileSync(path.join(root, rel), "utf8"), keys = new Set();
-    for (const m of s.matchAll(/["'](?:site|portal|update|common|case|box|plate|tool|jig|sheet)\.[A-Za-z]\w*["']/g)) keys.add(m[0].slice(1, -1));
+    for (const m of s.matchAll(/["'](?:site|portal|update|common|case|box|plate|tool|jig|sheet|dl)\.[A-Za-z]\w*["']/g)) keys.add(m[0].slice(1, -1));
     for (const [, attr] of s.matchAll(/data-i18n-attr="([^"]+)"/g)) for (const pair of attr.split(";")) keys.add(pair.split(":")[1].trim());
     return [...keys].filter((k) => !/\.(m?js|json|html|css|md|png)$/.test(k)); // not file names like "portal.js"
   };
@@ -224,6 +303,7 @@ await step("translations", async () => {
     grid: [...["app", "bin", "baseplate", "insert", "jig"].flatMap((d) => files(`Gridfinity/web/${d}`, /^(index\.html|.*\.js)$/)),
       ...files("Gridfinity/web/src", /\.js$/).filter((f) => !f.endsWith("strings.js"))],
     portal: ["site/portal/index.html", "site/portal/portal.js"],
+    dl: files("site/download", /^(index\.html|.*\.js)$/).filter((f) => !f.endsWith("strings.js")),
     site: ["site/build.mjs"], // the nav bar
   };
   const used = new Set();
@@ -267,6 +347,14 @@ await step("translations", async () => {
     if (bad) problems.push(`sheet ${i} (${l}): "${bad[0]}"`);
   });
   out.de.forEach((s, i) => { if (s === out.en[i]) problems.push(`sheet ${i}: German = English`); });
+  for (const m of dls) { // build sheets of the download pages
+    const sh = Object.fromEntries(LANGS.map((l) => [l, downloadSheet(m, translator(dlStrings, l))]));
+    for (const l of LANGS) {
+      const bad = /undefined|NaN|\[object|\{\w+(?::\d)?\}|\bdl\.[a-z]\w*/.exec(sh[l]);
+      if (bad) problems.push(`${m.id} build sheet (${l}): "${bad[0]}"`);
+    }
+    if (sh.de === sh.en) problems.push(`${m.id} build sheet: German = English`);
+  }
   assert.deepEqual(problems, [], `translation problems:\n${problems.join("\n")}`);
   assert.equal(translator(gridStrings, "de")("plate.valBoxes", { n: 1, h: 10.55 }), "bis 1 Einheit (10,6 mm)"); // plural, decimal comma
   assert.equal(translator(gridStrings, "en")("plate.valBoxes", { n: 2, h: 17.5 }), "up to 2 units (17.5 mm)");
@@ -280,7 +368,10 @@ await step("site build", () => {
   const read = (rel) => fs.readFileSync(path.join(dist, rel), "utf8");
   assert.equal(JSON.parse(read("version.json")).version, "test-1");
   assert.ok(!read("index.html").includes("<!--site:"), "portal placeholder left");
-  const models = JSON.parse(read("models.json"));
+  const reg = JSON.parse(read("models.json"));
+  assert.ok(Array.isArray(reg.sections) && reg.sections.length >= 1, "no sections");
+  for (const s of reg.sections) assert.ok(s.title?.en && s.title?.de && s.models.length, `section ${s.id}: no title or no models`);
+  const models = reg.sections.flatMap((s) => s.models);
   assert.ok(models.length >= 1, "no models");
   for (const m of models) {
     const html = read(`${m.href}index.html`);
@@ -288,6 +379,13 @@ await step("site build", () => {
     assert.ok(html.includes('class="site-nav"') && !html.includes("<!--site:nav-->"), `${m.id}: nav missing`);
     assert.ok(!m.facts.some((f) => Object.values(f).some((s) => /\{\w+\.\w+\}/.test(s))), `${m.id}: unfilled fact`);
     if (m.image) assert.ok(fs.existsSync(path.join(dist, m.image)), `${m.id}: image missing`);
+    if (m.kind === "download") { // the page builds its links from model.json, out of reach of the URL check below
+      const content = JSON.parse(read(`${m.href}model.json`));
+      for (const [rel, n] of Object.entries(content.sizes)) {
+        const f = path.join(dist, m.href, rel);
+        assert.ok(fs.existsSync(f) && fs.statSync(f).size === n, `${m.id}: ${rel} missing or not ${n} bytes`);
+      }
+    }
   }
   const wasm = fs.readFileSync(path.join(dist, "vendor/opencascade-gz.wasm"));
   assert.ok(wasm[0] === 0x1f && wasm[1] === 0x8b, "kernel is not gzipped");
@@ -329,6 +427,13 @@ await step("server: static serving", async () => {
     assert.match(await r.text(), /REVISION/);
     for (const p of ["/..%2fsecret.txt", "/%2e%2e/secret.txt", "/models/../../secret.txt", "/.hidden", "/nothing.js"]) {
       assert.equal(await raw(p), 404, p);
+    }
+    const dl = JSON.parse(fs.readFileSync(path.join(dist, "models.json"), "utf8")).sections.flatMap((x) => x.models).find((m) => m.kind === "download");
+    if (dl) { // download files (STL, 3MF, STEP) come back byte for byte
+      const rel = JSON.parse(fs.readFileSync(path.join(dist, dl.href, "model.json"), "utf8")).parts[0].files[0];
+      r = await fetch(`${base}/${dl.href}${rel}`);
+      assert.equal(r.status, 200, rel);
+      assert.ok(Buffer.from(await r.arrayBuffer()).equals(fs.readFileSync(path.join(dist, dl.href, rel))), `${rel} differs`);
     }
     r = await fetch(`${base}/api/status`);
     const s = await r.json();

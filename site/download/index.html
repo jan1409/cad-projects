@@ -1,0 +1,149 @@
+<title>Download</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Download page of ready-made models: same tokens as the overview page (site/portal/index.html). */
+:root {
+  --paper: #eef1f3;
+  --panel: #f8fafb;
+  --plate: #e3e9ef;
+  --grid: #d2dbe6;
+  --ink: #17202a;
+  --muted: #5a6571;
+  --line: #cdd4db;
+  --accent: #2357c6;
+  --accent-ink: #ffffff;
+  --signal: #b8700f;
+  --ok: #2e7d4f;
+  --err: #b3261e;
+  --display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #101418; --panel: #161b21; --plate: #1b222a; --grid: #26313d; --ink: #e3e8ee; --muted: #93a0ad; --line: #2a323b;
+    --accent: #6e98f0; --accent-ink: #0d1220; --signal: #e0a548; --ok: #5dbb83; --err: #f2867c; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #101418; --panel: #161b21; --plate: #1b222a; --grid: #26313d; --ink: #e3e8ee; --muted: #93a0ad; --line: #2a323b;
+  --accent: #6e98f0; --accent-ink: #0d1220; --signal: #e0a548; --ok: #5dbb83; --err: #f2867c; color-scheme: dark;
+}
+[hidden] { display: none !important; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.5 var(--body); }
+.wrap {
+  max-width: 1180px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px;
+  padding-block: 20px 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.site-nav { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; font-size: .85rem; color: var(--muted); }
+.site-nav a { color: var(--accent); font-weight: 600; text-decoration: none; }
+.site-nav a:hover { text-decoration: underline; }
+header { display: flex; flex-direction: column; gap: 8px; }
+.title-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+h1 { font: 700 2.4rem/1 var(--display); letter-spacing: .01em; text-transform: uppercase; margin: 0; text-wrap: balance; hyphens: auto; }
+.lang { display: inline-flex; flex: none; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--panel); }
+.lang button { border: 0; background: none; color: var(--muted); padding: 3px 9px; font: 600 .78rem var(--body); letter-spacing: .04em; cursor: pointer; }
+.lang button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.lede { margin: 0; color: var(--muted); max-width: 70ch; }
+.facts { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 18px; font: 400 .85rem/1.4 var(--mono); }
+.facts li { display: flex; gap: 8px; }
+.facts li::before { content: ""; flex: none; width: 6px; height: 6px; margin-top: .45em; border-radius: 1px; background: var(--accent); }
+.label { font: 600 .8rem/1.2 var(--display); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.layout { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(320px, 1fr); gap: 28px; align-items: start; }
+section { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.gallery { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 20px); }
+.plate {
+  aspect-ratio: 4 / 3; padding: 20px; border: 1px solid var(--line); border-radius: 10px;
+  background-color: var(--plate);
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 40px 40px; background-position: -1px -1px;
+}
+.plate img { display: block; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 10px 14px rgb(0 0 0 / .18)); }
+.caption { margin: 0; color: var(--muted); font-size: .9rem; }
+.thumbs { display: flex; flex-wrap: wrap; gap: 8px; }
+.thumb { width: 84px; height: 64px; padding: 4px; border: 1px solid var(--line); border-radius: 6px; background: var(--plate); cursor: pointer; }
+.thumb[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.thumb img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.info { display: flex; flex-direction: column; gap: 26px; min-width: 0; }
+.zip {
+  height: 44px; border: 0; border-radius: 6px; background: var(--accent); color: var(--accent-ink);
+  font: 700 1.05rem var(--display); text-transform: uppercase; letter-spacing: .06em; cursor: pointer;
+}
+.zip:disabled { opacity: .55; cursor: progress; }
+.note { margin: 0; color: var(--muted); font-size: .85rem; }
+.msg { margin: 0; font-size: .9rem; color: var(--muted); }
+.msg:empty { display: none; }
+.msg.busy { color: var(--signal); }
+.msg.err { color: var(--err); }
+.part { display: flex; flex-direction: column; gap: 3px; padding: 10px 0; border-top: 1px solid var(--line); }
+.part-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.part-head strong { font-weight: 600; }
+.part small { color: var(--muted); font-size: .85rem; }
+.qty { flex: none; font: 500 .85rem var(--mono); color: var(--muted); }
+.links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px; }
+.fmt {
+  display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; border: 1px solid var(--accent); border-radius: 6px;
+  background: none; color: var(--accent); font: 600 .9rem var(--body); text-decoration: none; cursor: pointer;
+}
+.fmt small { font: 400 .78rem var(--mono); color: var(--muted); }
+.fmt:hover { background: var(--accent); color: var(--accent-ink); }
+.fmt:hover small { color: inherit; }
+.sheet { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; margin: 0; }
+.sheet dt { color: var(--muted); }
+.sheet dd { margin: 0; text-align: right; font-family: var(--mono); font-size: .92rem; font-variant-numeric: tabular-nums; }
+.notes, .steps { margin: 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: 6px; }
+.notes { color: var(--muted); font-size: .9rem; }
+button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 860px) {
+  .layout { grid-template-columns: 1fr; }
+  .gallery { position: static; }
+  h1 { font-size: 2rem; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <!--site:nav-->
+    <div class="title-row"><h1 id="title" data-i18n="dl.loading">Loading the model…</h1><div class="lang" data-lang-switch></div></div>
+    <p class="lede" id="lede"></p>
+    <ul class="facts" id="facts"></ul>
+  </header>
+
+  <div class="layout">
+    <section class="gallery" aria-labelledby="gallery-h">
+      <div class="label" id="gallery-h" data-i18n="dl.gallery">Pictures</div>
+      <div class="plate"><img id="hero" alt=""></div>
+      <p class="caption" id="caption"></p>
+      <div class="thumbs" id="thumbs"></div>
+    </section>
+
+    <div class="info">
+      <section aria-labelledby="files-h">
+        <div class="label" id="files-h" data-i18n="dl.files">Print files</div>
+        <button class="zip" id="zip" type="button" disabled data-i18n="dl.zip">Download all (ZIP)</button>
+        <p class="note" data-i18n="dl.zipNote">The ZIP holds every file below and a build sheet in the language of this page.</p>
+        <p class="msg" id="zip-msg" role="status" aria-live="polite"></p>
+        <div id="parts"></div>
+        <div class="label" data-i18n="dl.more">More files</div>
+        <div id="more"></div>
+      </section>
+
+      <section aria-labelledby="print-h">
+        <div class="label" id="print-h" data-i18n="dl.print">Print settings</div>
+        <dl class="sheet" id="print"></dl>
+        <ul class="notes" id="notes"></ul>
+      </section>
+
+      <section aria-labelledby="mount-h">
+        <div class="label" id="mount-h" data-i18n="dl.mount">Mounting and use</div>
+        <ol class="steps" id="steps"></ol>
+      </section>
+    </div>
+  </div>
+</div>
+<script type="module" src="./download.js"></script>

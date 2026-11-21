@@ -11,3 +11,6 @@ site/dist/
 
 # server secrets (site/server/.env.example is the template)
 .env
+
+# design input (phone photos carry GPS positions in their EXIF data)
+_input/

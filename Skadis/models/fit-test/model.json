@@ -1,0 +1,30 @@
+{
+  "images": [
+    { "file": "images/tokens.png", "alt": { "en": "The nine fit-test tokens on a SKÅDIS board", "de": "Die neun Probestücke an einer SKÅDIS-Platte" } },
+    { "file": "images/tab.png", "alt": { "en": "A token from behind: the hook tab with the lip that reaches behind the board", "de": "Ein Probestück von hinten: die Hakenlasche mit der Nase, die hinter die Platte greift" } }
+  ],
+  "parts": [
+    {
+      "name": { "en": "Fit tokens (all nine in one file)", "de": "Probestücke (alle neun in einer Datei)" }, "qty": 1,
+      "orient": { "en": "Tab side down, as laid out in the file, no supports", "de": "Laschenseite nach unten, wie in der Datei, ohne Stützen" },
+      "files": ["files/Skadis_Fit_Test_Tokens.stl"]
+    }
+  ],
+  "files": [
+    { "file": "files/Skadis_Fit_Test_Plate.3mf", "label": { "en": "The nine tokens on one Prusa XL plate (3MF)", "de": "Die neun Probestücke auf einer Prusa-XL-Druckplatte (3MF)" } }
+  ],
+  "print": {
+    "material": { "en": "as for your SKÅDIS parts", "de": "wie deine SKÅDIS-Teile" },
+    "layer": 0.2, "walls": 4, "infill": 25, "supports": false, "minutes": 102, "grams": 30,
+    "notes": [
+      { "en": "Each token shows its tab width (W) and its gap for the board (G) on the front.", "de": "Jedes Probestück zeigt vorne seine Laschenbreite (W) und sein Spaltmaß für die Platte (G)." },
+      { "en": "The tokens lie on their tab side, like the brackets of the SKÅDIS models, so they show how your printer makes those tabs.", "de": "Die Probestücke liegen beim Druck auf der Laschenseite, wie die Halter der SKÅDIS-Modelle, und zeigen so, wie dein Drucker diese Laschen druckt." },
+      { "en": "Print time and filament are the PrusaSlicer estimate for the plate on a Prusa XL with a 0.4 mm nozzle and PETG.", "de": "Druckzeit und Filament sind die Schätzung von PrusaSlicer für die Druckplatte auf einem Prusa XL mit 0,4-mm-Düse und PETG." }
+    ]
+  },
+  "steps": [
+    { "en": "Hold a token about 6 mm higher than its final place, push the tab into a slot and lower it.", "de": "Halte ein Probestück etwa 6 mm höher als seine Endposition, steck die Lasche in einen Schlitz und senk es ab." },
+    { "en": "A good fit slides in without force, sits flat on the board and hardly wobbles. If it is too tight, take a smaller W or a larger G; if it is too loose, a larger W or a smaller G.", "de": "Eine gute Passung gleitet ohne Kraft hinein, liegt flach auf der Platte und wackelt kaum. Ist sie zu stramm, nimm einen kleineren W- oder einen größeren G-Wert; ist sie zu locker, einen größeren W- oder einen kleineren G-Wert." },
+    { "en": "The SKÅDIS models on this site use W 4.8 and G 5.1, the best fit on IKEA boards with PETG; W 4.8 with G 5.3 was a little loose.", "de": "Die SKÅDIS-Modelle auf dieser Website nutzen W 4,8 und G 5,1, die beste Passung an IKEA-Platten mit PETG; W 4,8 mit G 5,3 war etwas locker." }
+  ]
+}

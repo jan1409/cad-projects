@@ -1,0 +1,18 @@
+[
+  {
+    "id": "gridfinity",
+    "title": { "en": "Gridfinity", "de": "Gridfinity" },
+    "lede": {
+      "en": "Modular storage on the 42 mm grid. Every model here is a generator: set the size, and your browser builds the print files with the OpenCascade kernel. Nothing is uploaded.",
+      "de": "Modulare Aufbewahrung im 42-mm-Raster. Jedes Modell hier ist ein Generator: Stell die Größe ein, und dein Browser baut die Druckdateien mit dem OpenCascade-Kernel. Nichts wird hochgeladen."
+    }
+  },
+  {
+    "id": "skadis",
+    "title": { "en": "SKÅDIS models", "de": "SKÅDIS-Modelle" },
+    "lede": {
+      "en": "Ready-made accessories for the IKEA SKÅDIS pegboard, held by hook tabs. Download the print files and print them in PETG or PLA.",
+      "de": "Fertiges Zubehör für die IKEA-Lochplatte SKÅDIS, gehalten von Hakenlaschen. Lade die Druckdateien herunter und druck sie in PETG oder PLA."
+    }
+  }
+]
