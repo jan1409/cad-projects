@@ -23,17 +23,20 @@ export function lampSizes(spec, lampKey) {
 
 // derived sizes, without the geometry kernel. inputs: diameter, slenderness, wall, fit, lamp
 export function starEnv(spec, inputs) {
-  const { kd, ts, rb, hb, cb, ksb, kvb } = spec.shape;
+  const { kd, ksb, kvb, dm, hm, mrec, mskin } = spec.shape;
+  const mfit = inputs.magnet_fit ?? spec.parameters.magnet_fit.default; // press fit of the magnet pockets
+  const ts = hm + mrec + mskin, rp = (dm + mfit) / 2; // skirt wall: magnet + recess + skin; magnet pocket radius
   const D = inputs.diameter, k = inputs.slenderness, t = inputs.wall, g = inputs.fit;
-  const a = D / 2 / (RS + k), hs = k * a, ht = D / 2 - RT * a, d = kd * a, Rs = RS * a, Rt = RT * a;
   const ths = Math.atan(0.5 / RS), tht = Math.atan(1 / (2 * Math.sqrt(3) * RT)); // skirt wall tilts
+  // skirt depth: kd·a, but deep enough for the magnets in small stars
+  const a = D / 2 / (RS + k), hs = k * a, ht = D / 2 - RT * a, d = Math.max(kd * a, (2 * rp + 2.2) * Math.cos(tht)), Rs = RS * a, Rt = RT * a;
   // square point: half-widths of the skirt (outer/inner, bottom/face), the pyramid cavity and its apex
   const cs = Math.cos(ths);
   const wo0 = (a / 2) * (Rs - d) / Rs - g / 2 / cs, wod = a / 2 - g / 2 / cs;
   const wi0 = wo0 - ts / cs, wid = wod - ts / cs, wim = wi0 - (wid - wi0) / d;
   const phs = Math.atan(wod / hs), wpi = wod - t / Math.cos(phs), zai = d + (hs * wpi) / wod;
-  // snap bump and dimple: s along the edge, v down the wall (the same v for both point types)
-  const sb = ksb * a, vb = kvb * d, zbs = d - vb * cs, xbs = wo0 + zbs * Math.tan(ths);
+  // magnet pockets: s along the edge, v down the wall (the same v for every part, so facing pockets are coaxial)
+  const sb = ksb * a, vb = Math.max(rp + 1.2, kvb * d), zbs = d - vb * cs, xbs = wo0 + zbs * Math.tan(ths);
   // triangle point: inradii instead of half-widths; the bottom edge parallel to X, a corner on +Y
   const ct = Math.cos(tht), r3 = a / (2 * Math.sqrt(3));
   const ro0 = r3 * (Rt - d) / Rt - g / 2 / ct, rod = r3 - g / 2 / ct;
@@ -42,7 +45,7 @@ export function starEnv(spec, inputs) {
   const zbt = d - vb * ct, ybt = ro0 + zbt * Math.tan(tht);
   // lamp socket: a shallow square skirt (deep enough for the snaps) under a plate; carrier: tube, cone, rim and 3 lugs
   const sh = spec.shape, L = lampSizes(spec, inputs.lamp);
-  const ds = (vb + rb + cb + 0.6) * cs;
+  const ds = (vb + rp + 1) * cs;
   const wos0 = (a / 2) * (Rs - ds) / Rs - g / 2 / cs, wis0 = wos0 - ts / cs, wism = wis0 - (wid - wis0) / ds;
   const zbk = ds - vb * cs, xbk = wos0 + zbk * Math.tan(ths);
   const re = Math.SQRT2 * wid - sh.cord_d / 2 - 1.5; // cord holes along the diagonal
@@ -53,7 +56,7 @@ export function starEnv(spec, inputs) {
     Object.assign(sk, { RL, Rn, wn, rn, zlt, zpt, Rd, ztop: zpt + sh.cone_w + sh.rim_h });
   }
   return {
-    ...inputs, D, k, t, g, ts, rb, hb, cb, a, hs, ht, d, Rs, Rt, ths, tht, sb, vb, shape: sh, ...L, lamp_key: inputs.lamp,
+    ...inputs, D, k, t, g, ts, rp, mfit, a, hs, ht, d, Rs, Rt, ths, tht, sb, vb, shape: sh, ...L, lamp_key: inputs.lamp,
     sq: { wo0, wod, wi0, wid, wim, phs, wpi, zai, zbs, xbs },
     tr: { ro0, rod, ri0, rid, rim, pht, rpi, ztai, zbt, ybt },
     sk,
@@ -142,61 +145,58 @@ const pyramid = (R, base, apex) => base.loftWith([], { ruled: true, endPoint: ap
 // rotate copies of a solid about Z: n-fold pattern including the original
 const ring = (R, solid, n) => Array.from({ length: n }, (_, i) => (i === 0 ? solid : solid.clone().rotate((i * 360) / n, [0, 0, 0], [0, 0, 1])));
 
-// square point (17 per star): pyramid on the square skirt, hollow, open at the bottom, with 4 bumps and 4 dimples
+// magnet pockets in one skirt wall, as cylinders from 1 mm outside the wall, mrec + hm deep along the inward normal n_in
+// (unit), centred on p (the outer wall surface) ± s along the edge direction e; a dot (Ø 1.5, 0.5 deep) beside the +s
+// pocket marks the one for the magnets' marked face (the same pole everywhere): every wall fits every wall
+const wallMagnets = (R, env, p, nIn, e) => {
+  const { sb, rp, shape: { hm, mrec } } = env;
+  const at = (u) => [0, 1, 2].map((i) => p[i] + e[i] * u - nIn[i]);
+  return [
+    R.makeCylinder(rp, 1 + mrec + hm, at(sb), nIn), R.makeCylinder(rp, 1 + mrec + hm, at(-sb), nIn),
+    R.makeCylinder(0.75, 1.5, at(sb + rp + 1.4), nIn),
+  ];
+};
+const cutAll = (R, body, tools) => { for (const x of tools) body = cut(R, body, x); return body; };
+
+// square point (17 per star): pyramid on the square skirt, hollow, open at the bottom, 8 magnet pockets
 export function makeSquarePoint(R, env) {
-  const { d, hs, ths, rb, hb, cb, g, sb } = env;
+  const { d, hs, ths } = env;
   const s = env.sq;
   let body = fuse(R, frustum(R, square(R, s.wo0, 0), square(R, s.wod, d)), pyramid(R, square(R, s.wod, d), [0, 0, d + hs]));
   body = cut(R, body, frustum(R, square(R, s.wim, -1), square(R, s.wid, d)));
   body = cut(R, body, pyramid(R, square(R, s.wpi, d), [0, 0, s.zai]));
-  // the wall on +x: outward normal (cos ths, 0, -sin ths); bump at +s along the edge, dimple at -s
-  const c = Math.cos(ths), sn = Math.sin(ths);
-  const bump = R.makeSphere(rb).translate([s.xbs - (rb - hb) * c, sb, s.zbs + (rb - hb) * sn]);
-  const dimple = R.makeSphere(rb + cb).translate([s.xbs + (g + rb - hb) * c, -sb, s.zbs - (g + rb - hb) * sn]);
-  for (const b of ring(R, bump, 4)) body = fuse(R, body, b);
-  for (const m of ring(R, dimple, 4)) body = cut(R, body, m);
-  return body;
+  // the wall on +x: outward normal (cos ths, 0, -sin ths), the edge along +y
+  const pockets = wallMagnets(R, env, [s.xbs, 0, s.zbs], [-Math.cos(ths), 0, Math.sin(ths)], [0, 1, 0]);
+  return cutAll(R, body, pockets.flatMap((x) => ring(R, x, 4)));
 }
 
 // equilateral triangle of inradius r, a corner on +Y, the opposite edge parallel to X
 const triangle = (R, r, z) => polygon(R, [[0, 2 * r], [-Math.sqrt(3) * r, -r], [Math.sqrt(3) * r, -r]], z);
 
-// triangle point (8 per star): pyramid on the triangular skirt, hollow, open at the bottom, with 3 bumps and 3 dimples
+// triangle point (8 per star): pyramid on the triangular skirt, hollow, open at the bottom, 6 magnet pockets
 export function makeTrianglePoint(R, env) {
-  const { d, ht, tht, rb, hb, cb, g, sb } = env;
+  const { d, ht, tht } = env;
   const s = env.tr;
   let body = fuse(R, frustum(R, triangle(R, s.ro0, 0), triangle(R, s.rod, d)), pyramid(R, triangle(R, s.rod, d), [0, 0, d + ht]));
   body = cut(R, body, frustum(R, triangle(R, s.rim, -1), triangle(R, s.rid, d)));
   body = cut(R, body, pyramid(R, triangle(R, s.rpi, d), [0, 0, s.ztai]));
-  // the wall on -y: outward normal (0, -cos tht, -sin tht); bump at +s along the edge (+x), dimple at -s
-  const c = Math.cos(tht), sn = Math.sin(tht);
-  const bump = R.makeSphere(rb).translate([sb, -s.ybt + (rb - hb) * c, s.zbt + (rb - hb) * sn]);
-  const dimple = R.makeSphere(rb + cb).translate([-sb, -s.ybt - (g + rb - hb) * c, s.zbt - (g + rb - hb) * sn]);
-  for (const b of ring(R, bump, 3)) body = fuse(R, body, b);
-  for (const m of ring(R, dimple, 3)) body = cut(R, body, m);
-  return body;
+  // the wall on -y: outward normal (0, -cos tht, -sin tht), the edge along +x
+  const pockets = wallMagnets(R, env, [0, -s.ybt, s.zbt], [0, Math.cos(tht), Math.sin(tht)], [1, 0, 0]);
+  return cutAll(R, body, pockets.flatMap((x) => ring(R, x, 3)));
 }
 
-// snap bumps (+s) and dimples (-s) on the 4 walls of a square skirt; x: outer wall at height z, as in makeSquarePoint
-const squareSnaps = (R, env, body, xb, zb) => {
-  const { ths, rb, hb, cb, g, sb } = env;
-  const c = Math.cos(ths), sn = Math.sin(ths);
-  const bump = R.makeSphere(rb).translate([xb - (rb - hb) * c, sb, zb + (rb - hb) * sn]);
-  const dimple = R.makeSphere(rb + cb).translate([xb + (g + rb - hb) * c, -sb, zb - (g + rb - hb) * sn]);
-  for (const b of ring(R, bump, 4)) body = fuse(R, body, b);
-  for (const m of ring(R, dimple, 4)) body = cut(R, body, m);
-  return body;
-};
+// the 8 magnet pockets of a square skirt whose outer +x wall passes through (xb, 0, zb), as in makeSquarePoint
+const squareMagnets = (R, env, body, xb, zb) =>
+  cutAll(R, body, wallMagnets(R, env, [xb, 0, zb], [-Math.cos(env.ths), 0, Math.sin(env.ths)], [0, 1, 0]).flatMap((x) => ring(R, x, 4)));
 const deg = Math.PI / 180;
 
-// lamp socket (1 per star, glued into the top square): shallow skirt + plate; bayonet opening or E10 sleeve; 2 cord holes
+// lamp socket (1 per star, held by its magnets in the top square): shallow skirt + plate; bayonet opening or E10 sleeve; 2 cord holes
 export function makeSocket(R, env) {
   const { sk, shape: s } = env;
   const { wod, wid } = env.sq;
   let body = frustum(R, square(R, sk.wos0, 0), square(R, wod, sk.ds));
   body = cut(R, body, frustum(R, square(R, sk.wism, -1), square(R, wid, sk.ds)));
   body = fuse(R, body, R.makeBox([-wod, -wod, sk.ds], [wod, wod, sk.ds + s.tp]));
-  body = squareSnaps(R, env, body, sk.xbk, sk.zbk);
   if (env.seat === "bayonet") {
     body = cut(R, body, R.makeCylinder(env.Do / 2, s.tp + 2, [0, 0, sk.ds - 1], [0, 0, 1]));
     const notch = polygon(R, [[env.Do / 4, -sk.wn / 2], [sk.Rn, -sk.wn / 2], [sk.Rn, sk.wn / 2], [env.Do / 4, sk.wn / 2]], sk.ds - 1).extrude(s.tp + 2);
@@ -222,7 +222,8 @@ export function makeSocket(R, env) {
   }
   const hole = R.makeCylinder(s.cord_d / 2, s.tp + 2, [sk.re / Math.SQRT2, sk.re / Math.SQRT2, sk.ds - 1], [0, 0, 1]);
   for (const h of ring(R, hole, 2)) body = cut(R, body, h);
-  return body;
+  // the magnet pockets last, after everything joined (in small stars the sleeve reaches the walls): they stay clear
+  return squareMagnets(R, env, body, sk.xbk, sk.zbk);
 }
 
 // lamp carrier (bayonet lamps): tube with the holder bore, a 45° cone that sits on the opening edge, a rim and 3 lugs.
@@ -291,7 +292,9 @@ export function partList(env) {
 // ---- files ----
 
 export const starTag = (env) => `${env.D}mm_${env.lamp_key}`;
-export const PART_KEYS = { square: "star.partSquare", triangle: "star.partTriangle", socket: "star.partSocket", carrier: "star.partCarrier", nut: "star.partNut" };
+export const PART_KEYS = { square: "star.partSquare", triangle: "star.partTriangle", socket: "star.partSocket", carrier: "star.partCarrier", nut: "star.partNut", magnet_test: "star.partMagnetTest" };
+// magnets per star: 8 in every square skirt (the socket's too), 6 in every triangle
+export const magnetCount = () => 17 * 8 + 8 * 6 + 8;
 
 // how a part lies on the bed, as a row-major 4×4 matrix from its model frame: the lamp socket turned over (plate down,
 // so the plate needs no supports), the others as modelled
@@ -322,6 +325,28 @@ export function fitTestPiece(R, env, solid) {
   return solid.clone().intersect(R.makeBox([-big, -big, -1], [big, big, top]));
 }
 
+// magnet pocket test (fit test only, not in the .sc): a piece of square skirt wall (ts thick, leaning out by ths as
+// printed) with four pockets of dm + 0 / 0.1 / 0.2 / 0.3 mm; 1–4 small holes in the top face name them
+export const MAGNET_TEST_FITS = [0, 0.1, 0.2, 0.3];
+export function makeMagnetTest(R, env) {
+  const { ths, ts, shape: { dm, hm, mrec } } = env;
+  const tn = Math.tan(ths), c = Math.cos(ths), sn = Math.sin(ths), pitch = dm + 5, H = dm + 6, W = 4 * pitch, tx = ts / c;
+  // profile in XZ (sketch y -> +Z), extruded across Y: the outer face x = z·tan(ths), the inner face tx behind it
+  let pen = R.draw([-tx, 0]);
+  for (const q of [[0, 0], [H * tn, H], [H * tn - tx, H]]) pen = pen.lineTo(q);
+  let body = pen.close().sketchOnPlane("XZ", [0, W / 2, 0]).extrude(W);
+  const nIn = [-c, 0, sn];
+  MAGNET_TEST_FITS.forEach((f, i) => {
+    const y = -W / 2 + pitch * (i + 0.5), p = [(H / 2) * tn, y, H / 2];
+    body = cut(R, body, R.makeCylinder((dm + f) / 2, 1 + mrec + hm, [p[0] - nIn[0], y, p[2] - nIn[2]], nIn));
+    for (let j = 0; j <= i; j++) {
+      const yy = y + (j - i / 2) * 2;
+      body = cut(R, body, R.makeCylinder(0.6, 2, [H * tn - tx / 2, yy, H - 1], [0, 0, 1]));
+    }
+  });
+  return body;
+}
+
 // Markdown build sheet; title in the sheet's language; t: translator of src/strings.js; file(part): its STL name
 const LAMP_SHEET = { e10_sleeve: "star.sheetLampE10Sleeve", e10_panel: "star.sheetLampE10Panel", e27_p45: "star.sheetLampE27", e27_a60: "star.sheetLampE27" };
 const BULB = { e27_p45: "star.bulbP45", e27_a60: "star.bulbA60" };
@@ -338,7 +363,7 @@ export function starBuildSheet(env, title, printers, t, file) {
     "",
     `## ${t("star.sheetPrinting")}`,
     "",
-    `- ${t("star.sheetFitFirst")}`,
+    `- ${t("star.sheetFitFirst", { f0: MAGNET_TEST_FITS[0], f1: MAGNET_TEST_FITS[1], f2: MAGNET_TEST_FITS[2], f3: MAGNET_TEST_FITS[3], d: env.shape.dm })}`,
     `- ${t("star.sheetPointsMat", { t: env.t })}`,
     `- ${t("star.sheetLampMat")}`,
     `- ${t("star.sheetNoSupports")}`,
@@ -348,7 +373,10 @@ export function starBuildSheet(env, title, printers, t, file) {
     lines.push(pf.fit[name] ? `- ${t("star.sheetPlates", { printer: name, n: Math.floor(x / cell) * Math.floor(y / cell) })}`
       : `- ${t("star.sheetTooTall", { printer: name, h: pf.height })}`);
   }
-  lines.push(`- ${t("star.sheetStl")}`, "", `## ${t("star.sheetAssembly")}`, "",
+  lines.push(`- ${t("star.sheetStl")}`, "", `## ${t("star.sheetMagnets")}`, "",
+    `- ${t("star.sheetMagnetBuy", { n: magnetCount(), d: env.shape.dm, h: env.shape.hm })}`,
+    `- ${t("star.sheetMagnetPole")}`, `- ${t("star.sheetMagnetPress", { f: env.mfit })}`, "",
+    `## ${t("star.sheetAssembly")}`, "",
     `- ${t("star.sheetAsm1")}`, `- ${t("star.sheetAsm2")}`, `- ${t("star.sheetAsm3")}`, "",
     `## ${t("star.sheetLamp")}`, "",
     `- ${t(LAMP_SHEET[env.lamp_key], BULB[env.lamp_key] ? { bulb: t(BULB[env.lamp_key]) } : {})}`,

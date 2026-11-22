@@ -12,7 +12,7 @@ import { fileURLToPath } from "node:url";
 import opencascade from "replicad-opencascadejs";
 import * as R from "replicad";
 import { zipSync, unzipSync, strFromU8 } from "fflate";
-import { starEnv, starTag, starLayout, socketProblems, minDiameter, partHeights, makeSquarePoint, makeTrianglePoint, makeSocket, makeCarrier, fitTestPiece, printPose, transformMesh } from "../src/star.js";
+import { starEnv, starTag, starLayout, socketProblems, minDiameter, partHeights, makeSquarePoint, makeTrianglePoint, makeSocket, makeCarrier, fitTestPiece, makeMagnetTest, printPose, transformMesh } from "../src/star.js";
 import { weld, meshStats, threemfEntries, stlBytes } from "../src/paint3mf.js";
 
 const spec = JSON.parse(fs.readFileSync(new URL("../../spec/star_params.json", import.meta.url)));
@@ -92,6 +92,11 @@ async function one(args) {
       fs.mkdirSync(out, { recursive: true });
       for (const [part, mesh] of Object.entries(meshes)) fs.writeFileSync(path.join(out, `christmas_star_${starTag(env)}_${part}.stl`), stlBytes(mesh, `Christmas star ${part}`));
       fs.writeFileSync(path.join(out, `christmas_star_${starTag(env)}.3mf`), zip);
+      { // the fit test's magnet pocket block
+        const mt = makeMagnetTest(R, env), mm = mt.mesh(MESH), mw = weld(mm.vertices, mm.triangles), ms = meshStats(mw);
+        if (ms.open) bad.push(`magnet test: ${ms.open} open edges`);
+        fs.writeFileSync(path.join(out, `christmas_star_${starTag(env)}_fit_magnet_pockets.stl`), stlBytes(mw, "fit test magnet pockets"));
+      }
       for (const part of ["square", "triangle"]) { // the fit test's short points
         const f = fitTestPiece(R, env, solids[part]), m = f.mesh(MESH);
         fs.writeFileSync(path.join(out, `christmas_star_${starTag(env)}_fit_${part}.stl`), stlBytes(weld(m.vertices, m.triangles), `fit test ${part}`));

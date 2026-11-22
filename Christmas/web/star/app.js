@@ -5,7 +5,7 @@ import * as THREE from "three";
 import { OrbitControls } from "./vendor/OrbitControls.js";
 import { zipSync } from "./vendor/fflate.js";
 import { translator, applyDom, mountLangSwitch, pick } from "./vendor/i18n.js";
-import { starEnv, starLayout, lampEnvelope, socketProblems, minDiameter, printFit, partList, starTag, starBuildSheet, printPose, transformMesh, PART_KEYS } from "./src/star.js";
+import { starEnv, starLayout, lampEnvelope, socketProblems, minDiameter, printFit, partList, starTag, starBuildSheet, printPose, transformMesh, magnetCount, PART_KEYS } from "./src/star.js";
 import { threemfEntries, stlBytes } from "./src/paint3mf.js";
 import S from "./src/strings.js";
 
@@ -99,15 +99,18 @@ function render() {
   }
   const env = envOf(), problems = socketProblems(env), current = built && built.key === keyOf();
   const pf = printFit(env, spec.printers);
+  let heavy = false;
   const rows = [
     [t("star.rowSize"), t("star.valSize", { d: env.D, a: env.a })],
     [t("star.rowPoints"), t("star.valPoints", { h: pf.height })],
     [t("star.rowLamp"), env.seat === "bayonet" ? t("star.valLampBayonet", { o: env.Do }) : t("star.valLampSleeve", { o: env.holeS })],
+    [t("star.rowMagnets"), t("star.valMagnets", { n: magnetCount(), d: env.shape.dm, h: env.shape.hm, p: 2 * env.rp })],
   ];
   if (current) {
     const grams = partList(built.env).reduce((sum, { part, count }) => sum + (built.parts[part]?.volume ?? 0) * count * 1.25, 0);
     const n = partList(built.env).reduce((sum, { count }) => sum + count, 0);
     rows.push([t("star.rowFilament"), t("star.valFilament", { g: Math.round(grams), n })]);
+    if (grams > 1000) heavy = true;
   }
   $("sheet").replaceChildren(...rows.flatMap(([k, v]) => [el("dt", { textContent: k }), el("dd", { textContent: v })]));
   const chips = Object.entries(spec.printers).map(([name, [, , z]]) => chip(pf.fit[name] ? "ok" : "signal", t(pf.fit[name] ? "star.fits" : "star.tooBig", { name, z })));
@@ -121,6 +124,7 @@ function render() {
     }
   } else chips.push(chip("ok", t("star.lampOk")));
   if (env.lamp_key.startsWith("e10") && env.D > 350) chips.push(chip("signal", t("star.dimLamp")));
+  if (heavy) chips.push(chip("signal", t("star.heavyStar")));
   chips.push(chip("ok", t("star.noSupports")));
   $("chips").replaceChildren(...chips);
   $("build").disabled = building || problems.length > 0;
@@ -181,8 +185,9 @@ async function download(f) {
   } else if (f.key === "3mf") data = new Blob([threemf(env, printParts)], { type: "model/3mf" });
   else if (f.key === "md") data = new Blob([sheet()]);
   else {
-    const fit = ["square_fit", "square_fit", "square_fit", "triangle_fit", ...printParts.filter((p) => p === "socket" || p === "carrier")];
+    const fit = ["magnet_test", "square_fit", "square_fit", "square_fit", "triangle_fit", ...printParts.filter((p) => p === "socket" || p === "carrier")];
     const fitStl = {
+      [`${base}_fit_magnet_pockets.stl`]: stlBytes(built.parts.magnet_test, "fit test magnet pockets"),
       [`${base}_fit_square.stl`]: stlBytes(built.parts.square_fit, "fit test square point (print 3)"),
       [`${base}_fit_triangle.stl`]: stlBytes(built.parts.triangle_fit, "fit test triangular point"),
       ...stls(printParts.filter((p) => p === "socket" || p === "carrier")),

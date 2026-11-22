@@ -22,7 +22,7 @@ const spec = JSON.parse(fs.readFileSync(path.join(root, "spec/star_params.json")
 // a bayonet lamp too large for the smallest stars: a made-up small one checks the same equations there
 spec.lamps.check_small = { seat: "bayonet", hole_d: 8.2, bottom_d: 10, envelope: [[10, 10, 1]] };
 const P = spec.parameters;
-const d = { diameter: P.diameter.default, slenderness: P.slenderness.default, wall: P.wall.default, fit: P.fit.default, lamp: P.lamp.default };
+const d = { diameter: P.diameter.default, slenderness: P.slenderness.default, wall: P.wall.default, fit: P.fit.default, magnet_fit: P.magnet_fit.default, lamp: P.lamp.default };
 export const SETS = {
   default: d,
   d_min: { ...d, diameter: P.diameter.min, lamp: "check_small" },
@@ -33,15 +33,16 @@ export const SETS = {
   wall_max: { ...d, wall: P.wall.max },
   fit_min: { ...d, fit: P.fit.min },
   fit_max: { ...d, fit: P.fit.max },
+  mfit_ends: { ...d, magnet_fit: P.magnet_fit.min, diameter: 300, lamp: "e10_panel" },
   small_panel: { diameter: 260, slenderness: 3.6, wall: 1.6, fit: 0.4, lamp: "e10_panel" },
-  large_a60: { diameter: 900, slenderness: 2.4, wall: 0.8, fit: 0.1, lamp: "e27_a60" },
+  large_a60: { diameter: 900, slenderness: 2.4, wall: 0.8, fit: 0.1, magnet_fit: 0.3, lamp: "e27_a60" },
   mixed: { diameter: 380, slenderness: 2.8, wall: 1.1, fit: 0.25, lamp: "e10_panel" },
 };
 
 // .sc parameters for a set: the star inputs, the bayonet lamp's opening and the E10 sleeve
 function scChanges(env, sleeve) {
   return {
-    D: String(env.D), k: String(env.k), t: String(env.t), g: String(env.g),
+    D: String(env.D), k: String(env.k), t: String(env.t), g: String(env.g), mfit: String(env.mfit),
     Do: String(env.Do), holeD: String(env.holeD), Ll: String(env.Ll),
     holeS: String(sleeve.holeS), ledS: String(sleeve.ledS), hlS: String(sleeve.hlS), sw: String(sleeve.sw), // sh follows in the .sc
   };

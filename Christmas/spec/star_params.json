@@ -4,12 +4,12 @@
  "source": "Christmas/solidcraft/christmas_star.sc (SolidCraft 0.45; Jan's Christmas_star_v1.sc). Equations, lamp sources and checks: star_spec.md",
  "title": { "en": "Parametric Christmas Star", "de": "Parametrischer Weihnachtsstern" },
  "shape": {
-  "_comment": "constants of the .sc. Points: kd skirt depth / a, ts skirt wall, snap bump (rb sphere radius, hb height, cb dimple clearance, ksb offset along the edge / a, kvb distance down the wall / d). Lamp socket and carrier: tp plate, tw carrier tube wall, cr radial and cz axial clearance, lug_l lug length beyond the opening (lug_l_small below 25 mm opening), lug_e lug edge height, lug_w lug angle (deg), lock turn (deg), cl notch clearance, stop_w stop width (deg), ramp_i detent interference, cone_w carrier cone beyond the opening, rim_h carrier rim height, cord_d cord holes, sleeve_w sleeve wall",
+  "_comment": "constants of the .sc. Points: kd skirt depth / a (at least what the magnets need), magnets (dm diameter, hm height, the press fit is the parameter magnet_fit (pocket dm + magnet_fit), mrec magnet face below the wall, mskin wall behind the pocket; the skirt wall is hm + mrec + mskin), ksb pocket offset along the edge / a, kvb pocket centre down the wall / d. Lamp socket and carrier: tp plate, tw carrier tube wall, cr radial and cz axial clearance, lug_l lug length beyond the opening (lug_l_small below 25 mm opening), lug_e lug edge height, lug_w lug angle (deg), lock turn (deg), cl notch clearance, stop_w stop width (deg), ramp_i detent interference, cone_w carrier cone beyond the opening, rim_h carrier rim height, cord_d cord holes, sleeve_w sleeve wall",
   "kd": 0.2,
-  "ts": 1.6,
-  "rb": 1.0,
-  "hb": 0.5,
-  "cb": 0.15,
+  "dm": 5,
+  "hm": 2,
+  "mrec": 0.1,
+  "mskin": 0.8,
   "ksb": 0.25,
   "kvb": 0.45,
   "tp": 2.5,
@@ -36,14 +36,14 @@
   "e10_sleeve": {
    "seat": "sleeve", "hole_d": 15.4, "ledge_d": 12, "holder_l": 24,
    "envelope": [[15.1, 21.7, 1.5], [9.8, 22, 5]],
-   "a_lamp": 21.8,
+   "a_lamp": 23.9,
    "label": { "en": "E10, pre-wired holder Ø 15", "de": "E10, verkabelte Fassung Ø 15" },
    "help": { "en": "plastic holder with cable and a 15 mm collar, 24 mm long; LED 6 V, 4 × AA", "de": "Kunststofffassung mit Kabel und Kragen Ø 15 mm, 24 mm lang; LED 6 V, 4 × AA" }
   },
   "e10_panel": {
    "seat": "bayonet", "hole_d": 14.5, "bottom_d": 17.7, "top_d": 22, "clamp_max": 13,
    "envelope": [[17.7, 3, 1.5], [11.5, 27, 5]],
-   "a_lamp": 25.1,
+   "a_lamp": 27.3,
    "label": { "en": "E10, panel holder Ø 14.5", "de": "E10, Einbaufassung Ø 14,5" },
    "help": { "en": "panel-mount holder with clamp ring; LED 6.3 V, 4 × AA", "de": "Einbaufassung mit Klemmring; LED 6,3 V, 4 × AA" }
   },
@@ -57,7 +57,7 @@
   "e27_a60": {
    "seat": "bayonet", "hole_d": 41, "bottom_d": 45, "top_d": 56.5, "nut": true, "clamp_max": 20,
    "envelope": [[44, 8, 2], [40, 4, 2], [28, 22, 10], [60, 86, 20]],
-   "a_lamp": 66.5,
+   "a_lamp": 66.8,
    "label": { "en": "E27, standard bulb A60", "de": "E27, Standardlampe A60" },
    "help": { "en": "pendant cord set with shade-ring thread 40 × 2.5; LED up to 6 W", "de": "Lampenpendel mit Schirmring-Gewinde 40 × 2,5; LED bis 6 W" }
   }
@@ -93,6 +93,11 @@
    "type": "float", "min": 0.1, "max": 0.4, "default": 0.2, "step": 0.05,
    "label": { "en": "Fit gap", "de": "Passspiel" },
    "help": { "en": "mm between neighbouring skirts; check it with the fit test first", "de": "mm zwischen benachbarten Sockeln; vorher mit der Passprobe prüfen" }
+  },
+  "magnet_fit": {
+   "type": "float", "min": 0, "max": 0.3, "default": 0.1, "step": 0.05,
+   "label": { "en": "Magnet fit", "de": "Magnetpassung" },
+   "help": { "en": "mm added to the magnet diameter for the pockets; the pocket test of the fit test shows the best", "de": "mm, um die die Magnettaschen größer sind als der Magnet; der Taschenblock der Passprobe zeigt den besten Wert" }
   }
  }
 }

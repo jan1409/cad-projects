@@ -4,7 +4,7 @@
 // Messages: in {type: "build", inputs}; out ready / progress / parts / error.
 import opencascade from "./vendor/replicad_single.js";
 import * as R from "./vendor/replicad.js";
-import { starEnv, makeSquarePoint, makeTrianglePoint, makeSocket, makeCarrier, fitTestPiece } from "./src/star.js";
+import { starEnv, makeSquarePoint, makeTrianglePoint, makeSocket, makeCarrier, fitTestPiece, makeMagnetTest } from "./src/star.js";
 import { weld } from "./src/paint3mf.js";
 
 const post = (msg, transfer = []) => self.postMessage(msg, transfer);
@@ -38,6 +38,7 @@ self.onmessage = async ({ data }) => {
       ["triangle", () => makeTrianglePoint(R, env)],
       ["socket", () => makeSocket(R, env)],
       ...(env.seat === "bayonet" ? [["carrier", () => makeCarrier(R, env)]] : []),
+      ["magnet_test", () => makeMagnetTest(R, env)],
     ];
     const parts = {}, transfer = [];
     const add = (key, solid) => {

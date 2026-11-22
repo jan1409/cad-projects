@@ -137,8 +137,8 @@ export default {
   // ================= Parametric Christmas Star (star/) =================
   // ---------- page
   "star.lede": {
-    en: "A 26-point star with a lamp inside, designed in SolidCraft. Every point prints on its own, plugs into its neighbours and clicks in place; your browser builds the print files.",
-    de: "Ein Stern mit 26 Zacken und einer Lampe darin, entworfen in SolidCraft. Jede Zacke wird einzeln gedruckt, in die Nachbarn gesteckt und rastet ein; dein Browser baut die Druckdateien.",
+    en: "A 26-point star with a lamp inside, designed in SolidCraft. Every point prints on its own and is held to its neighbours by magnets: no glue, and the star comes apart again. Your browser builds the print files.",
+    de: "Ein Stern mit 26 Zacken und einer Lampe darin, entworfen in SolidCraft. Jede Zacke wird einzeln gedruckt und hält mit Magneten an ihren Nachbarn: ohne Kleber, und der Stern lässt sich wieder zerlegen. Dein Browser baut die Druckdateien.",
   },
   "star.settings": { en: "Star", de: "Stern" },
   "star.lampHead": { en: "Lamp", de: "Lampe" },
@@ -162,6 +162,9 @@ export default {
   "star.rowLamp": { en: "Lamp mount", de: "Lampenaufnahme" },
   "star.valLampBayonet": { en: "opening Ø {o:1} mm, bayonet carrier", de: "Öffnung Ø {o:1} mm, Bajonett-Träger" },
   "star.valLampSleeve": { en: "sleeve Ø {o:1} mm in the lamp socket", de: "Hülse Ø {o:1} mm im Lampensockel" },
+  "star.rowMagnets": { en: "Magnets", de: "Magnete" },
+  "star.valMagnets": { en: "{n} discs {d} × {h} mm, pockets Ø {p:2} mm", de: "{n} Scheiben {d} × {h} mm, Taschen Ø {p:2} mm" },
+  "star.heavyStar": { en: "A heavy star: check that the magnets hold it before you hang it up", de: "Ein schwerer Stern: Prüf vor dem Aufhängen, ob die Magnete ihn halten" },
   "star.rowFilament": { en: "Filament", de: "Filament" },
   "star.valFilament": { en: "about {g} g for {n} parts", de: "etwa {g} g für {n} Teile" },
   "star.fits": { en: "Fits the {name}", de: "Passt auf den {name}" },
@@ -180,7 +183,7 @@ export default {
   "star.fileSheet": { en: "Build sheet", de: "Bauanleitung" },
   "star.sheetSub": { en: "parts, printing, assembly, lamp", de: "Teile, Druck, Zusammenbau, Lampe" },
   "star.fileFit": { en: "Fit test (ZIP)", de: "Passprobe (ZIP)" },
-  "star.fitSub": { en: "a corner of 4 short points, the lamp socket and the carrier: print it first", de: "eine Ecke aus 4 kurzen Zacken, Lampensockel und Träger: zuerst drucken" },
+  "star.fitSub": { en: "a magnet pocket block, a corner of 4 short points, the lamp socket and the carrier: print it first", de: "ein Taschenblock für die Magnete, eine Ecke aus 4 kurzen Zacken, Lampensockel und Träger: zuerst drucken" },
   "star.download": { en: "Download", de: "Herunterladen" },
   "star.empty": { en: "Build the star to get the files.", de: "Bau den Stern, dann gibt es die Dateien." },
   "star.stale": { en: "The files belong to the last build: build again for the new settings.", de: "Die Dateien gehören zum letzten Bau: Bau neu für die neuen Einstellungen." },
@@ -201,6 +204,7 @@ export default {
   "star.partSocket": { en: "lamp socket", de: "Lampensockel" },
   "star.partCarrier": { en: "lamp carrier", de: "Lampenträger" },
   "star.partNut": { en: "E27 nut", de: "E27-Mutter" },
+  "star.partMagnetTest": { en: "magnet pocket test", de: "Magnet-Taschenprobe" },
   // ---------- build sheet
   "star.sheetSize": {
     en: "{d} mm from tip to tip, point length {k:1} × the edge ({a:1} mm), point wall {t:1} mm, fit gap {g:2} mm.",
@@ -218,15 +222,31 @@ export default {
   "star.sheetPlates": { en: "{printer}: about {n} points per plate.", de: "{printer}: etwa {n} Zacken pro Platte." },
   "star.sheetTooTall": { en: "{printer}: the points are too tall ({h:1} mm).", de: "{printer}: Die Zacken sind zu hoch ({h:1} mm)." },
   "star.sheetFitFirst": {
-    en: "Print the fit test first and push the 4 short points together around their corner: they should slide in and click. Too tight: raise the fit gap; too loose: lower it.",
-    de: "Druck zuerst die Passprobe und steck die 4 kurzen Zacken um ihre Ecke zusammen: Sie sollen hineingleiten und einrasten. Zu stramm: Passspiel erhöhen; zu locker: verringern.",
+    en: "Print the fit test first. Press a magnet into each pocket of the test block (1–4 dots: pockets {d} mm + {f0:1} / {f1:1} / {f2:1} / {f3:1} mm) and pick the one where it goes in with thumb pressure and does not fall out; set the magnet fit to that value. Then fit the magnets into the 4 short points and put them together around their corner: they should pull each other into place and hold.",
+    de: "Druck zuerst die Passprobe. Press einen Magneten in jede Tasche des Probeblocks (1–4 Punkte: Taschen {d} mm + {f0:1} / {f1:1} / {f2:1} / {f3:1} mm) und nimm die, in die er sich mit Daumendruck einpressen lässt und nicht wieder herausfällt; stell die Magnetpassung auf diesen Wert. Setz dann die Magnete in die 4 kurzen Zacken und steck sie um ihre Ecke zusammen: Sie sollen sich gegenseitig an ihren Platz ziehen und halten.",
+  },
+  "star.sheetMagnets": { en: "Magnets", de: "Magnete" },
+  "star.sheetMagnetBuy": {
+    en: "You need {n} neodymium disc magnets {d} × {h} mm (N45 or N52, magnetised through the thickness) and a few spare.",
+    de: "Du brauchst {n} Neodym-Scheibenmagnete {d} × {h} mm (N45 oder N52, durch die Dicke magnetisiert) und ein paar als Reserve.",
+  },
+  "star.sheetMagnetPole": {
+    en: "Poles: stack all magnets into one column and mark the top face of the column with a pen; all marked faces are the same pole. Every skirt wall has two pockets: the marked face goes outwards in the pocket with the small dot beside it, the unmarked face outwards in the other one. Then every wall fits every wall.",
+    de: "Pole: Stapel alle Magnete zu einer Säule und markier die Oberseite der Säule mit einem Stift; alle markierten Seiten sind derselbe Pol. Jede Sockelwand hat zwei Taschen: In die Tasche mit dem kleinen Punkt daneben kommt die markierte Seite nach außen, in die andere die unmarkierte. Dann passt jede Wand auf jede.",
+  },
+  "star.sheetMagnetPress": {
+    en: "Press every magnet in until it stops (a flat piece of wood or a vice helps); it ends 0.1 mm below the surface. The pockets are the magnet plus {f:2} mm: no glue.",
+    de: "Press jeden Magneten bis zum Anschlag ein (ein flaches Stück Holz oder ein Schraubstock hilft); er endet 0,1 mm unter der Oberfläche. Die Taschen sind {f:2} mm größer als der Magnet: kein Kleber.",
   },
   "star.sheetAssembly": { en: "Assembly", de: "Zusammenbau" },
   "star.sheetAsm1": {
-    en: "Every point slides in straight towards the centre and clicks onto its neighbours, in any order. Start at the bottom: one square point, the 4 squares around it, the 4 triangles, then the ring of 8 squares; the top half the same way.",
-    de: "Jede Zacke gleitet gerade zur Mitte hin hinein und rastet an ihren Nachbarn ein, in beliebiger Reihenfolge. Fang unten an: eine Quadratzacke, die 4 Quadrate drumherum, die 4 Dreiecke, dann der Ring aus 8 Quadraten; die obere Hälfte genauso.",
+    en: "Every point goes in straight towards the centre and the magnets pull it against its neighbours, in any order. Start at the bottom: one square point, the 4 squares around it, the 4 triangles, then the ring of 8 squares; the top half the same way. To take the star apart, pull the points off outwards one by one.",
+    de: "Jede Zacke kommt gerade zur Mitte hin hinein, und die Magnete ziehen sie an ihre Nachbarn, in beliebiger Reihenfolge. Fang unten an: eine Quadratzacke, die 4 Quadrate drumherum, die 4 Dreiecke, dann der Ring aus 8 Quadraten; die obere Hälfte genauso. Zum Zerlegen ziehst du die Zacken einzeln nach außen ab.",
   },
-  "star.sheetAsm2": { en: "When everything fits, glue the seams of the skirts (plastic glue or super glue).", de: "Wenn alles passt, verkleb die Fugen der Sockel (Kunststoffkleber oder Sekundenkleber)." },
+  "star.sheetAsm2": {
+    en: "No glue is needed. The whole star hangs by the lamp socket's magnets: before hanging a large star (from about 60 cm) check that it holds, and never hang it over people.",
+    de: "Kleber brauchst du nicht. Der ganze Stern hängt an den Magneten des Lampensockels: Prüf bei großen Sternen (ab etwa 60 cm) vor dem Aufhängen, ob er hält, und häng ihn nie über Personen auf.",
+  },
   "star.sheetAsm3": {
     en: "Before the lamp socket goes in, thread a cord through its two corner holes and knot it underneath: the star hangs by this cord, never by the cable.",
     de: "Bevor der Lampensockel hineinkommt, fädel eine Schnur durch seine beiden Ecklöcher und knote sie unten: Der Stern hängt an dieser Schnur, nie am Kabel.",
