@@ -4,7 +4,7 @@
 // Messages: in {type: "build", inputs}; out ready / progress / mesh / error.
 import opencascade from "./vendor/replicad_single.js";
 import * as R from "./vendor/replicad.js";
-import { treeEnv, makeTree } from "./src/tree.js";
+import { treeEnv, makeTree, makeStar } from "./src/tree.js";
 import { weld, splitAtZ, statesByZ } from "./src/paint3mf.js";
 
 const post = (msg, transfer = []) => self.postMessage(msg, transfer);
@@ -41,7 +41,18 @@ self.onmessage = async ({ data }) => {
     const split = splitAtZ(weld(m.vertices, m.triangles), env.bands.flat().filter((z) => z > 1e-9));
     const states = statesByZ(split, env.bands);
     const pos = new Float64Array(split.pos), tri = new Uint32Array(split.tri);
-    post({ type: "mesh", pos, tri, states, volume }, [pos.buffer, tri.buffer, states.buffer]);
+    const msg = { type: "mesh", pos, tri, states, volume }, transfer = [pos.buffer, tri.buffer, states.buffer];
+    if (env.star) { // the star lying flat for printing (the page puts it on the tab for the preview)
+      post({ type: "progress", step: "star" });
+      const star = makeStar(R, env), sm = star.mesh(MESH);
+      msg.starVolume = R.measureVolume(star) / 1000;
+      star.delete();
+      const w = weld(sm.vertices, sm.triangles);
+      msg.starPos = new Float64Array(w.pos);
+      msg.starTri = new Uint32Array(w.tri);
+      transfer.push(msg.starPos.buffer, msg.starTri.buffer);
+    }
+    post(msg, transfer);
   } catch (err) {
     fail(err);
   }

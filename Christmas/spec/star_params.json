@@ -1,0 +1,98 @@
+{
+ "name": "christmas_star",
+ "units": "mm",
+ "source": "Christmas/solidcraft/christmas_star.sc (SolidCraft 0.45; Jan's Christmas_star_v1.sc). Equations, lamp sources and checks: star_spec.md",
+ "title": { "en": "Parametric Christmas Star", "de": "Parametrischer Weihnachtsstern" },
+ "shape": {
+  "_comment": "constants of the .sc. Points: kd skirt depth / a, ts skirt wall, snap bump (rb sphere radius, hb height, cb dimple clearance, ksb offset along the edge / a, kvb distance down the wall / d). Lamp socket and carrier: tp plate, tw carrier tube wall, cr radial and cz axial clearance, lug_l lug length beyond the opening (lug_l_small below 25 mm opening), lug_e lug edge height, lug_w lug angle (deg), lock turn (deg), cl notch clearance, stop_w stop width (deg), ramp_i detent interference, cone_w carrier cone beyond the opening, rim_h carrier rim height, cord_d cord holes, sleeve_w sleeve wall",
+  "kd": 0.2,
+  "ts": 1.6,
+  "rb": 1.0,
+  "hb": 0.5,
+  "cb": 0.15,
+  "ksb": 0.25,
+  "kvb": 0.45,
+  "tp": 2.5,
+  "tw": 1.6,
+  "cr": 0.3,
+  "cz": 0.3,
+  "lug_l": 3,
+  "lug_l_small": 2,
+  "lug_e": 1,
+  "lug_w": 30,
+  "lock": 60,
+  "cl": 0.5,
+  "stop_w": 8,
+  "ramp_i": 0.2,
+  "cone_w": 1.5,
+  "rim_h": 1.5,
+  "cord_d": 3,
+  "sleeve_w": 1.6
+ },
+ "colors": { "point": "#F4F1E8", "lamp": "#C9A227" },
+ "printers": { "Bambu Lab X1C": [256, 256, 256], "Prusa XL": [360, 360, 360] },
+ "lamps": {
+  "_comment": "seat: sleeve (holder pushed into a sleeve of the socket, its collar on a seat ledge_d, pulled out upwards with the bulb; holder_l: its length) or bayonet (holder clamped through the carrier: top part above, bottom part below). hole_d: bore of the sleeve or the carrier; bottom_d: the part under the carrier (flange or printed nut); top_d: the part on top (clamp ring, shade ring), keeps the cord holes free; envelope: what hangs below the plate (sleeve) or the carrier (bayonet), top down, as [diameter, length, clearance]; a_lamp: smallest edge a at which the envelope keeps its clearances from every part (node/star_lamps.mjs, exact B-rep distances)",
+  "e10_sleeve": {
+   "seat": "sleeve", "hole_d": 15.4, "ledge_d": 12, "holder_l": 24,
+   "envelope": [[15.1, 21.7, 1.5], [9.8, 22, 5]],
+   "a_lamp": 21.8,
+   "label": { "en": "E10, pre-wired holder Ø 15", "de": "E10, verkabelte Fassung Ø 15" },
+   "help": { "en": "plastic holder with cable and a 15 mm collar, 24 mm long; LED 6 V, 4 × AA", "de": "Kunststofffassung mit Kabel und Kragen Ø 15 mm, 24 mm lang; LED 6 V, 4 × AA" }
+  },
+  "e10_panel": {
+   "seat": "bayonet", "hole_d": 14.5, "bottom_d": 17.7, "top_d": 22, "clamp_max": 13,
+   "envelope": [[17.7, 3, 1.5], [11.5, 27, 5]],
+   "a_lamp": 25.1,
+   "label": { "en": "E10, panel holder Ø 14.5", "de": "E10, Einbaufassung Ø 14,5" },
+   "help": { "en": "panel-mount holder with clamp ring; LED 6.3 V, 4 × AA", "de": "Einbaufassung mit Klemmring; LED 6,3 V, 4 × AA" }
+  },
+  "e27_p45": {
+   "seat": "bayonet", "hole_d": 41, "bottom_d": 45, "top_d": 56.5, "nut": true, "clamp_max": 20,
+   "envelope": [[44, 8, 2], [40, 4, 2], [28, 22, 10], [45, 55, 20]],
+   "a_lamp": 57.4,
+   "label": { "en": "E27, drop bulb P45", "de": "E27, Tropfenlampe P45" },
+   "help": { "en": "pendant cord set with shade-ring thread 40 × 2.5; LED up to 6 W", "de": "Lampenpendel mit Schirmring-Gewinde 40 × 2,5; LED bis 6 W" }
+  },
+  "e27_a60": {
+   "seat": "bayonet", "hole_d": 41, "bottom_d": 45, "top_d": 56.5, "nut": true, "clamp_max": 20,
+   "envelope": [[44, 8, 2], [40, 4, 2], [28, 22, 10], [60, 86, 20]],
+   "a_lamp": 66.5,
+   "label": { "en": "E27, standard bulb A60", "de": "E27, Standardlampe A60" },
+   "help": { "en": "pendant cord set with shade-ring thread 40 × 2.5; LED up to 6 W", "de": "Lampenpendel mit Schirmring-Gewinde 40 × 2,5; LED bis 6 W" }
+  }
+ },
+ "parameters": {
+  "diameter": {
+   "type": "int", "min": 200, "max": 900, "default": 550, "step": 10,
+   "label": { "en": "Diameter", "de": "Durchmesser" },
+   "help": { "en": "mm from tip to tip", "de": "mm von Spitze zu Spitze" }
+  },
+  "slenderness": {
+   "type": "float", "min": 2.4, "max": 3.6, "default": 3.0, "step": 0.1,
+   "label": { "en": "Point length", "de": "Zackenlänge" },
+   "help": { "en": "point height per edge of its base; longer points are slimmer", "de": "Zackenhöhe je Kante der Grundfläche; längere Zacken sind schlanker" }
+  },
+  "lamp": {
+   "type": "choice", "default": "e27_p45",
+   "label": { "en": "Lamp", "de": "Lampe" },
+   "help": { "en": "only lamps that fit the star are offered", "de": "nur Lampen, die in den Stern passen, sind wählbar" },
+   "options": [
+    ["e10_sleeve", { "en": "E10, pre-wired holder Ø 15", "de": "E10, verkabelte Fassung Ø 15" }],
+    ["e10_panel", { "en": "E10, panel holder Ø 14.5", "de": "E10, Einbaufassung Ø 14,5" }],
+    ["e27_p45", { "en": "E27, drop bulb P45", "de": "E27, Tropfenlampe P45" }],
+    ["e27_a60", { "en": "E27, standard bulb A60", "de": "E27, Standardlampe A60" }]
+   ]
+  },
+  "wall": {
+   "type": "float", "min": 0.8, "max": 1.6, "default": 0.9, "step": 0.1,
+   "label": { "en": "Point wall", "de": "Zackenwand" },
+   "help": { "en": "mm; 2 perimeters with a 0.4 mm nozzle let the light through", "de": "mm; 2 Perimeter mit 0,4-mm-Düse lassen das Licht durch" }
+  },
+  "fit": {
+   "type": "float", "min": 0.1, "max": 0.4, "default": 0.2, "step": 0.05,
+   "label": { "en": "Fit gap", "de": "Passspiel" },
+   "help": { "en": "mm between neighbouring skirts; check it with the fit test first", "de": "mm zwischen benachbarten Sockeln; vorher mit der Passprobe prüfen" }
+  }
+ }
+}

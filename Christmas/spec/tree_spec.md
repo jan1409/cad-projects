@@ -1,9 +1,11 @@
 # Christmas tree: model and paint
 
-Source of truth: Jan's SolidCraft model, `Christmas/solidcraft/christmas_tree.sc`, a snapshot of
-`D:\CreativeProjects\Solidcraft_Models\Christmas_tree_v2.sc` (SolidCraft 0.45, 2026-11-21). The site generator
-(`Christmas/web/src/tree.js`) ports it with the same equations. `Christmas/web/node/tree_check.mjs` compares the two
-over a sweep: both boolean differences are 0.0 mm³ for all 12 sets.
+Source of truth: Jan's SolidCraft model. `Christmas/solidcraft/christmas_tree_v2.sc` is a snapshot of
+`D:\CreativeProjects\Solidcraft_Models\Christmas_tree_v2.sc` (SolidCraft 0.45, 2026-11-21);
+`Christmas/solidcraft/christmas_tree.sc` is v3 (2026-11-22): v2 plus the tops as configuration rows, built from v2 by
+`Christmas/web/node/tree_sc_v3.mjs` (headless) and also saved as `Solidcraft_Models\Christmas_tree_v3.sc`. The site
+generator (`Christmas/web/src/tree.js`) ports it with the same equations. `Christmas/web/node/tree_check.mjs` compares
+the two over a sweep for every top: both boolean differences are 0.0 mm³ for every set.
 
 ## Model (the .sc timeline)
 
@@ -32,6 +34,54 @@ Silhouette, counter-clockwise from (−Rb, 0): (Rb, 0) → (R3−s, p−dr) → 
 corners stay sharp. The underside of tier k runs from (Rk−s, k·p−dr) up to the tip at angle a from the bed (0° = flat).
 
 Default tree: Ø 72 × 120 mm, 78 576.30 mm³ (SolidCraft and replicad agree to the last digit shown).
+
+## Tops (configuration rows of v3, spec key `top`)
+
+| Row | Features (the others suppressed) | Shape |
+|---|---|---|
+| Flat | Fin, Fins | v2: each fin ends 2t wide at H |
+| Sharp | FinSketchSharp, FinSharp, FinsSharp | the outline runs (R1, 3p) → (0, H) → (−R1, 3p); the tip is t wide (the fins meet) |
+| Star | Fin, Fins, TabSketch, Tab, StarSketch, Star, Slot | the flat tree with a tab, and a separate star body on it |
+
+FinSketchSharp has the v2 outline with the apex (0, H), but every point is an expression, the fillets in closed form.
+For a tip C with unit vectors u1 (back along the underside) and u2 (to the next corner), c = u1·u2 and sn = |u1 × u2|:
+the tangent points are C + d·u1 and C + d·u2 with d = rc·(1 + c)/sn, and the centre is C + (u1 + u2)·rc/sn (parameters
+fux, fuy, fvx·, fvy·, fs·, fd·).
+
+Why not constraints as in v2: SolidCraft solves constraint fillets starting from the saved solution, so the result
+depends on the path. Measured on v2:
+- 120 → 235 gives 326 333.98 mm³ (= the JS port), but 120 → 168 → 235 gives 323 623.13 mm³ (a fillet flipped);
+- from H = 260 the sketch doesn't solve at all.
+
+The closed-form sketch gives the same shape on every path. Jan's FinSketch (rows Flat and Star) is left as it is, so
+`tree_check.mjs` changes the parameters in one step from the saved state.
+
+Star (parameters of the .sc; constants under `shape.star` in `tree_params.json`):
+
+```
+Ds = max(Dsm, kds·H)          star diameter tip to tip   (Dsm 22 mm; kds = star_share/100, default 0.25)
+Rs = Ds/2, kq = 0.45          outer radius, inner/outer radius (regular star 0.382; fuller is sturdier)
+fg = 0.2 mm                   fit per side, tab in slot
+st = max(5 mm, t + 2fg + 2wl) star thickness (wl = 1.2 mm wall each side of the slot)
+wt = 0.9·kq·Rs                tab width
+sd = (kq + 0.1)·Rs            slot depth above the star's bottom notch
+ms = (sin 54° − kq)/cos 54°   slope of the inner edges of the star's two lower points
+gs = ms·(hypot(t, t/2) + cs)  lift of the notch above H (cs = 0.5 mm clearance)
+zc = H + gs + kq·Rs           star centre
+tb = min(t, wt/2 − 0.5 mm)    tab half-width at H;  tf = wt/2 − tb  (flare height)
+```
+
+- The star: a pentagram (one point up, outer Rs, inner kq·Rs) in fin 0's plane, st thick, centred at (0, 0, zc).
+- The slot: (wt + 2fg) × (t + 2fg), from below the notch (cut open through the V between the lower points) up to
+  sd above it. It is a closed pocket: printed lying flat, it needs only a short bridge.
+- Why gs works: the fins' envelope at the top is hypot(t, t/2) from the axis. Below H it widens with
+  (R1 − t)/(H − 3p) ≤ kt·kw/(1 − 3kp) ≈ 0.45 per mm, more slowly than the star's lower edge falls (1/ms ≈ 1.6). So the
+  closest point is at the top, and the lower points clear the fins by cs everywhere.
+- The tab: fin 0 continued above H, t thick. Its outline in fin 0's plane: (∓tb, H − 1 mm) root inside the fin, (±tb, H)
+  → out at 45° to (±wt/2, H + tf) → up to H + gs + sd − fg (fg below the slot's end). Everything it adds lies above H.
+- Printed height: the tree with its tab is H + gs + sd − fg (129.72 mm at H = 120); with the star on, zc + Rs (143.42 mm).
+- The 3MF holds two objects: the tree (bands painted), and the star lying flat beside it at
+  (Rb + Rs + 10 mm, 0), painted whole in `star_filament` (state 3 → `0C`; filament 1 → no paint).
 
 ## Paint (decoded from Jan's print)
 
@@ -78,15 +128,23 @@ the source of PrusaSlicer 2.9.7, Bambu Studio 02.09.01.70 and OrcaSlicer 2.5.1:
   `slic3rpe:` metadata lines. The flavours differ only in name and build sheet; each one slices correctly in both
   PrusaSlicer and Bambu Studio.
 
-## Checks (2026-11-21)
+## Checks (2026-11-21, tops 2026-11-22)
 
-- `tree_check.mjs`: 12 parameter sets against `solidcraft-cli` builds, all exact.
-- `tree_build.mjs --sweep`: 24 configurations (every corner of the range), closed meshes, ≤ 10 s each.
+- `tree_check.mjs`: 14 parameter sets × the tops (38 jobs) against `solidcraft-cli` builds of v3, the tree and the
+  star in its place: all exact.
+- `tree_build.mjs --sweep`: every corner of the range for each top plus the paint and star edges. Results:
+  - closed meshes;
+  - the star on its tab does not touch the tree;
+  - with no fit the tab touches the slot;
+  - the slot walls are ≥ 1.27 mm (at the 22 mm star);
+  - the tab adds nothing below H.
 - `tools/slice_paint_check.py`: the default tree (all flavours) in PrusaSlicer 2.9.6 (XL 5T), Bambu Studio
   02.09.01.70 and OrcaSlicer 2.5.1 (X1C project settings) reproduces Jan's 8 colour runs layer for layer; a 140 mm
   tree at 0° matches its computed bands in all three.
 - Jan opened the three default 3MF files in the Bambu Studio, OrcaSlicer and PrusaSlicer windows: the paint is there
   and works (2026-11-21).
+- Sharp (default) reproduces Jan's 8 colour runs in all three slicers. Star (default) gives the same runs plus T2 (the
+  star in filament 3) in layers 0–24, and the tab up to 129.8 mm (`--extra "2:0-5"`).
 - Where a band boundary falls exactly on a layer's mid plane and a flat face lies there (0° undersides, e.g. H = 150),
   the slicer gets that one layer in both colours: the slice plane runs through the face itself. Not a fault of the
   file.

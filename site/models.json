@@ -182,5 +182,24 @@
       { "en": "Two-colour paint for Bambu Studio, OrcaSlicer or PrusaSlicer", "de": "Zweifarbige Bemalung für Bambu Studio, OrcaSlicer oder PrusaSlicer" },
       { "en": "Painted 3MF, STL, build sheet", "de": "Bemalte 3MF, STL, Bauanleitung" }
     ]
+  },
+  {
+    "id": "christmas-star",
+    "section": "christmas",
+    "title": { "en": "Parametric Christmas Star", "de": "Parametrischer Weihnachtsstern" },
+    "summary": {
+      "en": "A 26-point star with a lamp inside: 25 points that print one by one and plug into each other, and a lamp socket for a small E10 battery LED or an E27 pendant lamp. Choose the size and the lamp; only lamps that fit are offered.",
+      "de": "Ein Stern mit 26 Zacken und einer Lampe darin: 25 Zacken, die einzeln gedruckt und ineinander gesteckt werden, und ein Lampensockel für eine kleine E10-Batterie-LED oder ein E27-Lampenpendel. Wähl Größe und Lampe; nur Lampen, die passen, sind wählbar."
+    },
+    "app": "../Christmas/web/star",
+    "modules": "../Christmas/web/src",
+    "spec": "../Christmas/spec/star_params.json",
+    "image": "../Christmas/web/star/card.png",
+    "assets": ["../Christmas/web/star/e27_nut.stl"],
+    "facts": [
+      { "en": "{diameter.min}–{diameter.max} mm from tip to tip", "de": "{diameter.min}–{diameter.max} mm von Spitze zu Spitze" },
+      { "en": "E10 battery LED or E27 pendant lamp, changed from outside", "de": "E10-Batterie-LED oder E27-Lampenpendel, von außen wechselbar" },
+      { "en": "STL per part, 3MF, build sheet, fit test", "de": "STL je Teil, 3MF, Bauanleitung, Passprobe" }
+    ]
   }
 ]

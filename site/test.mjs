@@ -117,16 +117,36 @@ if (!args.includes("--skip-geometry")) {
       assert.ok(row?.endsWith("| ok |"), row ?? out);
     });
   }
-  // Christmas tree: smallest, default and largest tree, and one without bands; closed mesh before and after the band
-  // split, no triangle across a band plane, every 3MF flavour reads back (Christmas/web/node/tree_build.mjs)
+  // Christmas tree: smallest, default and largest tree, one without bands, and the sharp and star tops at the smallest,
+  // default and largest size; closed mesh before and after the band split, no triangle across a band plane, every 3MF
+  // flavour reads back; the star clears the tree on its tab, its slot walls hold (Christmas/web/node/tree_build.mjs)
   const T = JSON.parse(fs.readFileSync(path.join(root, "Christmas/spec/tree_params.json"), "utf8")).parameters;
-  const treeKeys = ["height", "fins", "fin_t", "angle", "band_share"];
-  for (const cfg of [...["min", "default", "max"].map((k) => treeKeys.map((p) => `${p}=${T[p][k]}`)), ["bands=0"]]) {
+  const treeKeys = ["height", "fins", "fin_t", "angle", "band_share", "star_share"];
+  const treeSizes = ["min", "default", "max"].map((k) => treeKeys.map((p) => `${p}=${T[p][k]}`));
+  for (const cfg of [...treeSizes, ["bands=0"], ...treeSizes.map((c) => [...c, "top=sharp"]), ...treeSizes.map((c) => [...c, "top=star"]),
+    ["top=star", "star_filament=1"]]) {
     await step(`geometry Christmas tree ${cfg.join(" ")}`, () => {
       const out = execFileSync(process.execPath, [path.join(root, "Christmas/web/node/tree_build.mjs"), ...cfg], { encoding: "utf8", maxBuffer: 1 << 26 });
       const row = out.split("\n").find((l) => l.startsWith("|"));
       assert.ok(row?.endsWith("| ok |"), row ?? out);
     });
+  }
+  // Christmas star: the default star, every lamp at its smallest star and the largest star; the lamp fits, every part
+  // is closed, stands on z = 0 and is as tall as computed, the 3MF reads back (Christmas/web/node/star_build.mjs)
+  {
+    const starSpec = JSON.parse(fs.readFileSync(path.join(root, "Christmas/spec/star_params.json"), "utf8"));
+    const { minDiameter } = await import("../Christmas/web/src/star.js");
+    const SP = starSpec.parameters, starDefaults = Object.fromEntries(Object.entries(SP).map(([k, p]) => [k, p.default]));
+    const cfgs = [[], ...SP.lamp.options.map(([lamp]) => [`lamp=${lamp}`, `diameter=${minDiameter(starSpec, starDefaults, lamp)}`]),
+      [`diameter=${SP.diameter.max}`, `slenderness=${SP.slenderness.min}`, `wall=${SP.wall.max}`, `fit=${SP.fit.min}`],
+      [`lamp=e10_sleeve`, `diameter=${SP.diameter.min}`, `slenderness=${SP.slenderness.min}`, `wall=${SP.wall.min}`, `fit=${SP.fit.max}`]];
+    for (const cfg of cfgs) {
+      await step(`geometry Christmas star ${cfg.join(" ") || "default"}`, () => {
+        const out = execFileSync(process.execPath, [path.join(root, "Christmas/web/node/star_build.mjs"), ...cfg], { encoding: "utf8", maxBuffer: 1 << 26 });
+        const row = out.split("\n").find((l) => l.startsWith("|"));
+        assert.ok(row?.endsWith("| ok |"), row ?? out);
+      });
+    }
   }
   await step("geometry boxes stack (standard, label, tool inserts)", () => {
     const out = execFileSync(process.execPath, [path.join(root, "Gridfinity/web/node/stack_fit.mjs")], { encoding: "utf8", maxBuffer: 1 << 26 });
@@ -310,10 +330,22 @@ await step("translations", async () => {
     text(p.help, `tree_params.json ${k} help`);
     for (const [o, label] of p.options ?? []) text(label, `tree_params.json ${k} option ${o}`);
   }
+  const starSpec = JSON.parse(fs.readFileSync(path.join(root, "Christmas/spec/star_params.json"), "utf8"));
+  text(starSpec.title, "star_params.json title");
+  for (const [k, p] of Object.entries(starSpec.parameters)) {
+    text(p.label, `star_params.json ${k} label`);
+    text(p.help, `star_params.json ${k} help`);
+    for (const [o, label] of p.options ?? []) text(label, `star_params.json ${k} option ${o}`);
+  }
+  for (const [k, lamp] of Object.entries(starSpec.lamps)) {
+    if (k.startsWith("_")) continue;
+    text(lamp.label, `star_params.json lamp ${k} label`);
+    text(lamp.help, `star_params.json lamp ${k} help`);
+  }
   // keys are only written as literals: "ns.key" in the code, data-i18n="key" and data-i18n-attr="attr:key;…" in pages
   const keysIn = (rel) => {
     const s = fs.readFileSync(path.join(root, rel), "utf8"), keys = new Set();
-    for (const m of s.matchAll(/["'](?:site|portal|update|common|case|box|plate|tool|jig|sheet|dl|tree)\.[A-Za-z]\w*["']/g)) keys.add(m[0].slice(1, -1));
+    for (const m of s.matchAll(/["'](?:site|portal|update|common|case|box|plate|tool|jig|sheet|dl|tree|star)\.[A-Za-z]\w*["']/g)) keys.add(m[0].slice(1, -1));
     for (const [, attr] of s.matchAll(/data-i18n-attr="([^"]+)"/g)) for (const pair of attr.split(";")) keys.add(pair.split(":")[1].trim());
     return [...keys].filter((k) => !/\.(m?js|json|html|css|md|png)$/.test(k)); // not file names like "portal.js"
   };
@@ -323,7 +355,8 @@ await step("translations", async () => {
       ...files("Gridfinity/web/src", /\.js$/).filter((f) => !f.endsWith("strings.js"))],
     portal: ["site/portal/index.html", "site/portal/portal.js"],
     dl: files("site/download", /^(index\.html|.*\.js)$/).filter((f) => !f.endsWith("strings.js")),
-    tree: [...files("Christmas/web/tree", /^(index\.html|.*\.js)$/), ...files("Christmas/web/src", /\.js$/).filter((f) => !f.endsWith("strings.js"))],
+    tree: [...files("Christmas/web/tree", /^(index\.html|.*\.js)$/), ...files("Christmas/web/star", /^(index\.html|.*\.js)$/),
+      ...files("Christmas/web/src", /\.js$/).filter((f) => !f.endsWith("strings.js"))], // the tree's and the star's texts
     site: ["site/build.mjs"], // the nav bar
   };
   const used = new Set();
@@ -370,7 +403,8 @@ await step("translations", async () => {
   { // Christmas tree build sheets: each slicer, and without bands
     const { treeEnv, treeBuildSheet } = await import("../Christmas/web/src/tree.js");
     const defaults = Object.fromEntries(Object.entries(treeSpec.parameters).map(([k, p]) => [k, p.default]));
-    const cases = [...treeSpec.parameters.slicer.options.map(([s]) => [defaults, s]), [{ ...defaults, bands: false }, "prusa"]];
+    const cases = [...treeSpec.parameters.slicer.options.map(([s]) => [defaults, s]), [{ ...defaults, bands: false }, "prusa"],
+      [{ ...defaults, top: "sharp" }, "bambu"], [{ ...defaults, top: "star" }, "prusa"], [{ ...defaults, top: "star", star_filament: "1", bands: false }, "orca"]];
     const tsheets = (l) => cases.map(([inp, s]) => treeBuildSheet(treeEnv(treeSpec, inp), "Tree", s, treeSpec.colors, translator(treeStrings, l)));
     const tout = Object.fromEntries(LANGS.map((l) => [l, tsheets(l)]));
     for (const l of LANGS) tout[l].forEach((s, i) => {
@@ -378,6 +412,18 @@ await step("translations", async () => {
       if (bad) problems.push(`tree sheet ${i} (${l}): "${bad[0]}"`);
     });
     tout.de.forEach((s, i) => { if (s === tout.en[i]) problems.push(`tree sheet ${i}: German = English`); });
+  }
+  { // Christmas star build sheets: every lamp at its smallest star
+    const { starEnv, starBuildSheet, minDiameter } = await import("../Christmas/web/src/star.js");
+    const defaults = Object.fromEntries(Object.entries(starSpec.parameters).map(([k, p]) => [k, p.default]));
+    const cases = starSpec.parameters.lamp.options.map(([lamp]) => ({ ...defaults, lamp, diameter: minDiameter(starSpec, defaults, lamp) }));
+    const ssheets = (l) => cases.map((inp) => starBuildSheet(starEnv(starSpec, inp), "Star", starSpec.printers, translator(treeStrings, l), (part) => `${part}.stl`));
+    const sout = Object.fromEntries(LANGS.map((l) => [l, ssheets(l)]));
+    for (const l of LANGS) sout[l].forEach((s, i) => {
+      const bad = /undefined|NaN|\[object|\{\w+(?::\d)?\}|\bstar\.[a-z]\w*/.exec(s);
+      if (bad) problems.push(`star sheet ${i} (${l}): "${bad[0]}"`);
+    });
+    sout.de.forEach((s, i) => { if (s === sout.en[i]) problems.push(`star sheet ${i}: German = English`); });
   }
   for (const m of dls) { // build sheets of the download pages
     const sh = Object.fromEntries(LANGS.map((l) => [l, downloadSheet(m, translator(dlStrings, l))]));
@@ -530,7 +576,9 @@ await step("updater against a fake GitHub", async () => {
     json(404, { message: "Not Found" });
   });
   await new Promise((r) => gh.listen(0, "127.0.0.1", r));
-  const publish = (version, { corrupt = false } = {}) => {
+  // tarGz blocks this process for seconds (the site is large): afterwards let the event loop see that the server closed
+  // its idle keep-alive connections (after 5 s), or the next fetch reuses a dead socket and fails with ECONNRESET
+  const publish = async (version, { corrupt = false } = {}) => {
     const dir = path.join(tmp, `release-${version}`);
     fs.cpSync(dist, dir, { recursive: true });
     fs.writeFileSync(path.join(dir, "version.json"), JSON.stringify({ version, commit: "test", builtAt: new Date().toISOString() }));
@@ -541,6 +589,7 @@ await step("updater against a fake GitHub", async () => {
       published_at: new Date(Date.UTC(2026, 0, 1, 0, Number(id))).toISOString(),
       assets: [{ id: Number(id), name: "site.tar.gz", size: buf.length, digest: `sha256:${corrupt ? sha256(Buffer.from("x")) : sha256(buf)}` }],
     });
+    await sleep(200);
   };
 
   const data = path.join(tmp, "data");
@@ -569,25 +618,25 @@ await step("updater against a fake GitHub", async () => {
     assert.equal((await fetch(`${base}/`)).status, 503, "waiting page while nothing is installed");
     assert.match(await (await fetch(`${base}/`, { headers: { "Accept-Language": "de-DE,de;q=0.9" } })).text(), /lang="de".*Die Website wird installiert/s);
 
-    publish("v1");
+    await publish("v1");
     s = await update();
     assert.equal(s.current?.version, "v1", s.lastError ?? "v1 not installed");
     assert.equal((await (await fetch(`${base}/version.json`)).json()).version, "v1");
     assert.equal((await fetch(`${base}/models/gridfinity-rugged-case/`)).status, 200);
 
-    publish("v2");
+    await publish("v2");
     dropDownloads = 1;
     s = await update();
     assert.equal(s.current.version, "v2", s.lastError ?? "v2 not installed after a dropped connection");
     assert.match(out, /download: fetch failed .* - retrying in/, "the dropped download was not retried");
 
-    publish("v3", { corrupt: true });
+    await publish("v3", { corrupt: true });
     s = await update();
     assert.match(s.lastError, /checksum/);
     assert.equal(s.current.version, "v2", "a bad download must not replace the site");
     assert.equal(s.updateAvailable, true);
 
-    publish("v4");
+    await publish("v4");
     s = await update();
     assert.equal(s.current.version, "v4");
     assert.equal(s.lastError, null);

@@ -146,24 +146,33 @@ const RELS = `<?xml version="1.0" encoding="UTF-8"?>
 
 // the 3MF's files as {path: Uint8Array}, to be zipped by the caller (fflate zipSync); states: paint state per
 // triangle (or null), flavour: bambu | orca | prusa
-export function threemfEntries({ mesh, states = null, name = "Model", flavour = "bambu" }) {
+// objects: several meshes as separate objects ([{mesh, states?, name, offset?: [x, y, z]}], each its own build item,
+// moved by offset), instead of the single mesh/states/name
+export function threemfEntries({ mesh, states = null, name = "Model", flavour = "bambu", objects = null }) {
   const F = FLAVOURS[flavour];
   if (!F) throw new Error(`unknown 3MF flavour "${flavour}"`);
-  const { pos, tri } = mesh, out = [];
+  const list = objects ?? [{ mesh, states, name }], out = [], items = [];
   out.push('<?xml version="1.0" encoding="UTF-8"?>',
     `<model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02"${F.ns}>`);
   for (const [k, v] of F.meta) out.push(` <metadata name="${k}">${v}</metadata>`);
-  out.push(" <resources>", `  <object id="1" type="model" name="${xmlEsc(name)}">`, "   <mesh>", "    <vertices>");
-  for (let i = 0; i < pos.length; i += 3) out.push(`     <vertex x="${num(pos[i])}" y="${num(pos[i + 1])}" z="${num(pos[i + 2])}"/>`);
-  out.push("    </vertices>", "    <triangles>");
+  out.push(" <resources>");
   const codes = new Map();
-  for (let i = 0; i < tri.length; i += 3) {
-    const s = states ? states[i / 3] : 0;
-    if (s && !codes.has(s)) codes.set(s, paintCode(s));
-    const paint = s ? F.attrs.map((a) => ` ${a}="${codes.get(s)}"`).join("") : "";
-    out.push(`     <triangle v1="${tri[i]}" v2="${tri[i + 1]}" v3="${tri[i + 2]}"${paint}/>`);
-  }
-  out.push("    </triangles>", "   </mesh>", "  </object>", " </resources>", " <build>", '  <item objectid="1"/>', " </build>", "</model>", "");
+  list.forEach((o, j) => {
+    const { pos, tri } = o.mesh, st = o.states ?? null, id = j + 1;
+    out.push(`  <object id="${id}" type="model" name="${xmlEsc(o.name ?? name)}">`, "   <mesh>", "    <vertices>");
+    for (let i = 0; i < pos.length; i += 3) out.push(`     <vertex x="${num(pos[i])}" y="${num(pos[i + 1])}" z="${num(pos[i + 2])}"/>`);
+    out.push("    </vertices>", "    <triangles>");
+    for (let i = 0; i < tri.length; i += 3) {
+      const s = st ? st[i / 3] : 0;
+      if (s && !codes.has(s)) codes.set(s, paintCode(s));
+      const paint = s ? F.attrs.map((a) => ` ${a}="${codes.get(s)}"`).join("") : "";
+      out.push(`     <triangle v1="${tri[i]}" v2="${tri[i + 1]}" v3="${tri[i + 2]}"${paint}/>`);
+    }
+    out.push("    </triangles>", "   </mesh>", "  </object>");
+    const off = o.offset;
+    items.push(off ? `  <item objectid="${id}" transform="1 0 0 0 1 0 0 0 1 ${num(off[0])} ${num(off[1])} ${num(off[2])}"/>` : `  <item objectid="${id}"/>`);
+  });
+  out.push(" </resources>", " <build>", ...items, " </build>", "</model>", "");
   const enc = new TextEncoder();
   return { "[Content_Types].xml": enc.encode(CONTENT_TYPES), "_rels/.rels": enc.encode(RELS), "3D/3dmodel.model": enc.encode(out.join("\n")) };
 }

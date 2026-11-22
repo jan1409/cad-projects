@@ -1,7 +1,7 @@
 {
  "name": "christmas_tree",
  "units": "mm",
- "source": "Christmas/solidcraft/christmas_tree.sc (SolidCraft 0.45; Jan's Christmas_tree_v2.sc). Equations and the paint rule: tree_spec.md",
+ "source": "Christmas/solidcraft/christmas_tree.sc (SolidCraft 0.45; Jan's Christmas_tree_v2.sc plus the tops as configuration rows, built by web/node/tree_sc_v3.mjs). Equations and the paint rule: tree_spec.md",
  "title": { "en": "Christmas Tree", "de": "Weihnachtsbaum" },
  "shape": {
   "_comment": "shape ratios of the .sc (kw base radius / H, kt top tier tip / base radius, kp tier pitch / H, ks tier step at a flat underside / H, kr tip rounding / H); the tree has 3 tiers",
@@ -9,9 +9,20 @@
   "kt": 0.46,
   "kp": 0.23,
   "ks": 0.04,
-  "kr": 0.0125
+  "kr": 0.0125,
+  "star": {
+   "_comment": "top Star (parameters of the .sc in brackets): diameter max(min_diameter, star_share % of H) (Ds), inner/outer radius q (kq), fit per side tab/slot (fg), smallest wall around the slot (wl), clearance of the lower points to the fins (cs), star at least t_min thick (st), tab width tab_w * q * Rs (wt), slot depth (q + slot_extra) * Rs (sd); the tab is fin 0 continued (t thick), from its top width out at 45 deg (tb, tf)",
+   "min_diameter": 22,
+   "q": 0.45,
+   "fit": 0.2,
+   "wall": 1.2,
+   "clearance": 0.5,
+   "t_min": 5,
+   "tab_w": 0.9,
+   "slot_extra": 0.1
+  }
  },
- "colors": { "main": "#F330F9", "band": "#D4B1DD" },
+ "colors": { "main": "#F330F9", "band": "#D4B1DD", "star": "#F5C518" },
  "printers": { "Prusa XL": [360, 360, 360], "Bambu Lab X1C": [256, 256, 256] },
  "parameters": {
   "height": {
@@ -43,6 +54,31 @@
    "type": "int", "min": 10, "max": 60, "default": 27, "step": 1,
    "label": { "en": "Band height", "de": "Bandhöhe" },
    "help": { "en": "% of the tier spacing", "de": "% des Stufenabstands" }
+  },
+  "top": {
+   "type": "choice", "default": "flat",
+   "label": { "en": "Top", "de": "Spitze" },
+   "help": { "en": "how the tree ends", "de": "wie der Baum oben endet" },
+   "options": [
+    ["flat", { "en": "Flat", "de": "Flach" }],
+    ["sharp", { "en": "Sharp", "de": "Spitz" }],
+    ["star", { "en": "Star", "de": "Stern" }]
+   ]
+  },
+  "star_share": {
+   "type": "int", "min": 15, "max": 40, "default": 25, "step": 1,
+   "label": { "en": "Star size", "de": "Sterngröße" },
+   "help": { "en": "% of the height, at least 22 mm", "de": "% der Höhe, mindestens 22 mm" }
+  },
+  "star_filament": {
+   "type": "choice", "default": "3",
+   "label": { "en": "Star filament", "de": "Stern-Filament" },
+   "help": { "en": "the star prints separately in it", "de": "der Stern wird damit einzeln gedruckt" },
+   "options": [
+    ["1", { "en": "1 (tree)", "de": "1 (Baum)" }],
+    ["2", { "en": "2 (bands)", "de": "2 (Bänder)" }],
+    ["3", { "en": "3 (own colour)", "de": "3 (eigene Farbe)" }]
+   ]
   },
   "slicer": {
    "type": "choice", "default": "bambu",

@@ -110,6 +110,8 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 .colours { display: grid; grid-template-columns: 1fr auto; gap: 10px 16px; align-items: center; }
 input[type="color"] { width: 52px; height: 32px; padding: 2px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); cursor: pointer; }
 .param-name.off { opacity: .5; }
+.params .wide { grid-column: 1 / -1; justify-self: start; }
+.params .seg.wide { margin-top: -8px; }
 .slicer { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
 @media (max-width: 760px) {
   .app { grid-template-columns: 1fr; }
@@ -137,6 +139,7 @@ input[type="color"] { width: 52px; height: 32px; padding: 2px; border: 1px solid
       <div class="colours">
         <label for="c-main" data-i18n="tree.mainColour">Filament 1: tree</label><input type="color" id="c-main">
         <label for="c-band" data-i18n="tree.bandColour">Filament 2: bands</label><input type="color" id="c-band">
+        <label for="c-star" id="c-star-row" data-i18n="tree.starColour" hidden>Filament 3: star</label><input type="color" id="c-star" hidden>
       </div>
       <p class="note" data-i18n="tree.colourHelp">For the preview only.</p>
     </section>

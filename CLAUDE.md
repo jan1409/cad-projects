@@ -21,8 +21,9 @@ Printers: Prusa XL (360 × 360 mm bed) and Bambu Lab X1C with AMS (256 mm, colou
 - `Skadis/` – IKEA SKÅDIS accessories, hook tabs: `spec/skadis_spec.md` (grid research), `spec/*_params.json`,
   `fusion/` (script-built models, see its README), `models/` (roll holder, fit test)
 - `Christmas/` – parametric Christmas models (site section `christmas`), designed in SolidCraft: `solidcraft/` (master
-  `.sc` snapshots), `spec/tree_spec.md` (equations, decoded paint rule, 3MF format), `reference/`, `web/` (npm workspace:
-  tree generator with painted 3MF, see its README)
+  `.sc` snapshots), `spec/tree_spec.md` (equations, decoded paint rule, 3MF format), `spec/star_spec.md` (26-point star:
+  skirts, snaps, lamp socket, lamp table), `reference/`, `web/` (npm workspace: tree generator with painted 3MF and
+  three tops: flat, sharp, star; star generator `star/`, see the README). The star's site name is "Parametric Christmas Star": never the original's brand name.
 - `_input/` – design input from Jan (photos, sliced plates), git-ignored: phone photos carry GPS EXIF data
 - `Gridfinity/web/` – browser generators: Rugged Case (`app/`), boxes (`bin/`), baseplates (`baseplate/`), tool insert (`insert/`),
   label jig (`jig/`: UV printing jig for 10 label plates, xTool O1 Omni 330 × 420 mm)
@@ -60,8 +61,15 @@ Printers: Prusa XL (360 × 360 mm bed) and Bambu Lab X1C with AMS (256 mm, colou
 - `C:\Program Files\SolidCraft\solidcraft-cli.exe` runs headless: `run <script.json> --in design.sc --out x.step [--save y.sc]`
   rebuilds with other parameters in ~2 s (`{"commands":[{"command":"parameters.change","params":{"changes":{"H":"150"}}}]}`),
   `eval` measures, `script` dumps the timeline, `render ... --transparent` makes card images. `.sc` is a ZIP with `document.json`.
+- Constraint-solved sketch fillets start from the saved solution and can flip on another parameter path (v2 tree:
+  H 120 → 168 → 235 differs from 120 → 235). New sketches: points as closed-form expressions (`tree_sc_v3.mjs`).
+- Variants of one design are configuration rows (`config.row` / `config.activate`, they work headless too); new rows can
+  be scripted onto Jan's file with `timeline.add` + commands (`Christmas/web/node/tree_sc_v3.mjs`), leaving his file as it is.
 - Browser generators port the `.sc` equations to replicad and are checked against `solidcraft-cli` STEPs with exact
   booleans (`Christmas/web/node/tree_check.mjs`). SolidCraft writes no slicer paint.
+- replicad's `measureVolume` integrates spherical faces coarsely (0.15 mm³ off): exact checks use
+  `oc.BRepGProp.VolumePropertiesGK(shape, props, 1e-9, false, false, false, false, false)`. Long Node runs with many
+  builds end in failing booleans (the WASM heap only grows): one child process per probe or set.
 
 ## Painted 3MF (multi-colour)
 - Paint per triangle, whole triangles only (split the mesh at the colour boundaries first): state n = filament n, code
@@ -135,6 +143,8 @@ Printers: Prusa XL (360 × 360 mm bed) and Bambu Lab X1C with AMS (256 mm, colou
 
 ## Release checks
 - `npm test` must pass before pushing; CI runs the same suite (geometry min/default/max, site build, server, updater against a fake GitHub).
+- A test that blocks its process (`execFileSync`) for more than 5 s between requests to a Node server reuses keep-alive
+  sockets the server has closed (ECONNRESET): yield to the event loop first (the updater test's `publish`).
 
 ## Conventions
 - Run stdlib tools with `python -I`. `-I` ignores PYTHONIOENCODING, so the tools call `sys.stdout.reconfigure(encoding="utf-8")`.

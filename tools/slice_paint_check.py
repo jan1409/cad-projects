@@ -3,7 +3,7 @@
 Checks that a multi-colour 3MF (e.g. Christmas/web: paint per triangle) slices into the colour bands it should, and
 compares them with a reference (Christmas/reference/tree_paint_reference.json: the bands of a print sliced by hand).
 
-  python -I tools/slice_paint_check.py --slicer prusa|bambu|orca FILE.3mf [--expect REF.json] [--settings CFG] [--keep DIR]
+  python -I tools/slice_paint_check.py --slicer prusa|bambu|orca FILE.3mf [--expect REF.json] [--extra T:z0-z1] [--settings CFG] [--keep DIR]
   python -I tools/slice_paint_check.py --gcode FILE.gcode|FILE.gcode.3mf [--expect REF.json]
 
 Slicers (override the executables with PRUSASLICER / BAMBUSTUDIO / ORCASLICER):
@@ -112,17 +112,27 @@ PROJECT_TAGS = {
 }
 
 
+def move_items(model, x, y):
+    """Every build item moved by (x, y): items without a transform get one, items with one keep their offset to the
+    others (e.g. a star lying beside its tree)."""
+    def item(m):
+        nums = [float(v) for v in m.group(2).split()] if m.group(2) else [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0]
+        nums[9] += x
+        nums[10] += y
+        return b'<item objectid="%s" transform="%s"/>' % (m.group(1), " ".join("%g" % v for v in nums).encode())
+    return re.sub(rb'<item objectid="(\d+)"(?:\s+transform="([^"]*)")?\s*/>', item, model)
+
+
 def bambu_project(src, dst, settings, x, y, slicer="bambu"):
     """Copy of a painted 3MF as a Bambu/Orca project: the complete settings of a real project (machine, process and its
-    filaments), the tags that make the CLI load them, and the object at the plate centre.
-    The mesh and its paint_color attributes stay as they are."""
+    filaments), the tags that make the CLI load them, and the objects moved onto the plate (centred at x, y).
+    The meshes and their paint_color attributes stay as they are."""
     meta = "".join(f'\n <metadata name="{k}">{v}</metadata>' for k, v in PROJECT_TAGS[slicer]).encode()
     with zipfile.ZipFile(src) as z, zipfile.ZipFile(dst, "w", zipfile.ZIP_DEFLATED) as o:
         for n in z.namelist():
             d = z.read(n)
             if n == "3D/3dmodel.model":
-                d = re.sub(rb'<item objectid="(\d+)"\s*/>', lambda m: b'<item objectid="%s" transform="1 0 0 0 1 0 0 0 1 %d %d 0"/>'
-                           % (m.group(1), x, y), d)
+                d = move_items(d, x, y)
                 d = re.sub(rb"(<model [^>]*>)", lambda m: m.group(1) + meta, d, count=1)
             o.writestr(n, d)
         with open(settings, "rb") as fh:
@@ -156,14 +166,28 @@ def slice_file(slicer, path, work, settings):
     return sliced
 
 
-def compare(rs, ref):
-    """Expected runs from the reference: the band layers use tool ref['band_tool'], the others ref['main_tool']."""
-    want, bands = [], [tuple(b) for b in ref["band_layers"]]
-    last = ref["layers"] - 1
-    edges = sorted({0, last + 1, *[b[0] for b in bands], *[b[1] + 1 for b in bands]})
-    for a, b in zip(edges, edges[1:]):
-        tool = ref["band_tool"] if any(a >= x and b - 1 <= y for x, y in bands) else ref["main_tool"]
-        want.append(((tool,), a, b - 1))
+def expected_runs(ref, extras=()):
+    """Expected runs: the band layers use tool ref['band_tool'], the others ref['main_tool']; each extra (tool, z0, z1)
+    adds its tool to the layers whose middle lies between z0 and z1 (a second object, e.g. a star printed beside)."""
+    layer, band = ref.get("layer_height", 0.2), set()
+    for x, y in ref["band_layers"]:
+        band.update(range(x, y + 1))
+    sets = []
+    for i in range(ref["layers"]):
+        tools = {ref["band_tool"] if i in band else ref["main_tool"]}
+        tools.update(tool for tool, z0, z1 in extras if z0 < (i + 0.5) * layer < z1)
+        sets.append(tuple(sorted(tools)))
+    want = []
+    for i, tools in enumerate(sets):
+        if want and want[-1][0] == tools:
+            want[-1][2] = i
+        else:
+            want.append([tools, i, i])
+    return [tuple(w) for w in want]
+
+
+def compare(rs, ref, extras=()):
+    want = expected_runs(ref, extras)
     got = [(r[0], r[1], r[2]) for r in rs]
     return got == want, want
 
@@ -193,6 +217,8 @@ def main():
     ap.add_argument("--expect", help="reference JSON (band_layers, layers, main_tool, band_tool)")
     ap.add_argument("--bands", help='expected bands instead: "z0-z1,z0-z1,..." with --height (0.2 mm layers)')
     ap.add_argument("--height", type=float)
+    ap.add_argument("--extra", action="append", default=[],
+                    help='a second object\'s tool in its layers: "TOOL:z0-z1", e.g. "2:0-5" (a star in filament 3, 5 mm thick)')
     ap.add_argument("--settings", default=SETTINGS, help="Bambu project settings for bambu/orca")
     ap.add_argument("--keep", help="keep the work folder (project, G-code) here")
     a = ap.parse_args()
@@ -217,7 +243,8 @@ def main():
             else:
                 with open(a.expect, encoding="utf-8") as f:
                     ref = json.load(f)
-            ok, want = compare(rs, ref)
+            extras = [(int(e.split(":")[0]), *(float(v) for v in e.split(":")[1].split("-"))) for e in a.extra]
+            ok, want = compare(rs, ref, extras)
             if ok:
                 print(f"matches the reference ({os.path.basename(a.expect) if a.expect else a.bands})")
             else:

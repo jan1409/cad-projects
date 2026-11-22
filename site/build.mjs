@@ -118,6 +118,8 @@ for (const m of registry) {
   put(`${out}/index.html`, page(rewrite(fs.readFileSync(path.join(app, "index.html"), "utf8")).replace("<!--site:nav-->", nav(fillAll(m.title)))));
   if (m.modules) for (const f of fs.readdirSync(path.resolve(site, m.modules))) if (f.endsWith(".js")) copy(path.join(path.resolve(site, m.modules), f), `${out}/src/${f}`);
   if (spec) put(`${out}/${path.basename(m.spec)}`, JSON.stringify(spec, null, 1));
+  // fixed files the page offers as they are (e.g. the star's E27 nut STL), next to the page
+  for (const a of m.assets ?? []) copy(path.resolve(site, a), `${out}/${path.basename(a)}`);
   // the page reads its variant here (several models can share one app, e.g. the Gridfinity boxes); download pages
   // read their whole content here
   const title = fillAll(m.title);
