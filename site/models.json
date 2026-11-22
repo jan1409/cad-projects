@@ -201,5 +201,23 @@
       { "en": "E10 battery LED or E27 pendant lamp, changed from outside", "de": "E10-Batterie-LED oder E27-Lampenpendel, von außen wechselbar" },
       { "en": "STL per part, 3MF, build sheet, fit test", "de": "STL je Teil, 3MF, Bauanleitung, Passprobe" }
     ]
+  },
+  {
+    "id": "christmas-plug-star",
+    "section": "christmas",
+    "title": { "en": "Plug-Together Star", "de": "Steckstern" },
+    "summary": {
+      "en": "A 3-D star of single-coloured points that click onto a hidden connector in the middle, no glue needed. Choose the size, the number of points, how slim and how thick they are, and a filament for every point; the 3MF comes painted for your slicer.",
+      "de": "Ein 3D-Stern aus einfarbigen Zacken, die ohne Kleber auf ein verstecktes Steckkreuz in der Mitte klicken. Wähl Größe, Zackenzahl, wie schlank und wie dick sie sind, und ein Filament je Zacke; die 3MF kommt bemalt für deinen Slicer."
+    },
+    "app": "../Christmas/web/plugstar",
+    "modules": "../Christmas/web/src",
+    "spec": "../Christmas/spec/plugstar_params.json",
+    "image": "../Christmas/web/plugstar/card.png",
+    "facts": [
+      { "en": "{diameter.min}–{diameter.max} mm, {points.min}–{points.max} points", "de": "{diameter.min}–{diameter.max} mm, {points.min}–{points.max} Zacken" },
+      { "en": "A filament per point, painted 3MF for Bambu Studio, OrcaSlicer or PrusaSlicer", "de": "Ein Filament je Zacke, bemalte 3MF für Bambu Studio, OrcaSlicer oder PrusaSlicer" },
+      { "en": "STL per part, build sheet, fit test", "de": "STL je Teil, Bauanleitung, Passprobe" }
+    ]
   }
 ]

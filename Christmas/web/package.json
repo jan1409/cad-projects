@@ -2,14 +2,17 @@
   "name": "christmas-web",
   "private": true,
   "type": "module",
-  "description": "Browser generators for parametric Christmas models (replicad / OpenCascade WASM, painted 3MF, star parts)",
+  "description": "Browser generators for parametric Christmas models (replicad / OpenCascade WASM, painted 3MF, star parts, plug-together star)",
   "scripts": {
     "tree": "node node/tree_build.mjs",
     "sweep": "node node/tree_build.mjs --sweep",
     "check": "node node/tree_check.mjs",
     "star": "node node/star_build.mjs",
     "star:sweep": "node node/star_build.mjs --sweep",
-    "star:check": "node node/star_check.mjs"
+    "star:check": "node node/star_check.mjs",
+    "plugstar": "node node/plugstar_build.mjs",
+    "plugstar:sweep": "node node/plugstar_build.mjs --sweep",
+    "plugstar:check": "node node/plugstar_check.mjs"
   },
   "dependencies": {
     "fflate": "0.8.2",

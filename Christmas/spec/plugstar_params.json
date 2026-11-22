@@ -1,0 +1,72 @@
+{
+ "name": "plug_star",
+ "units": "mm",
+ "source": "Christmas/solidcraft/plug_star.sc (SolidCraft 0.45; Plug_star_v1.sc). Equations and checks: plugstar_spec.md",
+ "title": { "en": "Plug-Together Star", "de": "Steckstern" },
+ "shape": {
+  "_comment": "connector constants of the .sc at scale 1; every length is multiplied by sc = max(1, D / scale_from). tk connector thickness, wt tongue width over both prongs, sw slit between the prongs, bd barb depth, bl barb land, lp prong length (slit end to the catch face), hub_m (hub radius rh = (wt/2 + hub_m)/tan(phi)), slit_m (slit end beyond the hub), hang_d hanging hole, hang_m material beside it in the outline, hang_t star thickness at its edge (the hole sits as far in as either needs). Checks: min_wall over the barb pocket, min_jaw over the hub slot at the side faces, min_hang distance of the hanging hole from the barb pocket",
+  "scale_from": 250,
+  "tk": 3,
+  "wt": 6.2,
+  "sw": 2.2,
+  "bd": 0.8,
+  "bl": 0.8,
+  "lp": 12,
+  "hub_m": 2,
+  "slit_m": 2,
+  "hang_d": 3,
+  "hang_m": 2.5,
+  "hang_t": 3,
+  "min_wall": 1.2,
+  "min_jaw": 1.5,
+  "min_hang": 3
+ },
+ "colors": ["#E8508C", "#F07B22", "#F2EDE3", "#C42B3B"],
+ "printers": { "Bambu Lab X1C": [256, 256, 256], "Prusa XL": [360, 360, 360] },
+ "parameters": {
+  "diameter": {
+   "type": "int", "min": 100, "max": 400, "default": 200, "step": 10,
+   "label": { "en": "Diameter", "de": "Durchmesser" },
+   "help": { "en": "mm, the circle through the tips", "de": "mm, der Kreis durch die Spitzen" }
+  },
+  "points": {
+   "type": "int", "min": 4, "max": 8, "default": 5, "step": 1,
+   "label": { "en": "Points", "de": "Zacken" },
+   "help": { "en": "every point is its own part", "de": "jede Zacke ist ein eigenes Teil" }
+  },
+  "tip_angle": {
+   "type": "int", "min": 30, "max": 60, "default": 40, "step": 1,
+   "label": { "en": "Tip angle", "de": "Spitzenwinkel" },
+   "help": { "en": "degrees, how slim the points are", "de": "Grad, wie schlank die Zacken sind" }
+  },
+  "depth": {
+   "type": "int", "min": 15, "max": 35, "default": 22, "step": 1,
+   "label": { "en": "Thickness", "de": "Dicke" },
+   "help": { "en": "at the centre, % of the diameter", "de": "in der Mitte, % des Durchmessers" }
+  },
+  "fit": {
+   "type": "choice", "default": 0.15,
+   "label": { "en": "Fit", "de": "Spiel" },
+   "help": { "en": "play around the connector: 0.15 mm clicked best in PLA, 0.20 mm for other materials", "de": "Spiel am Steckkreuz: 0,15 mm rastet in PLA am besten, 0,20 mm für andere Materialien" },
+   "options": [
+    [0.15, { "en": "0.15 mm", "de": "0,15 mm" }],
+    [0.2, { "en": "0.20 mm", "de": "0,20 mm" }]
+   ]
+  },
+  "hanger": {
+   "type": "bool", "default": true,
+   "label": { "en": "Hanging hole", "de": "Aufhängeloch" },
+   "help": { "en": "a hole for a thread near one tip", "de": "ein Loch für einen Faden nahe einer Spitze" }
+  },
+  "slicer": {
+   "type": "choice", "default": "bambu",
+   "label": { "en": "Slicer", "de": "Slicer" },
+   "help": { "en": "the 3MF is made for it", "de": "die 3MF wird dafür gemacht" },
+   "options": [
+    ["bambu", { "en": "Bambu Studio", "de": "Bambu Studio" }],
+    ["orca", { "en": "OrcaSlicer", "de": "OrcaSlicer" }],
+    ["prusa", { "en": "PrusaSlicer", "de": "PrusaSlicer" }]
+   ]
+  }
+ }
+}

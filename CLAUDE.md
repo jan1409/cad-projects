@@ -23,7 +23,8 @@ Printers: Prusa XL (360 × 360 mm bed) and Bambu Lab X1C with AMS (256 mm, colou
 - `Christmas/` – parametric Christmas models (site section `christmas`), designed in SolidCraft: `solidcraft/` (master
   `.sc` snapshots), `spec/tree_spec.md` (equations, decoded paint rule, 3MF format), `spec/star_spec.md` (26-point star:
   skirts, snaps, lamp socket, lamp table), `reference/`, `web/` (npm workspace: tree generator with painted 3MF and
-  three tops: flat, sharp, star; star generator `star/`, see the README). The star's site name is "Parametric Christmas Star": never the original's brand name.
+  three tops: flat, sharp, star; star generator `star/`; plug-together star `plugstar/`, see the README). The star's site name is "Parametric Christmas Star": never the original's brand name.
+  Plug-together star ("Steckstern"): bipyramid points on a hidden snap connector, `spec/plugstar_spec.md`; master `Plug_star_v1.sc`.
 - `_input/` – design input from Jan (photos, sliced plates), git-ignored: phone photos carry GPS EXIF data
 - `Gridfinity/web/` – browser generators: Rugged Case (`app/`), boxes (`bin/`), baseplates (`baseplate/`), tool insert (`insert/`),
   label jig (`jig/`: UV printing jig for 10 label plates, xTool O1 Omni 330 × 420 mm)

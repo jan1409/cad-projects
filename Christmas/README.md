@@ -2,7 +2,8 @@
 
 Parametric Christmas models for the generator site (section `christmas`). Designed in SolidCraft, built in the
 browser. The tree comes as a 3MF whose multi-colour paint is already applied, for Bambu Studio, OrcaSlicer or
-PrusaSlicer; the Parametric Christmas Star as single-printed points with a lamp socket (E10 or E27).
+PrusaSlicer; the Parametric Christmas Star as single-printed points with a lamp socket (E10 or E27); the Plug-Together
+Star ("Steckstern") as single-coloured points that click onto a hidden connector, its 3MF painted per point.
 
 ## Layout
 
@@ -11,15 +12,19 @@ PrusaSlicer; the Parametric Christmas Star as single-printed points with a lamp 
   Sharp, Star) as configuration rows, built from v2 by `web/node/tree_sc_v3.mjs` (also saved as
   `Solidcraft_Models\Christmas_tree_v3.sc`). After a change in SolidCraft copy the file again and run `tree_check.mjs`.
   `christmas_star.sc` is a snapshot of `Christmas_star_v1.sc`, `e27_nut.sc` of `Christmas_star_e27_nut.sc` (the fixed
-  nut; its STL is `web/star/e27_nut.stl`); run `star_check.mjs` after a change.
+  nut; its STL is `web/star/e27_nut.stl`); run `star_check.mjs` after a change. `plug_star.sc` is a snapshot of
+  `Plug_star_v1.sc` (the plug-together star); run `plugstar_check.mjs` after a change.
 - `spec/` – `tree_spec.md` (equations, the decoded paint rule, the 3MF format), `tree_params.json` (site spec);
-  `star_spec.md` (geometry, lamps with sources, checks), `star_params.json` (site spec, lamp table).
+  `star_spec.md` (geometry, lamps with sources, checks), `star_params.json` (site spec, lamp table);
+  `plugstar_spec.md` (bipyramid points, snap connector, checks), `plugstar_params.json` (site spec).
 - `reference/` – `tree_paint_reference.json` (the colour runs of Jan's print, sliced by hand) and
   `bambu_x1c_2pla_project_settings.config` (the complete Bambu Studio settings of that print, used to slice test
   files with the Bambu/Orca CLI).
 - `web/` – npm workspace: `src/tree.js` (geometry, build sheet), `src/paint3mf.js` (band split, paint, 3MF/STL
   writers, no kernel; several objects per 3MF), `src/star.js` (star parts, layout, lamp checks, build sheet),
-  `src/strings.js` (en/de, `tree.*` and `star.*`), `tree/` and `star/` (page, app, worker, `card.png`), `node/` (tools below).
+  `src/plugstar.js` (plug-together star: points, connector, layout, painted plate, build sheet),
+  `src/strings.js` (en/de, `tree.*`, `star.*` and `plugstar.*`), `tree/`, `star/` and `plugstar/` (page, app, worker,
+  `card.png`), `node/` (tools below).
 - `export/` – git-ignored output.
 
 ## Source chain
@@ -50,7 +55,22 @@ node Christmas/web/node/star_card.mjs          # card.png: SolidCraft render of 
 ```
 
 `npm test` (CI) builds the smallest, default and largest tree for every top and one without bands, the default star,
-every lamp at its smallest star and the largest star, and checks the texts.
+every lamp at its smallest star and the largest star, four plug-together stars (default, two corners at their smallest
+diameter, the largest without the hanging hole), and checks the texts.
+
+Plug-together star: SolidCraft `.sc` → JS port (`src/plugstar.js`) → STL per part, a 3MF with every point painted in
+its filament (and the connector in filament 1), build sheet, fit test (the connector and two short points).
+
+```
+node Christmas/web/node/plugstar_check.mjs    # JS vs solidcraft-cli, 14 sets x 3 bodies, exact booleans (local only)
+node Christmas/web/node/plugstar_build.mjs [diameter=200 points=5 tip_angle=40 depth=22 fit=0.2 hanger=1] [--out dir]
+node Christmas/web/node/plugstar_build.mjs --sweep
+node Christmas/web/node/plugstar_assembly.mjs [D N tip_angle depth fit]   # seated: no overlap, gap = fit; pulled out: only the barbs meet
+node Christmas/web/node/plugstar_card.mjs [--tilt 0.75 --side 0.35]       # card.png: SolidCraft render of the coloured star
+```
+
+`tools/slice_paint_check.py` moves every build item by (128, 128); the page's 3MF already lies on the bed, so check a
+copy shifted back to the origin.
 
 ## SolidCraft notes
 

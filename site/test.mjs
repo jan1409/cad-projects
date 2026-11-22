@@ -148,6 +148,28 @@ if (!args.includes("--skip-geometry")) {
       });
     }
   }
+  // Plug-together star: the default star, the corners of points x tip angle x thickness at their smallest buildable
+  // diameter, the largest star without the hanging hole; every part closed and on z = 0, the painted 3MF reads back
+  // (Christmas/web/node/plugstar_build.mjs)
+  {
+    const plugSpec = JSON.parse(fs.readFileSync(path.join(root, "Christmas/spec/plugstar_params.json"), "utf8"));
+    const { minDiameter: plugMin } = await import("../Christmas/web/src/plugstar.js");
+    const PP = plugSpec.parameters, plugDefaults = Object.fromEntries(Object.entries(PP).map(([k, p]) => [k, p.default]));
+    const fits = PP.fit.options.map(([f]) => f), fitMax = Math.max(...fits), fitMin = Math.min(...fits);
+    const corner = (points, tip_angle, depth) => {
+      const d = plugMin(plugSpec, { ...plugDefaults, points, tip_angle, depth, fit: fitMax });
+      return [`points=${points}`, `tip_angle=${tip_angle}`, `depth=${depth}`, `diameter=${d}`, `fit=${fitMax}`];
+    };
+    const cfgs = [[], corner(PP.points.min, PP.tip_angle.max, PP.depth.min), corner(PP.points.max, PP.tip_angle.min, PP.depth.min),
+      [`diameter=${PP.diameter.max}`, `points=${PP.points.max}`, `depth=${PP.depth.max}`, `fit=${fitMin}`, "hanger=0"]];
+    for (const cfg of cfgs) {
+      await step(`geometry plug-together star ${cfg.join(" ") || "default"}`, () => {
+        const out = execFileSync(process.execPath, [path.join(root, "Christmas/web/node/plugstar_build.mjs"), ...cfg], { encoding: "utf8", maxBuffer: 1 << 26 });
+        const row = out.split("\n").find((l) => l.startsWith("|"));
+        assert.ok(row?.endsWith("| ok |"), row ?? out);
+      });
+    }
+  }
   await step("geometry boxes stack (standard, label, tool inserts)", () => {
     const out = execFileSync(process.execPath, [path.join(root, "Gridfinity/web/node/stack_fit.mjs")], { encoding: "utf8", maxBuffer: 1 << 26 });
     assert.ok(out.includes("all ok"), out.split("\n").filter((l) => /WRONG|problem/.test(l)).join("\n"));
@@ -342,10 +364,17 @@ await step("translations", async () => {
     text(lamp.label, `star_params.json lamp ${k} label`);
     text(lamp.help, `star_params.json lamp ${k} help`);
   }
+  const plugSpec = JSON.parse(fs.readFileSync(path.join(root, "Christmas/spec/plugstar_params.json"), "utf8"));
+  text(plugSpec.title, "plugstar_params.json title");
+  for (const [k, p] of Object.entries(plugSpec.parameters)) {
+    text(p.label, `plugstar_params.json ${k} label`);
+    text(p.help, `plugstar_params.json ${k} help`);
+    for (const [o, label] of p.options ?? []) text(label, `plugstar_params.json ${k} option ${o}`);
+  }
   // keys are only written as literals: "ns.key" in the code, data-i18n="key" and data-i18n-attr="attr:key;…" in pages
   const keysIn = (rel) => {
     const s = fs.readFileSync(path.join(root, rel), "utf8"), keys = new Set();
-    for (const m of s.matchAll(/["'](?:site|portal|update|common|case|box|plate|tool|jig|sheet|dl|tree|star)\.[A-Za-z]\w*["']/g)) keys.add(m[0].slice(1, -1));
+    for (const m of s.matchAll(/["'](?:site|portal|update|common|case|box|plate|tool|jig|sheet|dl|tree|star|plugstar)\.[A-Za-z]\w*["']/g)) keys.add(m[0].slice(1, -1));
     for (const [, attr] of s.matchAll(/data-i18n-attr="([^"]+)"/g)) for (const pair of attr.split(";")) keys.add(pair.split(":")[1].trim());
     return [...keys].filter((k) => !/\.(m?js|json|html|css|md|png)$/.test(k)); // not file names like "portal.js"
   };
@@ -355,8 +384,8 @@ await step("translations", async () => {
       ...files("Gridfinity/web/src", /\.js$/).filter((f) => !f.endsWith("strings.js"))],
     portal: ["site/portal/index.html", "site/portal/portal.js"],
     dl: files("site/download", /^(index\.html|.*\.js)$/).filter((f) => !f.endsWith("strings.js")),
-    tree: [...files("Christmas/web/tree", /^(index\.html|.*\.js)$/), ...files("Christmas/web/star", /^(index\.html|.*\.js)$/),
-      ...files("Christmas/web/src", /\.js$/).filter((f) => !f.endsWith("strings.js"))], // the tree's and the star's texts
+    tree: [...files("Christmas/web/tree", /^(index\.html|.*\.js)$/), ...files("Christmas/web/star", /^(index\.html|.*\.js)$/), ...files("Christmas/web/plugstar", /^(index\.html|.*\.js)$/),
+      ...files("Christmas/web/src", /\.js$/).filter((f) => !f.endsWith("strings.js"))], // the Christmas pages' texts
     site: ["site/build.mjs"], // the nav bar
   };
   const used = new Set();
@@ -424,6 +453,18 @@ await step("translations", async () => {
       if (bad) problems.push(`star sheet ${i} (${l}): "${bad[0]}"`);
     });
     sout.de.forEach((s, i) => { if (s === sout.en[i]) problems.push(`star sheet ${i}: German = English`); });
+  }
+  { // plug-together star build sheets: with and without the hanging hole, every slicer
+    const { plugEnv, plugBuildSheet, defaultAssign } = await import("../Christmas/web/src/plugstar.js");
+    const defaults = Object.fromEntries(Object.entries(plugSpec.parameters).map(([k, p]) => [k, p.default]));
+    const cases = [[defaults, "Bambu Studio"], [{ ...defaults, hanger: false, points: 7, fit: 0.2 }, "PrusaSlicer"], [{ ...defaults, points: 4, diameter: 400 }, "OrcaSlicer"]];
+    const psheets = (l) => cases.map(([inp, slicer]) => plugBuildSheet(plugEnv(plugSpec, inp), "Star", plugSpec.printers, defaultAssign(inp.points), slicer, translator(treeStrings, l), (part) => `${part}.stl`));
+    const pout = Object.fromEntries(LANGS.map((l) => [l, psheets(l)]));
+    for (const l of LANGS) pout[l].forEach((s, i) => {
+      const bad = /undefined|NaN|\[object|\{\w+(?::\d)?\}|\bplugstar\.[a-z]\w*/.exec(s);
+      if (bad) problems.push(`plug star sheet ${i} (${l}): "${bad[0]}"`);
+    });
+    pout.de.forEach((s, i) => { if (s === pout.en[i]) problems.push(`plug star sheet ${i}: German = English`); });
   }
   for (const m of dls) { // build sheets of the download pages
     const sh = Object.fromEntries(LANGS.map((l) => [l, downloadSheet(m, translator(dlStrings, l))]));
