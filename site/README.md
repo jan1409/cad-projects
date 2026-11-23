@@ -1,7 +1,8 @@
 # Generator site
 
-Overview page with sections of models: browser generators, and ready-made models to download. Served on the
-home server by a self-updating container. Deployment and server setup: [DEPLOY.md](DEPLOY.md).
+Overview page with sections of models: browser generators, and ready-made models to download. Served in two places:
+on the home server by a self-updating container ([DEPLOY.md](DEPLOY.md)), and on a Cloudflare Worker behind Cloudflare
+Access, so that the people on the list can use it from anywhere ([CLOUD.md](CLOUD.md)).
 
 ## Layout
 
@@ -13,10 +14,11 @@ home server by a self-updating container. Deployment and server setup: [DEPLOY.m
 | `download/` | The shared page of every download model (`index.html`, `download.js`, `sheet.js`, `strings.js`): gallery, files, ZIP with build sheet, print settings, steps |
 | `shared/i18n.js` | Languages (English, German) for every page: choice, translator, EN/DE switch; built to `vendor/i18n.js` |
 | `build.mjs` | Builds `dist/`: portal, `models/<id>/`, shared `vendor/` (replicad, gzipped OpenCascade kernel, three, fflate, Clipper, OpenCV.js), `version.json` |
-| `test.mjs` | CI checks: geometry smoke builds, model registry and download files, translations, site build, static server, tar reader, updater against a fake GitHub API |
+| `test.mjs` | CI checks: geometry smoke builds, model registry and download files, translations, site build, Cloudflare limits, static server, tar reader, updater against a fake GitHub API |
 | `server/server.mjs` | Static server + GitHub release updater (Node 22+, no dependencies) |
 | `server/Dockerfile`, `docker-compose.yml`, `.env.example` | Container for the home server |
-| `../.github/workflows/site.yml` | Push to `main` → test → build → release `site-<version>` with `site.tar.gz`; keeps the newest 10 |
+| `wrangler.json` | Cloudflare Worker `cad-site`: static files from `dist/` only, real 404s, no preview URLs ([CLOUD.md](CLOUD.md)) |
+| `../.github/workflows/site.yml` | Push to `main` → test → build → release `site-<version>` with `site.tar.gz` → deploy to Cloudflare (when the secret `CLOUDFLARE_API_TOKEN` is set); keeps the newest 10 releases |
 | `../.github/workflows/server-image.yml` | Changes in `server/` → test → `ghcr.io/jan1409/cad-site:latest` |
 
 ## Commands (from the repository root)

@@ -32,8 +32,9 @@ Printers: Prusa XL (360 × 360 mm bed) and Bambu Lab X1C with AMS (256 mm, colou
   label jig (`jig/`: UV printing jig for 10 label plates, xTool O1 Omni 330 × 420 mm)
 - `.venv/` – uv venv (`.venv/Scripts/python.exe`): numpy, trimesh, manifold3d, shapely, networkx, scipy, rtree, matplotlib, ezdxf
 - `Gridfinity/fusion/` – the Fusion port of the case: `build.py <XxYxZ>`, `validate.py`, `print_export.py` (see its README)
-- `site/` – generator website: overview page, `models.json` registry, `build.mjs`, `test.mjs`, self-updating server + Docker (see its README and DEPLOY.md)
-- `.github/workflows/` – `site.yml` (push to `main` → test → release `site-<version>`), `server-image.yml` (→ `ghcr.io/jan1409/cad-site`)
+- `site/` – generator website: overview page, `models.json` registry, `build.mjs`, `test.mjs`, self-updating server + Docker
+  (see its README and DEPLOY.md), Cloudflare Worker config `wrangler.json` (CLOUD.md)
+- `.github/workflows/` – `site.yml` (push to `main` → test → release `site-<version>` → Cloudflare deploy), `server-image.yml` (→ `ghcr.io/jan1409/cad-site`)
 - npm workspaces (`Gridfinity/web`, `Christmas/web`, `site`): run `npm install`, `npm test`, `npm run build` and `npm run serve` at the repo root; packages are hoisted to the root `node_modules`
 
 ## Fusion
@@ -109,6 +110,9 @@ Printers: Prusa XL (360 × 360 mm bed) and Bambu Lab X1C with AMS (256 mm, colou
   - Downloads need the `downloads` capability. Its allowlist has no STL/3MF, so offer a ZIP (fflate) plus SVG/MD.
 - Generator site (home server, `http://<server>:8642`): the GitHub repo is `jan1409/cad-projects` (private).
   - A push to `main` publishes a release, and the container installs it within 15 min (or via "Check for updates").
+  - From outside: the same build on the Cloudflare Worker `cad-site` (`https://cad-site.<subdomain>.workers.dev`, static files
+    only) behind Cloudflare Access (e-mail list, one-time code; free up to 50 users). `site.yml` deploys it after the release
+    when the secret `CLOUDFLARE_API_TOKEN` exists (`site/CLOUD.md`). Limits: 25 MiB per file, 20,000 files (`npm test` checks).
   - The overview page has sections (`site/sections.json`: Gridfinity, SKÅDIS models, Christmas; later SKÅDIS parametric); every
     `models.json` entry names its `section` and a `kind`: `generator` (default) or `download`.
   - A generator page needs a `<!--site:nav-->` marker in its `index.html` and must reference the shared libraries as

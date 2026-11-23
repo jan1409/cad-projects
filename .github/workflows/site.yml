@@ -1,5 +1,7 @@
 # Tests and builds the generator site on every push to main that touches it, then publishes it as the GitHub
 # release "site-<version>" with the asset site.tar.gz. The server container (site/server) installs the newest one.
+# With the secrets CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID it also deploys the build to the Cloudflare Worker
+# "cad-site" (site/wrangler.json), which sits behind Cloudflare Access (site/CLOUD.md).
 name: site
 
 on:
@@ -28,6 +30,9 @@ jobs:
   release:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -58,3 +63,10 @@ jobs:
           gh release list --limit 200 --json tagName,createdAt \
             --jq '[.[] | select(.tagName | startswith("site-"))] | sort_by(.createdAt) | reverse | .[10:] | .[].tagName' |
           while read -r tag; do gh release delete "$tag" --cleanup-tag --yes; done
+      # last, so the home server gets the release (and old ones are pruned) even when Cloudflare fails; skipped without the secret
+      - name: Deploy to Cloudflare
+        if: env.CLOUDFLARE_API_TOKEN != ''
+        env:
+          VERSION: ${{ steps.build.outputs.version }}
+          WRANGLER_SEND_METRICS: "false"
+        run: npx --yes wrangler@4.166.0 deploy --config site/wrangler.json --message "site $VERSION"

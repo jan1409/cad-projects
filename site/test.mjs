@@ -10,7 +10,9 @@
 //             used; build sheets render in both languages; Accept-Language of the server's waiting page
 //   build     the site builds; every relative URL in the pages and modules points at a file that exists; the files
 //             of download pages are there with the listed sizes
-//   server    static serving: MIME types, redirects, ETag/304, gzip, no path traversal or dot files
+//   cloud     the build fits the Cloudflare Worker (at most 25 MiB per file, 20,000 files) that wrangler.json deploys
+//             with real 404s and no unprotected preview hostnames (CLOUD.md)
+//   server   static serving: MIME types, redirects, ETag/304, gzip, no path traversal or dot files
 //   untar     archives made by the system tar unpack byte for byte; unsafe paths are refused
 //   updater   server.mjs against a fake GitHub API: first install, update, bad checksum, pruning, restart
 // Usage: node test.mjs [--skip-geometry] [--keep]
@@ -560,6 +562,21 @@ await step("site build", () => {
     }
   }
   assert.deepEqual(broken, [], "broken relative URLs");
+});
+
+// ---------------------------------------------------------------- cloud (Cloudflare Worker, CLOUD.md)
+await step("cloud: Cloudflare limits and wrangler.json", () => {
+  const files = walk(dist);
+  assert.ok(files.length <= 20_000, `${files.length} files: a free Worker takes at most 20,000`);
+  const big = files.filter((f) => fs.statSync(path.join(dist, f)).size > 25 * 1048576);
+  assert.deepEqual(big, [], "files over 25 MiB (the Worker's limit per file)");
+  const cfg = JSON.parse(fs.readFileSync(path.join(site, "wrangler.json"), "utf8"));
+  assert.equal(cfg.assets?.directory, "./dist", "wrangler.json must deploy site/dist");
+  // the overview hides its update panel only on a real 404 from api/status (no SPA fallback page)
+  assert.equal(cfg.assets?.not_found_handling, "none", "wrangler.json: not_found_handling must be none");
+  // Access protects the workers.dev hostname; preview URLs would be further hostnames
+  assert.equal(cfg.preview_urls, false, "wrangler.json: preview_urls must be false");
+  assert.equal(cfg.main, undefined, "wrangler.json: static files only, no Worker script");
 });
 
 // ---------------------------------------------------------------- server (static)

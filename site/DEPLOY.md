@@ -92,7 +92,7 @@ docker --version && docker compose version
    - Each generator page has an "← All models" link back to the overview.
 
 The port is not forwarded by your router, so the site is only reachable inside the local network. Keep it that way: the
-update button has no login.
+update button has no login. For access from outside, the same build runs on Cloudflare behind a login ([CLOUD.md](CLOUD.md)).
 
 ## 3. Day to day
 

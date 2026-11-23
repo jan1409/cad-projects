@@ -11,6 +11,8 @@ site/dist/
 
 # server secrets (site/server/.env.example is the template)
 .env
+# wrangler's temp folder (Cloudflare deploys, site/CLOUD.md)
+.wrangler/
 
 # design input (phone photos carry GPS positions in their EXIF data)
 _input/
