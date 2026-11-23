@@ -203,6 +203,24 @@
     ]
   },
   {
+    "id": "christmas-core-star",
+    "section": "christmas",
+    "title": { "en": "Parametric Christmas Star with Core", "de": "Parametrischer Weihnachtsstern mit Kern" },
+    "summary": {
+      "en": "The 26-point star as a snap-together version: a printed frame core and 25 points that print standing and click into its windows, no glue and no magnets. The top point comes in two halves for the cable and cord; a lamp plate takes an E10 battery LED or an E27 pendant lamp.",
+      "de": "Der Stern mit 26 Zacken als Steckversion: ein gedruckter Rahmenkern und 25 Zacken, die stehend gedruckt werden und in seine Fenster einrasten, ohne Kleber und ohne Magnete. Die obere Zacke besteht aus zwei Hälften für Kabel und Schnur; eine Lampenplatte nimmt eine E10-Batterie-LED oder ein E27-Lampenpendel auf."
+    },
+    "app": "../Christmas/web/corestar",
+    "modules": "../Christmas/web/src",
+    "spec": "../Christmas/spec/corestar_params.json",
+    "image": "../Christmas/web/corestar/card.png",
+    "facts": [
+      { "en": "{diameter.min}–{diameter.max} mm from tip to tip", "de": "{diameter.min}–{diameter.max} mm von Spitze zu Spitze" },
+      { "en": "Points print standing and snap into the core", "de": "Zacken drucken stehend und rasten im Kern ein" },
+      { "en": "STL per part, 3MF, build sheet, fit test", "de": "STL je Teil, 3MF, Bauanleitung, Passprobe" }
+    ]
+  },
+  {
     "id": "christmas-plug-star",
     "section": "christmas",
     "title": { "en": "Plug-Together Star", "de": "Steckstern" },

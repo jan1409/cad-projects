@@ -2,7 +2,8 @@
 
 Parametric Christmas models for the generator site (section `christmas`). Designed in SolidCraft, built in the
 browser. The tree comes as a 3MF whose multi-colour paint is already applied, for Bambu Studio, OrcaSlicer or
-PrusaSlicer; the Parametric Christmas Star as single-printed points with a lamp socket (E10 or E27); the Plug-Together
+PrusaSlicer; the Parametric Christmas Star as single-printed points with a lamp socket (E10 or E27), held by magnets, and as a
+second version with a printed core the points snap into; the Plug-Together
 Star ("Steckstern") as single-coloured points that click onto a hidden connector, its 3MF painted per point.
 
 ## Layout
@@ -14,16 +15,21 @@ Star ("Steckstern") as single-coloured points that click onto a hidden connector
   `christmas_star.sc` is a snapshot of `Christmas_star_v1.sc`, `e27_nut.sc` of `Christmas_star_e27_nut.sc` (the fixed
   nut; its STL is `web/star/e27_nut.stl`); run `star_check.mjs` after a change. `plug_star.sc` is a snapshot of
   `Plug_star_v1.sc` (the plug-together star); run `plugstar_check.mjs` after a change.
+  `christmas_star_core.sc` is a snapshot of `Christmas_star_core_v1.sc` (the star with core), built by the scripts in
+  `core_gen/` (SolidCraft command scripts, run with `batch {path}`); run `corestar_check.mjs` after a change.
 - `spec/` – `tree_spec.md` (equations, the decoded paint rule, the 3MF format), `tree_params.json` (site spec);
   `star_spec.md` (geometry, lamps with sources, checks), `star_params.json` (site spec, lamp table);
-  `plugstar_spec.md` (bipyramid points, snap connector, checks), `plugstar_params.json` (site spec).
+  `plugstar_spec.md` (bipyramid points, snap connector, checks), `plugstar_params.json` (site spec);
+  `corestar_spec.md` (core, snaps, top window, lamps, limits, checks), `corestar_params.json` (site spec, lamp table).
 - `reference/` – `tree_paint_reference.json` (the colour runs of Jan's print, sliced by hand) and
   `bambu_x1c_2pla_project_settings.config` (the complete Bambu Studio settings of that print, used to slice test
   files with the Bambu/Orca CLI).
 - `web/` – npm workspace: `src/tree.js` (geometry, build sheet), `src/paint3mf.js` (band split, paint, 3MF/STL
   writers, no kernel; several objects per 3MF), `src/star.js` (star parts, layout, lamp checks, build sheet),
   `src/plugstar.js` (plug-together star: points, connector, layout, painted plate, build sheet),
-  `src/strings.js` (en/de, `tree.*`, `star.*` and `plugstar.*`), `tree/`, `star/` and `plugstar/` (page, app, worker,
+  `src/corestar.js` (star with core: core, points, lamp plate, top point, limits, build sheet),
+  `src/strings.js` (en/de, `tree.*`, `star.*`, `plugstar.*` and `corestar.*`), `tree/`, `star/`, `plugstar/` and
+  `corestar/` (page, app, worker,
   `card.png`), `node/` (tools below).
 - `export/` – git-ignored output.
 
@@ -54,8 +60,18 @@ node Christmas/web/node/star_lamps.mjs [--write]   # smallest star per lamp (a_l
 node Christmas/web/node/star_card.mjs          # card.png: SolidCraft render of the assembled star
 ```
 
+Star with core: SolidCraft `.sc` (from `solidcraft/core_gen/`) → JS port (`src/corestar.js`) → STL per part, 3MF,
+build sheet, fit test (the core's top with real bridges, short points with three snap preloads).
+
+```
+node Christmas/web/node/corestar_check.mjs    # JS vs solidcraft-cli, 12 sets x 7 bodies, exact booleans (local only)
+node Christmas/web/node/corestar_build.mjs [diameter=550 slenderness=3 lamp=e27_p45 wall=0.9 fit=0.2 snap=0.2] [--assembly] [--out dir]
+node Christmas/web/node/corestar_build.mjs --sweep
+node Christmas/web/node/corestar_card.mjs      # card.png: SolidCraft render of the assembled star
+```
+
 `npm test` (CI) builds the smallest, default and largest tree for every top and one without bands, the default star,
-every lamp at its smallest star and the largest star, four plug-together stars (default, two corners at their smallest
+every lamp at its smallest star and the largest star, the same for the star with core, four plug-together stars (default, two corners at their smallest
 diameter, the largest without the hanging hole), and checks the texts.
 
 Plug-together star: SolidCraft `.sc` → JS port (`src/plugstar.js`) → STL per part, a 3MF with every point painted in

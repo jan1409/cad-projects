@@ -148,6 +148,25 @@ if (!args.includes("--skip-geometry")) {
       });
     }
   }
+  // Christmas star with core: the default star, every lamp at its smallest star, the largest star and the smallest
+  // star with the long points; the lamp fits, every part is closed, stands on z = 0 and is as tall as computed, the 3MF
+  // reads back (Christmas/web/node/corestar_build.mjs)
+  {
+    const coreSpec = JSON.parse(fs.readFileSync(path.join(root, "Christmas/spec/corestar_params.json"), "utf8"));
+    const { minDiameter: coreMin } = await import("../Christmas/web/src/corestar.js");
+    const CP = coreSpec.parameters, coreDefaults = Object.fromEntries(Object.entries(CP).map(([k, p]) => [k, p.default]));
+    const cfgs = [[], ...CP.lamp.options.map(([lamp]) => [`lamp=${lamp}`, `diameter=${coreMin(coreSpec, coreDefaults, lamp)}`]),
+      [`diameter=${CP.diameter.max}`, `slenderness=${CP.slenderness.min}`, `wall=${CP.wall.max}`, `fit=${CP.fit.min}`, `snap=${CP.snap.max}`, "lamp=e27_a60"],
+      ["lamp=e10_sleeve", `slenderness=${CP.slenderness.max}`, `diameter=${coreMin(coreSpec, { ...coreDefaults, slenderness: CP.slenderness.max }, "e10_sleeve")}`,
+        `wall=${CP.wall.min}`, `fit=${CP.fit.max}`, `snap=${CP.snap.min}`]];
+    for (const cfg of cfgs) {
+      await step(`geometry Christmas star with core ${cfg.join(" ") || "default"}`, () => {
+        const out = execFileSync(process.execPath, [path.join(root, "Christmas/web/node/corestar_build.mjs"), ...cfg], { encoding: "utf8", maxBuffer: 1 << 26 });
+        const row = out.split("\n").find((l) => l.startsWith("|"));
+        assert.ok(row?.endsWith("| ok |"), row ?? out);
+      });
+    }
+  }
   // Plug-together star: the default star, the corners of points x tip angle x thickness at their smallest buildable
   // diameter, the largest star without the hanging hole; every part closed and on z = 0, the painted 3MF reads back
   // (Christmas/web/node/plugstar_build.mjs)
@@ -364,6 +383,18 @@ await step("translations", async () => {
     text(lamp.label, `star_params.json lamp ${k} label`);
     text(lamp.help, `star_params.json lamp ${k} help`);
   }
+  const coreSpec = JSON.parse(fs.readFileSync(path.join(root, "Christmas/spec/corestar_params.json"), "utf8"));
+  text(coreSpec.title, "corestar_params.json title");
+  for (const [k, p] of Object.entries(coreSpec.parameters)) {
+    text(p.label, `corestar_params.json ${k} label`);
+    text(p.help, `corestar_params.json ${k} help`);
+    for (const [o, label] of p.options ?? []) text(label, `corestar_params.json ${k} option ${o}`);
+  }
+  for (const [k, lamp] of Object.entries(coreSpec.lamps)) {
+    if (k.startsWith("_")) continue;
+    text(lamp.label, `corestar_params.json lamp ${k} label`);
+    text(lamp.help, `corestar_params.json lamp ${k} help`);
+  }
   const plugSpec = JSON.parse(fs.readFileSync(path.join(root, "Christmas/spec/plugstar_params.json"), "utf8"));
   text(plugSpec.title, "plugstar_params.json title");
   for (const [k, p] of Object.entries(plugSpec.parameters)) {
@@ -374,7 +405,7 @@ await step("translations", async () => {
   // keys are only written as literals: "ns.key" in the code, data-i18n="key" and data-i18n-attr="attr:key;…" in pages
   const keysIn = (rel) => {
     const s = fs.readFileSync(path.join(root, rel), "utf8"), keys = new Set();
-    for (const m of s.matchAll(/["'](?:site|portal|update|common|case|box|plate|tool|jig|sheet|dl|tree|star|plugstar)\.[A-Za-z]\w*["']/g)) keys.add(m[0].slice(1, -1));
+    for (const m of s.matchAll(/["'](?:site|portal|update|common|case|box|plate|tool|jig|sheet|dl|tree|star|plugstar|corestar)\.[A-Za-z]\w*["']/g)) keys.add(m[0].slice(1, -1));
     for (const [, attr] of s.matchAll(/data-i18n-attr="([^"]+)"/g)) for (const pair of attr.split(";")) keys.add(pair.split(":")[1].trim());
     return [...keys].filter((k) => !/\.(m?js|json|html|css|md|png)$/.test(k)); // not file names like "portal.js"
   };
@@ -384,7 +415,7 @@ await step("translations", async () => {
       ...files("Gridfinity/web/src", /\.js$/).filter((f) => !f.endsWith("strings.js"))],
     portal: ["site/portal/index.html", "site/portal/portal.js"],
     dl: files("site/download", /^(index\.html|.*\.js)$/).filter((f) => !f.endsWith("strings.js")),
-    tree: [...files("Christmas/web/tree", /^(index\.html|.*\.js)$/), ...files("Christmas/web/star", /^(index\.html|.*\.js)$/), ...files("Christmas/web/plugstar", /^(index\.html|.*\.js)$/),
+    tree: [...files("Christmas/web/tree", /^(index\.html|.*\.js)$/), ...files("Christmas/web/star", /^(index\.html|.*\.js)$/), ...files("Christmas/web/plugstar", /^(index\.html|.*\.js)$/), ...files("Christmas/web/corestar", /^(index\.html|.*\.js)$/),
       ...files("Christmas/web/src", /\.js$/).filter((f) => !f.endsWith("strings.js"))], // the Christmas pages' texts
     site: ["site/build.mjs"], // the nav bar
   };
@@ -453,6 +484,18 @@ await step("translations", async () => {
       if (bad) problems.push(`star sheet ${i} (${l}): "${bad[0]}"`);
     });
     sout.de.forEach((s, i) => { if (s === sout.en[i]) problems.push(`star sheet ${i}: German = English`); });
+  }
+  { // Christmas star with core build sheets: every lamp at its smallest star
+    const { coreEnv, coreBuildSheet, minDiameter } = await import("../Christmas/web/src/corestar.js");
+    const defaults = Object.fromEntries(Object.entries(coreSpec.parameters).map(([k, p]) => [k, p.default]));
+    const cases = coreSpec.parameters.lamp.options.map(([lamp]) => ({ ...defaults, lamp, diameter: minDiameter(coreSpec, defaults, lamp) }));
+    const csheets = (l) => cases.map((inp) => coreBuildSheet(coreEnv(coreSpec, inp), "Star", coreSpec.printers, translator(treeStrings, l), (part) => `${part}.stl`));
+    const cout = Object.fromEntries(LANGS.map((l) => [l, csheets(l)]));
+    for (const l of LANGS) cout[l].forEach((s, i) => {
+      const bad = /undefined|NaN|\[object|\{\w+(?::\d)?\}|\bcorestar\.[a-z]\w*/.exec(s);
+      if (bad) problems.push(`core star sheet ${i} (${l}): "${bad[0]}"`);
+    });
+    cout.de.forEach((s, i) => { if (s === cout.en[i]) problems.push(`core star sheet ${i}: German = English`); });
   }
   { // plug-together star build sheets: with and without the hanging hole, every slicer
     const { plugEnv, plugBuildSheet, defaultAssign } = await import("../Christmas/web/src/plugstar.js");
